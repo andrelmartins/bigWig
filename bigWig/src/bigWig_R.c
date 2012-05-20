@@ -70,13 +70,21 @@ static void bigwig_finalizer(SEXP ptr) {
   R_ClearExternalPtr(ptr); /* not really necessary */
 }
 
-SEXP bigWig_load(SEXP filename) {
+SEXP bigWig_load(SEXP filename, SEXP udcDir) {
   SEXP ans, ans_names, ptr;
   bigWig_t * bigwig = NULL;
   struct errCatch * err;
   struct bbiSummaryElement sum;
+  const char * cache = NULL;
 
   PROTECT(filename = AS_CHARACTER(filename));
+  if (udcDir != R_NilValue) {
+    PROTECT(udcDir = AS_CHARACTER(udcDir));
+    cache = CHAR(STRING_ELT(udcDir, 0));
+    if (cache != NULL)
+      udcSetDefaultDir(cache);
+    UNPROTECT(1);
+  }
 
   /* load bigWig */
   err = errCatchNew();
@@ -158,4 +166,8 @@ SEXP bigWig_unload(SEXP obj) {
   UNPROTECT(1);
 
   return R_NilValue;
+}
+
+SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end) {
+  
 }

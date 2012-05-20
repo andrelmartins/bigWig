@@ -2,8 +2,8 @@
 # R interface
 #
 
-load.bigWig <- function(filename) {
-  res = .Call("bigWig_load", filename)
+load.bigWig <- function(filename, udcDir=NULL) {
+  res = .Call("bigWig_load", filename, udcDir)
   class(res) <- "bigWig"
   return(res)
 }
