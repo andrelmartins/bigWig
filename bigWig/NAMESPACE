@@ -1,0 +1,4 @@
+useDynLib(bigwig)
+export(load.bigWig)
+export(unload.bigWig)
+
