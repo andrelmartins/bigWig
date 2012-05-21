@@ -12,7 +12,9 @@
 #include "obscure.h"
 #include "errCatch.h"
 #include "hmmstats.h"
+#include "localmem.h"
 
+#include <string.h>
 #include <R.h>
 #include <Rdefines.h>
 
@@ -82,7 +84,8 @@ SEXP bigWig_load(SEXP filename, SEXP udcDir) {
     PROTECT(udcDir = AS_CHARACTER(udcDir));
     cache = CHAR(STRING_ELT(udcDir, 0));
     if (cache != NULL)
-      udcSetDefaultDir(cache);
+      udcSetDefaultDir(strdup(cache)); /* this causes a memory leak
+					  but it's a small one ... */
     UNPROTECT(1);
   }
 
@@ -169,5 +172,57 @@ SEXP bigWig_unload(SEXP obj) {
 }
 
 SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end) {
-  
+  SEXP ptr, res = R_NilValue;
+  bigWig_t * bigwig;
+
+  PROTECT(chrom = AS_CHARACTER(chrom));
+  PROTECT(start = AS_INTEGER(start));
+  PROTECT(end = AS_INTEGER(end));
+  PROTECT(ptr = GET_ATTR(obj, install("handle_ptr")));
+  if (ptr == R_NilValue)
+    error("invalid bigWig object");
+
+  bigwig = R_ExternalPtrAddr(ptr);
+  if (bigwig == NULL) {
+    error("bigWig object has been unloaded");
+  } else {
+    struct lm * localMem = lmInit(0); /* use default value */
+    struct bbiInterval * intervals 
+      = bigWigIntervalQuery(bigwig,
+			    (char*) CHAR(STRING_ELT(chrom, 0)),
+			    INTEGER(start)[0],
+			    INTEGER(end)[0],
+			    localMem);
+
+    /* convert result into an R matrix */
+    int nIntervals = slCount(intervals);
+    
+    if (nIntervals > 0) {
+      int nx, ny;
+      double * mptr;
+      struct bbiInterval * interval;  
+      int i;
+      nx = nIntervals;
+      ny = 3;
+      PROTECT(res = allocMatrix(REALSXP, nx, ny));
+      mptr = REAL(res);
+
+      for (i = 0, interval = intervals; 
+	   interval != NULL; 
+	   interval = interval->next, i++) {
+	mptr[i] = (double) interval->start;
+	mptr[i + nx] = (double) interval->end;
+	mptr[i + nx*2] = interval->val;
+      }
+
+      UNPROTECT(1);
+    }
+
+    /* clean-up */
+    lmCleanup(&localMem);
+  }
+
+  UNPROTECT(4);
+
+  return res;
 }

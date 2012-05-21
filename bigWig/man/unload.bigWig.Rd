@@ -2,17 +2,13 @@
 \alias{unload.bigWig}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Unload bigWig Files}
-\description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
+\description{Release memory associated with the bigWig object.}
 \usage{
 unload.bigWig(bigWig)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{bigWig}{
-%%     ~~Describe \code{bigWig} here~~
-}
+  \item{bigWig}{a bigWig object}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
@@ -27,18 +23,14 @@ unload.bigWig(bigWig)
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
+\author{André Luís Martins
 %%  ~~who you are~~
 }
-\note{
-%%  ~~further notes~~
-}
+\note{}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
+\seealso{See \code{\link{load.bigWig}} to load a bigWig.}
 \examples{
 ##---- Should be DIRECTLY executable !! ----
 ##-- ==>  Define data, use random,
@@ -52,5 +44,6 @@ function (bigWig)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{ bigwig }
+\keyword{ unload }
+\keyword{ free }

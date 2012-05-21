@@ -1,7 +1,7 @@
 \name{load.bigWig}
 \alias{load.bigWig}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Load bigWig files}
+\title{Load bigWig Files}
 \description{Load UCSC bigWig files. Only the file header is loaded into
   memory, enough to perform subsequent queries. As with bigWig command
   line tools, the file can be on a remote server.}
