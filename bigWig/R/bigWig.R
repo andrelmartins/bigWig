@@ -3,18 +3,21 @@
 #
 
 load.bigWig <- function(filename, udcDir=NULL) {
-  res = .Call("bigWig_load", filename, udcDir)
+  res = .Call(bigWig_load, filename, udcDir)
   class(res) <- "bigWig"
   return(res)
 }
 
 unload.bigWig <- function(bigWig) {
-  invisible(.Call("bigWig_unload", bigWig))
+  invisible(.Call(bigWig_unload, bigWig))
 }
 
 query.bigWig <- function(bigWig, chrom, start, end) {
-  res <- .Call("bigWig_query", bigWig, chrom, start, end)
-  colnames(res) <- c("start", "end", "value")
+  if (!any(bigWig$chroms == chrom))
+    warning("bigWig does not contain information on chromosome: ", chrom)
+  res <- .Call(bigWig_query, bigWig, chrom, start, end)
+  if (!is.null(res))
+    colnames(res) <- c("start", "end", "value")
   return(res)
 }
 
