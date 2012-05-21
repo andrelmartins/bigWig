@@ -226,3 +226,104 @@ SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end) {
 
   return res;
 }
+
+/*
+  Query version to speed up meta-plots
+*/
+SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step) {
+  SEXP ptr, res = R_NilValue;
+  bigWig_t * bigwig;
+
+  PROTECT(chrom = AS_CHARACTER(chrom));
+  PROTECT(start = AS_INTEGER(start));
+  PROTECT(end = AS_INTEGER(end));
+  PROTECT(step = AS_INTEGER(step));
+  PROTECT(ptr = GET_ATTR(obj, install("handle_ptr")));
+  if (ptr == R_NilValue)
+    error("invalid bigWig object");
+
+  bigwig = R_ExternalPtrAddr(ptr);
+  if (bigwig == NULL) {
+    error("bigWig object has been unloaded");
+  } else {
+    int istart = INTEGER(start)[0];
+    int iend = INTEGER(end)[0];
+    int istep = INTEGER(step)[0];
+    struct lm * localMem = lmInit(0); /* use default value */
+    struct bbiInterval * intervals 
+      = bigWigIntervalQuery(bigwig,
+			    (char*) CHAR(STRING_ELT(chrom, 0)),
+			    istart,
+			    iend,
+			    localMem);
+
+    /* convert result into an R matrix */
+    int nIntervals = slCount(intervals);
+    
+    if (nIntervals > 0) {
+      int size = (iend - istart)/istep;
+      struct bbiInterval * interval;
+      int count = 0;
+      double sum = 0.0;
+      double left, right;
+      int idx;
+
+      PROTECT(res = NEW_NUMERIC(size));
+
+      /* init to zero */
+      for (idx = 0; idx < size; ++idx)
+	REAL(res)[idx] = 0.0;
+
+      left = istart;
+      right = istart + istep;
+      idx = 0;
+      for (interval = intervals; interval != NULL; interval = interval->next) {
+	/* interval starts beyond current step */
+	if (((double)interval->start) >= right) {
+	  /* save current value */
+	  if (count > 0)
+	    REAL(res)[idx] = sum / count;
+
+	  count = 0;
+	  sum = 0.0;
+	  while (idx < size && ((double)interval->start) >= right) {
+	    ++idx;
+	    left += istep;
+	    right += istep;
+	  }
+	}
+
+	/* interval starts at or before the current step */
+	if (((double)interval->start) < right) {
+	  sum += interval->val;
+	  ++count;
+	}
+
+	/* interval ends beyond the current step */
+	if (((double)interval->end) > right) {
+	  do {
+	    /* save current step */
+	    if (count > 0)
+	      REAL(res)[idx] = sum/count;
+	    
+	    ++idx;
+	    left += istep;
+	    right += istep;
+	    
+	    count = 1;
+	    sum = interval->val;
+	  } while (idx < size && ((double)interval->end > right));
+	}
+      }
+
+      UNPROTECT(1);
+    }
+
+    /* clean-up */
+    lmCleanup(&localMem);
+  }
+
+  UNPROTECT(5);
+
+  return res;
+}

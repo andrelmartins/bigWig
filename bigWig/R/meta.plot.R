@@ -4,13 +4,10 @@
 # Adapted by Andre Martins
 
 collect.counts <- function(bigWig, chrom, start, end, step) {
-  size = (end - start) %/% step
-  sapply(seq(start, start + size*step - 1, step), function(left) {
-    data = query.bigWig(bigWig, chrom, left, left + step - 1)
-    if (is.null(data))
-      return(0)
-    return(mean(data[,3]))
-  })
+  res <- .Call(bigWig_query_by_step, bigWig, chrom, start, end, step)
+  if (is.null(res))
+    return(0)
+  return(res)
 }
 
 

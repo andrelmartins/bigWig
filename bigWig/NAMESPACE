@@ -1,4 +1,4 @@
-useDynLib(bigwig, bigWig_load, bigWig_unload, bigWig_query)
+useDynLib(bigwig, bigWig_load, bigWig_unload, bigWig_query, bigWig_query_by_step)
 export(load.bigWig)
 export(unload.bigWig)
 export(query.bigWig)
