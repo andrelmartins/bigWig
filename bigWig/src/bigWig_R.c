@@ -315,6 +315,8 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step)
 	  } while (idx < size && ((double)interval->end > right));
 	}
       }
+      if (count > 0)
+	REAL(res)[idx] = sum/count;
 
       UNPROTECT(1);
     }
