@@ -85,7 +85,7 @@ meta.subsample <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step) {
   return(list(result, ci9,ci1,ci5))
 }
 
-meta.plot <- function(result, step, ylab="Signal", main=NULL, ylim=NULL) {
+meta.plot <- function(result, step, xlab="Distance to center (bp)", ylab="Signal", main=NULL, ylim=NULL, ...) {
   N = length(result[[4]])
   x = ((1:N) - N/2)* step
 
@@ -94,7 +94,7 @@ meta.plot <- function(result, step, ylab="Signal", main=NULL, ylim=NULL) {
     ylim = c(min(result[[2]], result[[3]], result[[4]]), max(result[[2]], result[[3]], result[[4]]))
 
   # establish plot area
-  plot(x, result[[4]], type="l", col="red", lwd=3, xlab="Distance to center (bp)", ylab=ylab, ylim=ylim, main=main)
+  plot(x, result[[4]], type="l", col="red", lwd=3, xlab=xlab, ylab=ylab, ylim=ylim, main=main, ...)
 
   # draw shade area
   polygon(c(x, rev(x)), c(result[[2]], rev(result[[3]])), col="lightgrey", border=NA)
@@ -104,7 +104,7 @@ meta.plot <- function(result, step, ylab="Signal", main=NULL, ylim=NULL) {
 }
 
 
-meta.plot.GROseq <- function(result.plus, result.minus, step, ylab="Average Reads", main=NULL, ylim = NULL) {
+meta.plot.GROseq <- function(result.plus, result.minus, step, xlab="Distance to center (bp)", ylab="Average Reads", main=NULL, ylim = NULL, ...) {
   N = length(result.plus[[4]])
   x = ((1:N) - N/2)* step
 
@@ -113,7 +113,7 @@ meta.plot.GROseq <- function(result.plus, result.minus, step, ylab="Average Read
     ylim = c(min(-result.minus[[2]], -result.minus[[3]], -result.minus[[4]]), max(result.plus[[2]], result.plus[[3]], result.plus[[4]]))
 
   # establish plot area
-  plot(x, result.plus[[4]], type="l", col="red", lwd=3, xlab="Distance to center (bp)", ylab=ylab, ylim=ylim, main=main)
+  plot(x, result.plus[[4]], type="l", col="red", lwd=3, xlab=xlab, ylab=ylab, ylim=ylim, main=main, ...)
 
   # draw shade area
   polygon(c(x, rev(x)), c(result.plus[[2]], rev(result.plus[[3]])), col=colors()[419], border=NA)

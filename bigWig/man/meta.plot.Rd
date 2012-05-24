@@ -13,10 +13,9 @@ meta.accum(bed, bigWig.plus, bigWig.minus, halfWindow, step)
 
 meta.subsample(bed, bigWig.plus, bigWig.minus, halfWindow, step)
 
-meta.plot(result, step, ylab="Signal", main=NULL, ylim=NULL)
+meta.plot(result, step, xlab="Distance to center (bp)", ylab="Signal", main=NULL, ylim=NULL, ...)
 
-meta.plot.GROseq(result.plus, result.minus, step, ylab="Average Reads",
-main=NULL, ylim = NULL)
+meta.plot.GROseq(result.plus, result.minus, step, xlab="Distance to center (bp)", ylab="Average Reads", main=NULL, ylim = NULL, ...)
 
 meta.normalize(result, scaleFactor)
 }
@@ -44,7 +43,9 @@ meta.normalize(result, scaleFactor)
   \item{main}{meta plot title}
   \item{ylim}{specify to force a range on the y axis, otherwise scaled
     to fit data}
+  \item{xlab}{label of the x axis}
   \item{ylab}{label of the y axis}
+  \item{...}{additional parameters passed to the main plot function.}
 }
 
 \details{
