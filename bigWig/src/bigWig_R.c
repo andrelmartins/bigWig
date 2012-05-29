@@ -277,7 +277,7 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step)
       left = istart;
       right = istart + istep;
       idx = 0;
-      for (interval = intervals; interval != NULL; interval = interval->next) {
+      for (interval = intervals; interval != NULL && idx < size; interval = interval->next) {
 	/* interval starts beyond current step */
 	if (((double)interval->start) >= right) {
 	  /* save current value */
@@ -300,7 +300,7 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step)
 	}
 
 	/* interval ends beyond the current step */
-	if (((double)interval->end) > right) {
+	if (((double)interval->end) > right && idx < size) {
 	  do {
 	    /* save current step */
 	    if (count > 0)
@@ -310,12 +310,12 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step)
 	    left += istep;
 	    right += istep;
 	    
-	    count = 1;
+	    count = (((double) interval->end > right) ? 1 : 0);
 	    sum = interval->val;
 	  } while (idx < size && ((double)interval->end > right));
 	}
       }
-      if (count > 0)
+      if (count > 0 && idx < size)
 	REAL(res)[idx] = sum/count;
 
       UNPROTECT(1);
