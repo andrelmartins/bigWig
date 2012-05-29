@@ -32,7 +32,8 @@ query.bigWig(bigWig, chrom, start, end)
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{See \code{\link{load.bigWig}} to load a bigWig.}
+\seealso{See \code{\link{load.bigWig}} to load a bigWig. See
+  \code{\link{bedQuery.bigWig}} to query a BED file.}
 
 \examples{
 ##---- Should be DIRECTLY executable !! ----

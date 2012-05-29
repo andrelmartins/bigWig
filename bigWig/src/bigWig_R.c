@@ -329,3 +329,205 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step)
 
   return res;
 }
+
+#define MODE_MAX 0
+#define MODE_MIN 1
+#define MODE_SUM 2
+#define MODE_AVG 3
+
+static int aggregator_to_mode(const char * aggregator) {
+  if (!strcmp("max", aggregator))
+    return MODE_MAX;
+  if (!strcmp("min", aggregator))
+    return MODE_MIN;
+  if (!strcmp("sum", aggregator))
+    return MODE_SUM;
+  if (!strcmp("mean", aggregator))
+    return MODE_AVG;
+
+  error("unknown aggregator value: %s", aggregator);
+  return -1;
+}
+
+SEXP bigWig_bed_query(SEXP bed, SEXP bwPlus, SEXP bwMinus, SEXP gapValue, SEXP weighted, SEXP aggregator) {
+  SEXP ptr, res = R_NilValue;
+  bigWig_t * bigwig_plus, * bigwig_minus;
+
+  double gap_value = 0;
+  int has_gapvalue = 0;
+  int is_weighted = 0;
+  int mode = MODE_SUM;
+  int protect_count = 0;
+  int i, N;
+
+  SEXP chroms, starts, ends, strands;
+  int has_strand = 0;
+
+  struct lm * localMem;
+  struct bbiInterval * intervals;
+
+  //PROTECT(bed = AS_LIST(chrom)); /* a data frame is just a list :) */
+  PROTECT(bed);
+  
+  chroms = VECTOR_ELT(bed, 0);
+  if (!isFactor(chroms) && TYPEOF(chroms) != STRSXP)
+    error("first column of bed file must be a factor or character vector");
+
+  PROTECT(starts = AS_INTEGER(VECTOR_ELT(bed, 1)));
+  PROTECT(ends = AS_INTEGER(VECTOR_ELT(bed, 2)));
+
+  if (length(bed) >= 6) {
+    has_strand = 1;
+    strands = VECTOR_ELT(bed, 5);
+
+    if (!isFactor(strands) && TYPEOF(strands) != STRSXP)
+      error("sixth column of bed file must be a factor or character vector");
+  }
+
+  /* options */
+  if (gapValue != R_NilValue) {
+    has_gapvalue = 1;
+    PROTECT(gapValue = AS_NUMERIC(gapValue));
+    gap_value = REAL(gapValue)[0];
+    UNPROTECT(1);
+  }
+
+  PROTECT(weighted = AS_LOGICAL(weighted));
+  if (LOGICAL(weighted)[0] == TRUE)
+    is_weighted = 1;
+
+  PROTECT(aggregator = AS_CHARACTER(aggregator));
+  mode = aggregator_to_mode(CHAR(STRING_ELT(aggregator, 0)));
+
+
+  /* Plus is mandatory */
+  PROTECT(ptr = GET_ATTR(bwPlus, install("handle_ptr")));
+  if (ptr == R_NilValue)
+    error("invalid bigWig object");
+
+  protect_count = 6;
+
+  /* bigwig files */
+  bigwig_plus = R_ExternalPtrAddr(ptr);
+  if (bigwig_plus == NULL)
+    error("bigWig plus object has been unloaded");
+  
+  /* Minus is optional */
+  if (bwMinus == R_NilValue) {
+    bigwig_minus = NULL;
+    if (has_strand == 1) {
+      has_strand = 0;
+      warning("bed has strand column but no 'minus' bigWig supplied");
+    }
+  } else {
+    PROTECT(ptr = GET_ATTR(bwMinus, install("handle_ptr")));
+    if (ptr == R_NilValue)
+      error("invalid bigWig object");
+
+    /* bigwig files */
+    bigwig_minus = R_ExternalPtrAddr(ptr);
+    if (bigwig_minus == NULL)
+      error("bigWig minus object has been unloaded");
+
+    ++protect_count;
+  }
+
+  /* parse inputs */
+  N = length(chroms);
+  PROTECT(res = NEW_NUMERIC(N));
+  ++protect_count;
+  
+  localMem = lmInit(0); /* use default value */
+
+  for (i = 0; i < N; ++i) {
+    /* collect chrom, start, end, strand (if any) */
+    const char * chrom;
+    char strand = '+';
+    int start = INTEGER(starts)[i];
+    int end = INTEGER(ends)[i];
+    bigWig_t * bigwig;
+    int nIntervals;
+
+    if (isFactor(chroms)) {
+      int idx = INTEGER(chroms)[i] - 1;
+      chrom = CHAR(STRING_ELT(GET_LEVELS(chroms), idx));
+    } else
+      chrom = CHAR(STRING_ELT(chroms, i));
+
+    if (has_strand == 1) {
+      if (isFactor(strands)) {
+	int idx = INTEGER(strands)[i] - 1;
+	strand = CHAR(STRING_ELT(GET_LEVELS(strands), idx))[0];
+      } else
+	strand = CHAR(STRING_ELT(strands, i))[0];
+    }
+
+    if (strand == '+')
+      bigwig = bigwig_plus;
+    else
+      bigwig = bigwig_minus;
+
+    /* do query */
+    intervals = bigWigIntervalQuery(bigwig, chrom, start, end, localMem);
+    nIntervals = slCount(intervals);
+
+    /* walk over data (depending on mode, weighted) */
+    if (nIntervals > 0) {
+      double accum;
+      double weight = 1;
+      double covered = 0;
+      struct bbiInterval * interval = intervals;
+      
+      /* get first value */
+      if (mode == MODE_MIN && mode == MODE_MAX)
+	accum = interval->val;
+      else {
+	if (mode == MODE_AVG && is_weighted == 1)
+	  weight = (double) (interval->end - interval->start);
+	covered = (interval->end - interval->start);
+
+	accum = weight * interval->val;
+      }
+
+      for (interval = interval->next; interval != NULL; interval = interval->next) {
+	if (mode == MODE_MIN) {
+	  if (accum > interval->val)
+	    accum = interval->val;
+	} else if (mode == MODE_MAX) {
+	  if (accum < interval->val)
+	    accum = interval->val;
+	} else {
+	  if (mode == MODE_AVG && is_weighted == 1)
+	    weight = (double) (interval->end - interval->start);
+	  covered += (interval->end - interval->start);
+
+	  accum += weight * interval->val;
+	}
+      }
+
+      /* add gap value if weighted */
+      if (mode == MODE_AVG && has_gapvalue == 1 && is_weighted == 1)
+	accum += ((end - start) - covered) * gap_value;
+
+      /* store result */
+      if (mode == MODE_AVG) {
+	if (is_weighted == 1)
+	  REAL(res)[i] = accum / ((double) (end - start));
+	else
+	  REAL(res)[i] = accum / nIntervals;
+      } else
+	REAL(res)[i] = accum;
+
+    } else if (has_gapvalue == 1)
+      REAL(res)[i] = gap_value;
+    else
+      REAL(res)[i] = NA_REAL;
+  }
+
+  lmCleanup(&localMem);
+
+  /* clean up */
+  UNPROTECT(protect_count);
+
+  return res;
+}

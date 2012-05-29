@@ -45,3 +45,8 @@ print.bigWig <- function(x, ...) {
   cat(" max: ", x$max, "\n")
   cat(" std: ", x$std, "\n")
 }
+
+bedQuery.bigWig <- function(bed, bwPlus, bwMinus = NULL, gapValue = NULL, weighted = F, aggregator = "sum") {
+  return(.Call(bigWig_bed_query, bed, bwPlus, bwMinus, gapValue, weighted, aggregator))
+}
+
