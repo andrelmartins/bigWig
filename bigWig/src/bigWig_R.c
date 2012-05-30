@@ -230,9 +230,14 @@ SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end) {
 /*
   Query version to speed up meta-plots
 */
-SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step) {
+SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step, SEXP doSum) {
   SEXP ptr, res = R_NilValue;
   bigWig_t * bigwig;
+  int do_sum = 0;
+
+  PROTECT(doSum = AS_LOGICAL(doSum));
+  if (LOGICAL(doSum)[0] == TRUE)
+    do_sum = 1;
 
   PROTECT(chrom = AS_CHARACTER(chrom));
   PROTECT(start = AS_INTEGER(start));
@@ -281,8 +286,12 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step)
 	/* interval starts beyond current step */
 	if (((double)interval->start) >= right) {
 	  /* save current value */
-	  if (count > 0)
-	    REAL(res)[idx] = sum / count;
+	  if (count > 0) {
+	    if (do_sum == 1)
+	      REAL(res)[idx] = sum;
+	    else
+	      REAL(res)[idx] = sum / count;
+	  }
 
 	  count = 0;
 	  sum = 0.0;
@@ -303,8 +312,12 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step)
 	if (((double)interval->end) > right && idx < size) {
 	  do {
 	    /* save current step */
-	    if (count > 0)
-	      REAL(res)[idx] = sum/count;
+	    if (count > 0) {
+	      if (do_sum == 1)
+		REAL(res)[idx] = sum;
+	      else
+		REAL(res)[idx] = sum/count;
+	    }
 	    
 	    ++idx;
 	    left += istep;
@@ -315,8 +328,12 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step)
 	  } while (idx < size && ((double)interval->end > right));
 	}
       }
-      if (count > 0 && idx < size)
-	REAL(res)[idx] = sum/count;
+      if (count > 0 && idx < size) {
+	if (do_sum == 1)
+	  REAL(res)[idx] = sum;
+	else
+	  REAL(res)[idx] = sum/count;
+      }
 
       UNPROTECT(1);
     }
@@ -325,7 +342,7 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step)
     lmCleanup(&localMem);
   }
 
-  UNPROTECT(5);
+  UNPROTECT(6);
 
   return res;
 }
@@ -528,6 +545,61 @@ SEXP bigWig_bed_query(SEXP bed, SEXP bwPlus, SEXP bwMinus, SEXP gapValue, SEXP w
 
   /* clean up */
   UNPROTECT(protect_count);
+
+  return res;
+}
+
+SEXP bigWig_chrom_step_sum(SEXP obj, SEXP chrom, SEXP step, SEXP defaultValue) {
+  SEXP ptr, res = R_NilValue;
+  bigWig_t * bigwig;
+
+  PROTECT(chrom = AS_CHARACTER(chrom));
+  PROTECT(step = AS_INTEGER(step));
+  PROTECT(defaultValue = AS_NUMERIC(defaultValue));
+  PROTECT(ptr = GET_ATTR(obj, install("handle_ptr")));
+  if (ptr == R_NilValue)
+    error("invalid bigWig object");
+
+  bigwig = R_ExternalPtrAddr(ptr);
+  if (bigwig == NULL) {
+    error("bigWig object has been unloaded");
+  } else {
+    char * cchrom = CHAR(STRING_ELT(chrom, 0));
+    int istep = INTEGER(step)[0];
+    double defval = REAL(defaultValue)[0];
+    int n;
+    int i, j, k;
+    double * valptr;
+
+    struct bigWigValsOnChrom *chromVals = bigWigValsOnChromNew();
+
+    if (!bigWigValsOnChromFetchData(chromVals, cchrom, bigwig))
+      error("could not retrieve information on chrom: %s", chrom);
+
+    n = chromVals->chromSize / istep;
+    PROTECT(res = NEW_NUMERIC(n));
+
+    for (i = 0, j = 0, valptr=chromVals->valBuf; i < n; ++i) {
+      double sum = 0;
+      int count = 0;
+
+      for (k = 0; k < istep; ++k, ++j, ++valptr) {
+	if (bitReadOne(chromVals->covBuf , j)) {
+	  ++count;
+	  sum += *valptr;
+	}
+      }
+      if (count > 0)
+	REAL(res)[i] = sum;
+      else
+	REAL(res)[i] = defval;
+    }
+
+    UNPROTECT(1);
+    bigWigValsOnChromFree(&chromVals);
+  }
+
+  UNPROTECT(4);
 
   return res;
 }
