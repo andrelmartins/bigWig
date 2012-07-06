@@ -377,7 +377,7 @@ SEXP bigWig_bed_query(SEXP bed, SEXP bwPlus, SEXP bwMinus, SEXP gapValue, SEXP w
   int protect_count = 0;
   int i, N;
 
-  SEXP chroms, starts, ends, strands;
+  SEXP chroms, starts, ends, strands = R_NilValue;
   int has_strand = 0;
 
   struct lm * localMem;
@@ -485,7 +485,7 @@ SEXP bigWig_bed_query(SEXP bed, SEXP bwPlus, SEXP bwMinus, SEXP gapValue, SEXP w
       bigwig = bigwig_minus;
 
     /* do query */
-    intervals = bigWigIntervalQuery(bigwig, chrom, start, end, localMem);
+    intervals = bigWigIntervalQuery(bigwig, (char*)chrom, start, end, localMem);
     nIntervals = slCount(intervals);
 
     /* walk over data (depending on mode, weighted) */
@@ -539,6 +539,12 @@ SEXP bigWig_bed_query(SEXP bed, SEXP bwPlus, SEXP bwMinus, SEXP gapValue, SEXP w
       REAL(res)[i] = gap_value;
     else
       REAL(res)[i] = NA_REAL;
+
+    /* reclaim memory */
+    if (i % 1000) {
+      lmCleanup(&localMem);
+      localMem = lmInit(0); /* use default value */
+    }
   }
 
   lmCleanup(&localMem);
@@ -564,7 +570,7 @@ SEXP bigWig_chrom_step_sum(SEXP obj, SEXP chrom, SEXP step, SEXP defaultValue) {
   if (bigwig == NULL) {
     error("bigWig object has been unloaded");
   } else {
-    char * cchrom = CHAR(STRING_ELT(chrom, 0));
+    const char * cchrom = CHAR(STRING_ELT(chrom, 0));
     int istep = INTEGER(step)[0];
     double defval = REAL(defaultValue)[0];
     int n;
@@ -573,7 +579,7 @@ SEXP bigWig_chrom_step_sum(SEXP obj, SEXP chrom, SEXP step, SEXP defaultValue) {
 
     struct bigWigValsOnChrom *chromVals = bigWigValsOnChromNew();
 
-    if (!bigWigValsOnChromFetchData(chromVals, cchrom, bigwig))
+    if (!bigWigValsOnChromFetchData(chromVals, (char*)cchrom, bigwig))
       error("could not retrieve information on chrom: %s", chrom);
 
     n = chromVals->chromSize / istep;
