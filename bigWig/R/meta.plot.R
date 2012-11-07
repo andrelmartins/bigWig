@@ -11,9 +11,16 @@ collect.counts <- function(bigWig, chrom, start, end, step) {
 }
 
 
-collect.many <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step) {
+collect.many <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS = FALSE) {
   windowSize = (2*halfWindow) %/% step
   midPoint = (bed[,2] + bed[,3]) / 2
+
+  if (at.TSS && dim(bed)[2] >= 6) {
+    midPoint = bed[,2]
+    neg.idxs = bed[,6] == '-'
+    midPoint[neg.idxs] = bed[neg.idxs, 3] - 1
+  }
+  
   start = (midPoint - halfWindow)
   end = start + windowSize*step
 
@@ -48,12 +55,12 @@ collect.many <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step) {
   result
 }
 
-meta.accum <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step) {
-  colSums(collect.many(bed, bigWig.plus, bigWig.minus, halfWindow, step))/(dim(bed)[1])
+meta.accum <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS = FALSE) {
+  colSums(collect.many(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS))/(dim(bed)[1])
 }
 
 
-meta.subsample <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step) {
+meta.subsample <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS=FALSE) {
   N = dim(bed)[1]
   
   nPermut = 1000
@@ -64,7 +71,7 @@ meta.subsample <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step) {
   result = matrix(nrow=nPermut, ncol=windowSize)
   M = as.integer(round(N * sampleFrac, 0))
 
-  values = collect.many(bed, bigWig.plus, bigWig.minus, halfWindow, step)/N
+  values = collect.many(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS=at.TSS)/N
   
   for (i in 1:nPermut) {
     idx <- sample(N, size=M, replace=T)
@@ -123,6 +130,17 @@ meta.plot.GROseq <- function(result.plus, result.minus, step, xlab="Distance to 
   lines(x, result.plus[[4]], col="red", lwd=3)
   lines(x, -result.minus[[4]], col="blue", lwd=3)
   lines(x, rep(0, N), lwd=3, lty=2)
+}
+
+meta.plot.GROseq.TSS <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, ...) {
+  sizes = bed[,3] - bed[,2]
+  cat("*", sum(sizes > halfWindow), "TSSs selected\n")
+  cat("* forward signal ...\n")
+  fwd = meta.subsample(bed[sizes > halfWindow,], bwPlus, bwMinus, halfWindow, step, at.TSS=T)
+  cat("* reverse signal ...\n")
+  rev = meta.subsample(bed[sizes > halfWindow,], bwMinus, bwPlus, halfWindow, step, at.TSS=T)
+  cat("* ploting ...\n")
+  meta.plot.GROseq(fwd, rev, step, ...)
 }
 
 pair.ylim <- function(res1, res2) {

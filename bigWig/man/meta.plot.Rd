@@ -11,11 +11,14 @@
 \usage{
 meta.accum(bed, bigWig.plus, bigWig.minus, halfWindow, step)
 
-meta.subsample(bed, bigWig.plus, bigWig.minus, halfWindow, step)
+meta.subsample(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS
+= FALSE)
 
 meta.plot(result, step, xlab="Distance to center (bp)", ylab="Signal", main=NULL, ylim=NULL, ...)
 
 meta.plot.GROseq(result.plus, result.minus, step, xlab="Distance to center (bp)", ylab="Average Reads", main=NULL, ylim = NULL, ...)
+
+meta.plot.GROseq.TSS <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, ...)
 
 meta.normalize(result, scaleFactor)
 }
@@ -31,6 +34,8 @@ meta.normalize(result, scaleFactor)
   \item{halfWindow}{half the size of the query window.}
   \item{step}{positive integer value indicating the number of base pairs
     in each plot/query point.}
+  \item{at.TSS}{If TRUE, take mid point for half-window at TSS, rather
+  than interval center. (Only used if the BED file has strand information).}
   \item{result}{the return value from \code{meta.subsample}.}
   \item{result.plus}{the return value from \code{meta.subsample} to be
     used as the sense orientation plot (orientation with respect to BED
@@ -62,6 +67,10 @@ meta.normalize(result, scaleFactor)
   results in the same plot, one for the sense and one for the anti-sense
   strands.
 
+  \code{meta.plot.GROseq.TSS} combines the work of meta.subsample and
+  meta.plot.GROseq with \code{at.TSS=TRUE} on the subset of the BED file
+  entries that are longer than \code{halfWindow}.
+  
   \code{meta.normalize} can be used to scale the results of
   \code{meta.subsample}.
 }

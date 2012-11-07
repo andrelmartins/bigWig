@@ -1,8 +1,8 @@
 Package: bigWig
 Type: Package
 Title: R interface to query UCSC bigWig files
-Version: 0.1-7
-Date: 2012-07-06
+Version: 0.1-8
+Date: 2012-11-07
 Author: Andre L. Martins
 Maintainer: Andre L. Martins <alm253@cornell.edu>
 Description: R interface to query UCSC bigWig files
