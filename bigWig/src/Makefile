@@ -84,8 +84,8 @@ jkweb.a: prepare
 #jkweb/%.o: lib/%.c
 #	${CC} ${COPT} -I./inc ${CFLAGS} ${HG_DEFS} ${LOWELAB_DEFS} ${HG_WARN} ${HG_INC} ${XINC} -fPIC -o $@ -c $<
 
-bigwig.so: jkweb.a bigWig_R.c
-	MAKEFLAGS=${MFLGSESC} R CMD SHLIB -o $@ bigWig_R.c ${MYLIBS} ${L}
+bigwig.so: jkweb.a bigWig_R.c utils_R.c
+	MAKEFLAGS=${MFLGSESC} R CMD SHLIB -o $@ bigWig_R.c utils_R.c ${MYLIBS} ${L}
 	rm inc lib
 
 clean:
