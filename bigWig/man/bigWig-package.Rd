@@ -13,8 +13,8 @@ bigWig Query Library
 \tabular{ll}{
 Package: \tab bigWig\cr
 Type: \tab Package\cr
-Version: \tab 0.1-8\cr
-Date: \tab 2012-11-07\cr
+Version: \tab 0.1-9\cr
+Date: \tab 2012-11-08\cr
 License: \tab BSD\cr
 LazyLoad: \tab yes\cr
 }
