@@ -1,6 +1,7 @@
 \name{meta.plot}
 \alias{meta.plot}
 \alias{meta.plot.GROseq}
+\alias{meta.plot.GROseq.TSS}
 \alias{meta.subsample}
 \alias{meta.normalize}
 \alias{meta.accum}
@@ -30,7 +31,10 @@ meta.normalize(result, scaleFactor)
     intervals (or all intervals if the BED file has no strand
     information).}
   \item{bigWig.minus}{the bigWig object to be used for reverse stand BED
-    intervals (only used if the BED file has strand information).}
+    intervals (only used if the BED file has strand information). If set
+    to NULL in conjunction with a \code{bed} argument with strand
+    information, \code{collect.many} and functions that use it, will use the
+    values from bigWig.plus and reverse the orientation.}
   \item{halfWindow}{half the size of the query window.}
   \item{step}{positive integer value indicating the number of base pairs
     in each plot/query point.}

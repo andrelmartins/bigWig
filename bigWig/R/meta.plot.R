@@ -45,6 +45,9 @@ collect.many <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TS
       result[i, ] = abs(row)
     } else {
       bigWig = bigWig.minus
+      if (is.null(bigWig.minus))
+        bigWig = bigWig.plus
+      
 
       row = collect.counts(bigWig, chrom, start[i], end[i], step)
 
