@@ -50,11 +50,16 @@ bedQuery.bigWig <- function(bed, bwPlus, bwMinus = NULL, gapValue = NULL, weight
   return(.Call(bigWig_bed_query, bed, bwPlus, bwMinus, gapValue, weighted, aggregator))
 }
 
-queryByStep.bigWig <- function(bigWig, chrom, start, end, step, do.sum=F) {
+queryByStep.bigWig <- function(bigWig, chrom, start, end, step, do.sum=F, default.null = T, defaultValue = 0) {
   stopifnot(step >= 1)
   if (!any(bigWig$chroms == chrom))
     warning("bigWig does not contain information on chromosome: ", chrom)
-  return(.Call(bigWig_query_by_step, bigWig, chrom, start, end, step, do.sum))
+
+  result = .Call(bigWig_query_by_step, bigWig, chrom, start, end, step, do.sum, default.null)
+  if (is.null(result) && default.null == FALSE)
+    result = rep(defaultValue, (end - start) %/% step)
+  
+  return(result)
 }
 
 chromStepSum.bigWig <- function(bigwig, chrom, step, defaultValue) {

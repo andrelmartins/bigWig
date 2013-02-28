@@ -7,7 +7,8 @@
 \usage{
 chromStepSum.bigWig(bigwig, chrom, step, defaultValue)
 
-queryByStep.bigWig(bigWig, chrom, start, end, step, do.sum = F) 
+queryByStep.bigWig(bigWig, chrom, start, end, step, do.sum = F,
+default.null = T, defaultValue = 0) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,6 +23,8 @@ queryByStep.bigWig(bigWig, chrom, start, end, step, do.sum = F)
     coordinates like in BED ifles).}
   \item{do.sum}{indicates if the value per query step should be the sum
     or the average (default).}
+  \item{default.null}{if TRUE, when there is no data, returns NULL,
+    otherwise returns vector of defaultValue.}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
