@@ -55,7 +55,7 @@ queryByStep.bigWig <- function(bigWig, chrom, start, end, step, do.sum=F, defaul
   if (!any(bigWig$chroms == chrom))
     warning("bigWig does not contain information on chromosome: ", chrom)
 
-  result = .Call(bigWig_query_by_step, bigWig, chrom, start, end, step, do.sum, default.null)
+  result = .Call(bigWig_query_by_step, bigWig, chrom, start, end, step, do.sum, defaultValue)
   if (is.null(result) && default.null == FALSE)
     result = rep(defaultValue, (end - start) %/% step)
   

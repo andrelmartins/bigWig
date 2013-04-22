@@ -4,7 +4,7 @@
 # Adapted by Andre Martins
 
 collect.counts <- function(bigWig, chrom, start, end, step) {
-  res <- .Call(bigWig_query_by_step, bigWig, chrom, start, end, step, FALSE)
+  res <- .Call(bigWig_query_by_step, bigWig, chrom, start, end, step, FALSE, 0)
   if (is.null(res))
     return(0)
   return(res)

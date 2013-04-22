@@ -230,7 +230,7 @@ SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end) {
 /*
   Query version to speed up meta-plots
 */
-SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step, SEXP doSum) {
+SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step, SEXP doSum, SEXP gapValue) {
   SEXP ptr, res = R_NilValue;
   bigWig_t * bigwig;
   int do_sum = 0;
@@ -243,6 +243,7 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step,
   PROTECT(start = AS_INTEGER(start));
   PROTECT(end = AS_INTEGER(end));
   PROTECT(step = AS_INTEGER(step));
+  PROTECT(gapValue = AS_NUMERIC(gapValue));
   PROTECT(ptr = GET_ATTR(obj, install("handle_ptr")));
   if (ptr == R_NilValue)
     error("invalid bigWig object");
@@ -272,12 +273,13 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step,
       double sum = 0.0;
       double left, right;
       int idx;
+      double d_gap_value = REAL(gapValue)[0];
 
       PROTECT(res = NEW_NUMERIC(size));
 
-      /* init to zero */
+      /* init to 'gapValue' */
       for (idx = 0; idx < size; ++idx)
-	REAL(res)[idx] = 0.0;
+	REAL(res)[idx] = d_gap_value;
 
       left = istart;
       right = istart + istep;
@@ -308,8 +310,8 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step,
 	  ++count;
 	}
 
-	/* interval ends beyond the current step */
-	if (((double)interval->end) > right && idx < size) {
+	/* interval ends beyond or atthe current step */
+	if (((double)interval->end) >= right && idx < size) {
 	  do {
 	    /* save current step */
 	    if (count > 0) {
@@ -323,11 +325,16 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step,
 	    left += istep;
 	    right += istep;
 	    
-	    count = (((double) interval->end > right) ? 1 : 0);
+	    count = 1;
 	    sum = interval->val;
-	  } while (idx < size && ((double)interval->end > right));
+	  } while (((double)interval->end) >= right && idx < size);
+	  if (left >= ((double)interval->end)) {
+	    count = 0; /* current interval now ends before left */
+	    sum = 0.0;
+	  }
 	}
       }
+
       if (count > 0 && idx < size) {
 	if (do_sum == 1)
 	  REAL(res)[idx] = sum;
@@ -342,7 +349,7 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step,
     lmCleanup(&localMem);
   }
 
-  UNPROTECT(6);
+  UNPROTECT(7);
 
   return res;
 }
