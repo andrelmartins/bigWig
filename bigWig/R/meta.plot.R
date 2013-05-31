@@ -95,6 +95,53 @@ meta.subsample <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.
   return(list(result, ci9,ci1,ci5))
 }
 
+meta.subsample.fragmented <- function(bed, bwFolder, bwSuffix, halfWindow, step, at.TSS=FALSE) {
+  N = dim(bed)[1]
+  
+  nPermut = 1000
+  sampleFrac = 0.1 # fraction of data per sample
+
+  windowSize = (2*halfWindow) %/% step
+  
+  result = matrix(nrow=nPermut, ncol=windowSize)
+  M = as.integer(round(N * sampleFrac, 0))
+
+  #
+  values.chrom = lapply(levels(bed[,1]), function(chrom) {
+    bed.chrom = bed[bed[,1] == chrom,]
+    filename = paste(bwFolder, "/", chrom, ".", bwSuffix, sep='')
+
+    bwChrom = load.bigWig(filename)
+
+    res = collect.many(bed.chrom, bwChrom, bwChrom, halfWindow, step = step)
+
+    unload.bigWig(bwChrom)
+
+    return(res)
+  })
+
+  # merge all into single big sample
+  values = do.call("rbind", values.chrom)/N
+  
+  for (i in 1:nPermut) {
+    idx <- sample(N, size=M, replace=T)
+    
+    result[i, ] = colSums(values[idx, ])# normalize?
+  }#reads in window/windowSize*1000/librarySize
+
+
+  #
+  ## Get CI.
+  ci9 = sapply(1:windowSize, function(idx) quantile(result[, idx], 0.875))
+  ci1 = sapply(1:windowSize, function(idx) quantile(result[, idx], 0.125))
+  ci5 = sapply(1:windowSize, function(idx) quantile(result[, idx], 0.5))
+
+  ## You can then plot ci5; 
+  ## ci9 and ci1 are the 75% confidence interval (equivalent to the 'boxes' in a boxplot).
+
+  return(list(result, ci9,ci1,ci5))
+}
+
 meta.plot <- function(result, step, xlab="Distance to center (bp)", ylab="Signal", main=NULL, ylim=NULL, ...) {
   N = length(result[[4]])
   x = ((1:N) - N/2)* step

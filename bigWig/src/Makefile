@@ -25,7 +25,7 @@ MFLGSESC := $(subst $(space),\$(space),$(MFLGS))
 #
 # rebuild jkweb with -fPIC
 #
-O = aliType.o annoColumn.o annoFilter.o annoFormatter.o annoFormatTab.o \
+O = aliType.o annoFilter.o annoFormatter.o annoFormatTab.o \
     annoGrator.o annoGratorQuery.o annoRow.o annoStreamer.o annoStreamVcf.o \
     apacheLog.o asParse.o axt.o axtAffine.o bamFile.o base64.o \
     basicBed.o bbiRead.o bbiWrite.o bigBed.o binRange.o bits.o \

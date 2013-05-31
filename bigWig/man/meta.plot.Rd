@@ -15,6 +15,9 @@ meta.accum(bed, bigWig.plus, bigWig.minus, halfWindow, step)
 meta.subsample(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS
 = FALSE)
 
+meta.subsample.fragmented(bed, bwFolder, bwSuffix, halfWindow, step, at.TSS
+= FALSE)
+
 meta.plot(result, step, xlab="Distance to center (bp)", ylab="Signal", main=NULL, ylim=NULL, ...)
 
 meta.plot.GROseq(result.plus, result.minus, step, xlab="Distance to center (bp)", ylab="Average Reads", main=NULL, ylim = NULL, ...)
@@ -35,6 +38,9 @@ meta.normalize(result, scaleFactor)
     to NULL in conjunction with a \code{bed} argument with strand
     information, \code{collect.many} and functions that use it, will use the
     values from bigWig.plus and reverse the orientation.}
+  \item{bwFolder}{path to folder containing the per chromosome bigWig
+    files.}
+  \item{bwSuffix}{suffix for per chromosome bigWig files: <chrom>.<suffix>}
   \item{halfWindow}{half the size of the query window.}
   \item{step}{positive integer value indicating the number of base pairs
     in each plot/query point.}
