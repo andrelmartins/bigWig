@@ -186,9 +186,9 @@ meta.plot.GROseq.TSS <- function(bed, bigWig.plus, bigWig.minus, halfWindow, ste
   sizes = bed[,3] - bed[,2]
   cat("*", sum(sizes > halfWindow), "TSSs selected\n")
   cat("* forward signal ...\n")
-  fwd = meta.subsample(bed[sizes > halfWindow,], bwPlus, bwMinus, halfWindow, step, at.TSS=T)
+  fwd = meta.subsample(bed[sizes > halfWindow,], bigWig.plus, bigWig.minus, halfWindow, step, at.TSS=T)
   cat("* reverse signal ...\n")
-  rev = meta.subsample(bed[sizes > halfWindow,], bwMinus, bwPlus, halfWindow, step, at.TSS=T)
+  rev = meta.subsample(bed[sizes > halfWindow,], bigWig.minus, bigWig.plus, halfWindow, step, at.TSS=T)
   cat("* ploting ...\n")
   meta.plot.GROseq(fwd, rev, step, ...)
 }
