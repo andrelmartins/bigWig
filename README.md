@@ -14,8 +14,8 @@ Compilation
 3. Edit bigWig/src/Makefile and change the KENTHOME to point to where you placed the UCSC browser source
 4. Compile the package
 
-    R CMD build --binary bigWig
+        R CMD build --binary bigWig
 
-or
+    or
 
-    R CMD install bigWig
+        R CMD install bigWig
