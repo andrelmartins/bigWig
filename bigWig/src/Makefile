@@ -75,6 +75,7 @@ all: prepare bigwig.so
 prepare:
 	ln -f -s $(KENTHOME)/src/inc
 	ln -f -s $(KENTHOME)/src/lib
+	[ -d jkweb ] || mkdir -p jkweb/font
 
 jkweb.a: prepare
 	@for obj in $(O); do echo "CC $${obj}"; \
