@@ -113,7 +113,7 @@ meta.subsample.fragmented <- function(bed, bwFolder, bwSuffix, halfWindow, step,
 
     bwChrom = load.bigWig(filename)
 
-    res = collect.many(bed.chrom, bwChrom, bwChrom, halfWindow, step = step, do.sum = FALSE)
+    res = collect.many(bed.chrom, bwChrom, bwChrom, halfWindow, step = step, do.sum = do.sum)
 
     unload.bigWig(bwChrom)
 
