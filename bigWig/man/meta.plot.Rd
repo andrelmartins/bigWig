@@ -10,13 +10,14 @@
   files.}
 
 \usage{
-meta.accum(bed, bigWig.plus, bigWig.minus, halfWindow, step)
+meta.accum(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS =
+FALSE, do.sum = FALSE)
 
 meta.subsample(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS
-= FALSE)
+= FALSE, do.sum = FALSE)
 
 meta.subsample.fragmented(bed, bwFolder, bwSuffix, halfWindow, step, at.TSS
-= FALSE)
+= FALSE, do.sum = FALSE)
 
 meta.plot(result, step, xlab="Distance to center (bp)", ylab="Signal", main=NULL, ylim=NULL, ...)
 
@@ -61,6 +62,8 @@ meta.normalize(result, scaleFactor)
   \item{xlab}{label of the x axis}
   \item{ylab}{label of the y axis}
   \item{...}{additional parameters passed to the main plot function.}
+  \item{do.sum}{indicates if the value per query step should be the sum
+    or the average (default).}
 }
 
 \details{

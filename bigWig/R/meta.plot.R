@@ -3,15 +3,15 @@
 #
 # Adapted by Andre Martins
 
-collect.counts <- function(bigWig, chrom, start, end, step) {
-  res <- .Call(bigWig_query_by_step, bigWig, chrom, start, end, step, FALSE, 0)
+collect.counts <- function(bigWig, chrom, start, end, step, do.sum = FALSE) {
+  res <- .Call(bigWig_query_by_step, bigWig, chrom, start, end, step, do.sum, 0)
   if (is.null(res))
     return(0)
   return(res)
 }
 
 
-collect.many <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS = FALSE) {
+collect.many <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS = FALSE, do.sum = FALSE) {
   windowSize = (2*halfWindow) %/% step
   midPoint = (bed[,2] + bed[,3]) / 2
 
@@ -40,7 +40,7 @@ collect.many <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TS
     if (strand == "+") {
       bigWig = bigWig.plus
       
-      row = collect.counts(bigWig, chrom, start[i], end[i], step)
+      row = collect.counts(bigWig, chrom, start[i], end[i], step, do.sum)
 
       result[i, ] = abs(row)
     } else {
@@ -49,7 +49,7 @@ collect.many <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TS
         bigWig = bigWig.plus
       
 
-      row = collect.counts(bigWig, chrom, start[i], end[i], step)
+      row = collect.counts(bigWig, chrom, start[i], end[i], step, do.sum)
 
       result[i, ] =  abs(rev(row))
     }
@@ -58,12 +58,12 @@ collect.many <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TS
   result
 }
 
-meta.accum <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS = FALSE) {
-  colSums(collect.many(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS))/(dim(bed)[1])
+meta.accum <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS = FALSE, do.sum = FALSE) {
+  colSums(collect.many(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS, do.sum))/(dim(bed)[1])
 }
 
 
-meta.subsample <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS=FALSE) {
+meta.subsample <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS=FALSE, do.sum = FALSE) {
   N = dim(bed)[1]
   
   nPermut = 1000
@@ -74,7 +74,7 @@ meta.subsample <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.
   result = matrix(nrow=nPermut, ncol=windowSize)
   M = as.integer(round(N * sampleFrac, 0))
 
-  values = collect.many(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS=at.TSS)/N
+  values = collect.many(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS=at.TSS, do.sum = do.sum)/N
   
   for (i in 1:nPermut) {
     idx <- sample(N, size=M, replace=T)
@@ -95,7 +95,7 @@ meta.subsample <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.
   return(list(result, ci9,ci1,ci5))
 }
 
-meta.subsample.fragmented <- function(bed, bwFolder, bwSuffix, halfWindow, step, at.TSS=FALSE) {
+meta.subsample.fragmented <- function(bed, bwFolder, bwSuffix, halfWindow, step, at.TSS=FALSE, do.sum = FALSE) {
   N = dim(bed)[1]
   
   nPermut = 1000
@@ -113,7 +113,7 @@ meta.subsample.fragmented <- function(bed, bwFolder, bwSuffix, halfWindow, step,
 
     bwChrom = load.bigWig(filename)
 
-    res = collect.many(bed.chrom, bwChrom, bwChrom, halfWindow, step = step)
+    res = collect.many(bed.chrom, bwChrom, bwChrom, halfWindow, step = step, do.sum = FALSE)
 
     unload.bigWig(bwChrom)
 
