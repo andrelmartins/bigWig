@@ -57,25 +57,25 @@ SEXP foreach_bed(SEXP bed, SEXP function, SEXP envir) {
       SET_STRING_ELT(arg_chrom, 0, STRING_ELT(GET_LEVELS(chroms), idx));
     } else
       SET_STRING_ELT(arg_chrom, 0, STRING_ELT(chroms, i));
-
+    
     /* strand */
     if (has_strand == 1) {
       if (isFactor(strands)) {
-	int idx = INTEGER(strands)[i] - 1;
-	SET_STRING_ELT(arg_strand, 0, STRING_ELT(GET_LEVELS(strands), idx));
+        int idx = INTEGER(strands)[i] - 1;
+        SET_STRING_ELT(arg_strand, 0, STRING_ELT(GET_LEVELS(strands), idx));
       } else
-	SET_STRING_ELT(arg_strand, 0, STRING_ELT(strands, i));
+        SET_STRING_ELT(arg_strand, 0, STRING_ELT(strands, i));
     }
-
+    
     /* eval and ignore result */
     eval(fcall, envir);
     
     /* check for interrupts */
     R_CheckUserInterrupt();
   }
-
+  
   /* clean up */
   UNPROTECT(9);
-
+  
   return R_NilValue;
 }
