@@ -5,7 +5,7 @@
 \description{Collect the intersection of the query interval with the
   interval-value pairs contained in the bigWig file.}
 \usage{
-query.bigWig(bigWig, chrom, start, end)
+query.bigWig(bigWig, chrom, start, end, clip = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -15,13 +15,15 @@ query.bigWig(bigWig, chrom, start, end)
     coordinates like in BED files).}
   \item{end}{the end of the query interval (zero-baed, left open
     coordinates like in BED ifles).}
+  \item{clip}{logical value; if TRUE bigWig regions are clipped to the query interval.}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{Returns a N by 3 matrix with columns (start, end, value) where N
   is the number of intervals contained in the bigWig file that intersect
-  with the query interval. Result coordinates are clipped to the query interval.}
+  with the query interval. Result coordinates are clipped to the query 
+  interval (unless \code{clip == FALSE}).}
 \references{
 %% ~put references to the literature/web site here ~
 }

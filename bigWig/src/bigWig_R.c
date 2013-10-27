@@ -14,6 +14,8 @@
 #include "hmmstats.h"
 #include "localmem.h"
 
+#include "bwgExtra.h"
+
 #include <string.h>
 #include <R.h>
 #include <Rdefines.h>
@@ -171,10 +173,13 @@ SEXP bigWig_unload(SEXP obj) {
   return R_NilValue;
 }
 
-SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end) {
+SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP clip) {
   SEXP ptr, res = R_NilValue;
   bigWig_t * bigwig;
+  int do_clip;
 
+  PROTECT(clip = AS_LOGICAL(clip));
+  do_clip = LOGICAL(clip)[0] == TRUE;
   PROTECT(chrom = AS_CHARACTER(chrom));
   PROTECT(start = AS_INTEGER(start));
   PROTECT(end = AS_INTEGER(end));
@@ -187,12 +192,20 @@ SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end) {
     error("bigWig object has been unloaded");
   } else {
     struct lm * localMem = lmInit(0); /* use default value */
-    struct bbiInterval * intervals 
-      = bigWigIntervalQuery(bigwig,
+    struct bbiInterval * intervals;
+    
+    if (do_clip)
+      intervals = bigWigIntervalQuery(bigwig,
 			    (char*) CHAR(STRING_ELT(chrom, 0)),
 			    INTEGER(start)[0],
 			    INTEGER(end)[0],
 			    localMem);
+    else
+      intervals = bigWigIntervalQueryNoClip(bigwig,
+                                      (char*) CHAR(STRING_ELT(chrom, 0)),
+                                      INTEGER(start)[0],
+                                      INTEGER(end)[0],
+                                      localMem);
 
     /* convert result into an R matrix */
     int nIntervals = slCount(intervals);
@@ -222,7 +235,7 @@ SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end) {
     lmCleanup(&localMem);
   }
 
-  UNPROTECT(4);
+  UNPROTECT(5);
 
   return res;
 }
