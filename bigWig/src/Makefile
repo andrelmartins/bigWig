@@ -1,5 +1,5 @@
 ifeq ($(KENTHOME),)
-	KENTHOME :=/home/browser/kent-trunk
+	KENTHOME :=/home/cgd24/src/jksrc/kent
 endif
 
 include $(KENTHOME)/src/inc/common.mk
