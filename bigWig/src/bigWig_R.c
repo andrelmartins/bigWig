@@ -14,6 +14,8 @@
 #include "hmmstats.h"
 #include "localmem.h"
 
+#include "bwgExtra.h"
+
 #include <string.h>
 #include <R.h>
 #include <Rdefines.h>
@@ -171,10 +173,13 @@ SEXP bigWig_unload(SEXP obj) {
   return R_NilValue;
 }
 
-SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end) {
+SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP clip) {
   SEXP ptr, res = R_NilValue;
   bigWig_t * bigwig;
+  int do_clip;
 
+  PROTECT(clip = AS_LOGICAL(clip));
+  do_clip = LOGICAL(clip)[0] == TRUE;
   PROTECT(chrom = AS_CHARACTER(chrom));
   PROTECT(start = AS_INTEGER(start));
   PROTECT(end = AS_INTEGER(end));
@@ -187,12 +192,20 @@ SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end) {
     error("bigWig object has been unloaded");
   } else {
     struct lm * localMem = lmInit(0); /* use default value */
-    struct bbiInterval * intervals 
-      = bigWigIntervalQuery(bigwig,
+    struct bbiInterval * intervals;
+    
+    if (do_clip)
+      intervals = bigWigIntervalQuery(bigwig,
 			    (char*) CHAR(STRING_ELT(chrom, 0)),
 			    INTEGER(start)[0],
 			    INTEGER(end)[0],
 			    localMem);
+    else
+      intervals = bigWigIntervalQueryNoClip(bigwig,
+                                      (char*) CHAR(STRING_ELT(chrom, 0)),
+                                      INTEGER(start)[0],
+                                      INTEGER(end)[0],
+                                      localMem);
 
     /* convert result into an R matrix */
     int nIntervals = slCount(intervals);
@@ -208,11 +221,11 @@ SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end) {
       mptr = REAL(res);
 
       for (i = 0, interval = intervals; 
-	   interval != NULL; 
-	   interval = interval->next, i++) {
-	mptr[i] = (double) interval->start;
-	mptr[i + nx] = (double) interval->end;
-	mptr[i + nx*2] = interval->val;
+           interval != NULL;
+           interval = interval->next, i++) {
+        mptr[i] = (double) interval->start;
+        mptr[i + nx] = (double) interval->end;
+        mptr[i + nx*2] = interval->val;
       }
 
       UNPROTECT(1);
@@ -222,7 +235,7 @@ SEXP bigWig_query(SEXP obj, SEXP chrom, SEXP start, SEXP end) {
     lmCleanup(&localMem);
   }
 
-  UNPROTECT(4);
+  UNPROTECT(5);
 
   return res;
 }
@@ -256,12 +269,12 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step,
     int iend = INTEGER(end)[0];
     int istep = INTEGER(step)[0];
     struct lm * localMem = lmInit(0); /* use default value */
-    struct bbiInterval * intervals 
+    struct bbiInterval * intervals
       = bigWigIntervalQuery(bigwig,
-			    (char*) CHAR(STRING_ELT(chrom, 0)),
-			    istart,
-			    iend,
-			    localMem);
+                          (char*) CHAR(STRING_ELT(chrom, 0)),
+                          istart,
+                          iend,
+                          localMem);
 
     /* convert result into an R matrix */
     int nIntervals = slCount(intervals);
@@ -279,78 +292,78 @@ SEXP bigWig_query_by_step(SEXP obj, SEXP chrom, SEXP start, SEXP end, SEXP step,
 
       /* init to 'gapValue' */
       for (idx = 0; idx < size; ++idx)
-	REAL(res)[idx] = d_gap_value;
+        REAL(res)[idx] = d_gap_value;
 
       left = istart;
       right = istart + istep;
       idx = 0;
       for (interval = intervals; interval != NULL && idx < size; interval = interval->next) {
-	/* interval starts beyond current step */
-	if (((double)interval->start) >= right) {
-	  /* save current value */
-	  if (count > 0) {
-	    if (do_sum == 1)
-	      REAL(res)[idx] = sum;
-	    else
-	      REAL(res)[idx] = sum / count;
-	  }
-
-	  count = 0;
-	  sum = 0.0;
-	  while (idx < size && ((double)interval->start) >= right) {
-	    ++idx;
-	    left += istep;
-	    right += istep;
-	  }
-	}
-
-	/* interval starts at or before the current step */
-	if (((double)interval->start) < right) {
-	  sum += interval->val;
-	  ++count;
-	}
-
-	/* interval ends beyond or atthe current step */
-	if (((double)interval->end) >= right && idx < size) {
-	  do {
-	    /* save current step */
-	    if (count > 0) {
-	      if (do_sum == 1)
-		REAL(res)[idx] = sum;
-	      else
-		REAL(res)[idx] = sum/count;
-	    }
-	    
-	    ++idx;
-	    left += istep;
-	    right += istep;
-	    
-	    count = 1;
-	    sum = interval->val;
-	  } while (((double)interval->end) >= right && idx < size);
-	  if (left >= ((double)interval->end)) {
-	    count = 0; /* current interval now ends before left */
-	    sum = 0.0;
-	  }
-	}
+        /* interval starts beyond current step */
+        if (((double)interval->start) >= right) {
+          /* save current value */
+          if (count > 0) {
+            if (do_sum == 1)
+              REAL(res)[idx] = sum;
+            else
+              REAL(res)[idx] = sum / count;
+          }
+          
+          count = 0;
+          sum = 0.0;
+          while (idx < size && ((double)interval->start) >= right) {
+            ++idx;
+            left += istep;
+            right += istep;
+          }
+        }
+        
+        /* interval starts at or before the current step */
+        if (((double)interval->start) < right) {
+          sum += interval->val;
+          ++count;
+        }
+        
+        /* interval ends beyond or atthe current step */
+        if (((double)interval->end) >= right && idx < size) {
+          do {
+            /* save current step */
+            if (count > 0) {
+              if (do_sum == 1)
+                REAL(res)[idx] = sum;
+              else
+                REAL(res)[idx] = sum/count;
+            }
+            
+            ++idx;
+            left += istep;
+            right += istep;
+            
+            count = 1;
+            sum = interval->val;
+          } while (((double)interval->end) >= right && idx < size);
+          if (left >= ((double)interval->end)) {
+            count = 0; /* current interval now ends before left */
+            sum = 0.0;
+          }
+        }
       }
-
+      
       if (count > 0 && idx < size) {
-	if (do_sum == 1)
-	  REAL(res)[idx] = sum;
-	else
-	  REAL(res)[idx] = sum/count;
+        if (do_sum == 1)
+          REAL(res)[idx] = sum;
+        else
+          REAL(res)[idx] = sum/count;
       }
-
+      
       UNPROTECT(1);
     }
-
+    
     /* clean-up */
     lmCleanup(&localMem);
   }
-
+  
   UNPROTECT(7);
-
+  
   return res;
 }
 
@@ -480,10 +493,10 @@ SEXP bigWig_bed_query(SEXP bed, SEXP bwPlus, SEXP bwMinus, SEXP gapValue, SEXP w
 
     if (has_strand == 1) {
       if (isFactor(strands)) {
-	int idx = INTEGER(strands)[i] - 1;
-	strand = CHAR(STRING_ELT(GET_LEVELS(strands), idx))[0];
+        int idx = INTEGER(strands)[i] - 1;
+        strand = CHAR(STRING_ELT(GET_LEVELS(strands), idx))[0];
       } else
-	strand = CHAR(STRING_ELT(strands, i))[0];
+        strand = CHAR(STRING_ELT(strands, i))[0];
     }
 
     if (strand == '+')
@@ -504,49 +517,49 @@ SEXP bigWig_bed_query(SEXP bed, SEXP bwPlus, SEXP bwMinus, SEXP gapValue, SEXP w
       
       /* get first value */
       if (mode == MODE_MIN && mode == MODE_MAX)
-	accum = interval->val;
+        accum = interval->val;
       else {
-	if (mode == MODE_AVG && is_weighted == 1)
-	  weight = (double) (interval->end - interval->start);
-	covered = (interval->end - interval->start);
-
-	accum = weight * interval->val;
+        if (mode == MODE_AVG && is_weighted == 1)
+          weight = (double) (interval->end - interval->start);
+        covered = (interval->end - interval->start);
+        
+        accum = weight * interval->val;
       }
-
+      
       for (interval = interval->next; interval != NULL; interval = interval->next) {
-	if (mode == MODE_MIN) {
-	  if (accum > interval->val)
-	    accum = interval->val;
-	} else if (mode == MODE_MAX) {
-	  if (accum < interval->val)
-	    accum = interval->val;
-	} else {
-	  if (mode == MODE_AVG && is_weighted == 1)
-	    weight = (double) (interval->end - interval->start);
-	  covered += (interval->end - interval->start);
-
-	  accum += weight * interval->val;
-	}
+        if (mode == MODE_MIN) {
+          if (accum > interval->val)
+            accum = interval->val;
+        } else if (mode == MODE_MAX) {
+          if (accum < interval->val)
+            accum = interval->val;
+        } else {
+          if (mode == MODE_AVG && is_weighted == 1)
+            weight = (double) (interval->end - interval->start);
+          covered += (interval->end - interval->start);
+          
+          accum += weight * interval->val;
+        }
       }
-
+      
       /* add gap value if weighted */
       if (mode == MODE_AVG && has_gapvalue == 1 && is_weighted == 1)
-	accum += ((end - start) - covered) * gap_value;
-
+        accum += ((end - start) - covered) * gap_value;
+      
       /* store result */
       if (mode == MODE_AVG) {
-	if (is_weighted == 1)
-	  REAL(res)[i] = accum / ((double) (end - start));
-	else
-	  REAL(res)[i] = accum / nIntervals;
+        if (is_weighted == 1)
+          REAL(res)[i] = accum / ((double) (end - start));
+        else
+          REAL(res)[i] = accum / nIntervals;
       } else
-	REAL(res)[i] = accum;
-
+        REAL(res)[i] = accum;
+      
     } else if (has_gapvalue == 1)
       REAL(res)[i] = gap_value;
     else
       REAL(res)[i] = NA_REAL;
-
+    
     /* reclaim memory */
     if (i % 1000) {
       lmCleanup(&localMem);
@@ -595,23 +608,23 @@ SEXP bigWig_chrom_step_sum(SEXP obj, SEXP chrom, SEXP step, SEXP defaultValue) {
     for (i = 0, j = 0, valptr=chromVals->valBuf; i < n; ++i) {
       double sum = 0;
       int count = 0;
-
+      
       for (k = 0; k < istep; ++k, ++j, ++valptr) {
-	if (bitReadOne(chromVals->covBuf , j)) {
-	  ++count;
-	  sum += *valptr;
-	}
+        if (bitReadOne(chromVals->covBuf , j)) {
+          ++count;
+          sum += *valptr;
+        }
       }
       if (count > 0)
-	REAL(res)[i] = sum;
+        REAL(res)[i] = sum;
       else
-	REAL(res)[i] = defval;
+        REAL(res)[i] = defval;
     }
-
+    
     UNPROTECT(1);
     bigWigValsOnChromFree(&chromVals);
   }
-
+  
   UNPROTECT(4);
 
   return res;
