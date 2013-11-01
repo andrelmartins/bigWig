@@ -74,14 +74,13 @@ meta.subsample <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.
   result = matrix(nrow=nPermut, ncol=windowSize)
   M = as.integer(round(N * sampleFrac, 0))
 
-  values = collect.many(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS=at.TSS, do.sum = do.sum)/N
+  values = collect.many(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS=at.TSS, do.sum = do.sum)
   
   for (i in 1:nPermut) {
     idx <- sample(N, size=M, replace=T)
     
-    result[i, ] = colSums(values[idx, ])# normalize?
-  }#reads in window/windowSize*1000/librarySize
-
+    result[i, ] = colSums(values[idx, ])/M
+  }#renormalize to?? reads in window/windowSize*1000/librarySize
 
   #
   ## Get CI.
@@ -121,13 +120,13 @@ meta.subsample.fragmented <- function(bed, bwFolder, bwSuffix, halfWindow, step,
   })
 
   # merge all into single big sample
-  values = do.call("rbind", values.chrom)/N
+  values = do.call("rbind", values.chrom)
   
   for (i in 1:nPermut) {
     idx <- sample(N, size=M, replace=T)
     
-    result[i, ] = colSums(values[idx, ])# normalize?
-  }#reads in window/windowSize*1000/librarySize
+    result[i, ] = colSums(values[idx, ])/M
+  }#normalize?? reads in window/windowSize*1000/librarySize
 
 
   #
