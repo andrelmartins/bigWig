@@ -124,7 +124,7 @@ void vec_reverse(SEXP rvec) {
 }
 
 void fill_row(SEXP matrix, SEXP row, int row_idx) {
-  if (isVector(matrix)) {
+  if (!isMatrix(matrix)) {
     REAL(matrix)[row_idx] = REAL(row)[0];
   } else {
     int nx = nrows(matrix);
