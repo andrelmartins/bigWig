@@ -39,13 +39,13 @@ step.probeQuery.bigWig <- function(bw, chrom, start, end, step, op = "sum", abs.
     chromIdx = which(bw$chroms == chrom)
     bed = data.frame(chrom, 0, bw$chromSizes[chromIdx])
     
-    return(unlist(.Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value)))
+    return(.Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value)[[1]])
   }
   if (is.null(start) || is.null(end))
     stop("either set both start and end to null (chromosome wide query) or neither")
   
   bed = data.frame(chrom, start, end)
-  unlist(.Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value))
+  .Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value)[[1]]
 }
 
 bed.step.probeQuery.bigWig <- function(bw, bed, step, op = "sum", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE) {

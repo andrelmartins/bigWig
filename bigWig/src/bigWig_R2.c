@@ -145,6 +145,7 @@ SEXP bigWig_probe_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP s
   int do_abs = INTEGER(abs_value)[0] == TRUE;
   int is_matrix = INTEGER(as_matrix)[0] == TRUE;
   int no_step = 0;
+  int use_attributes = INTEGER(with_attributes)[0] == TRUE;
   
   PROTECT(step = AS_INTEGER(step));
   istep = INTEGER(step)[0];
@@ -240,20 +241,37 @@ SEXP bigWig_probe_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP s
     
     if (is_matrix) {
       fill_row(result, res, i);
-      // release memory ??
     } else {
+      if (use_attributes) {
+        SEXP att_chrom = NEW_STRING(1);
+        SEXP att_start = NEW_INTEGER(1);
+        SEXP att_end = NEW_INTEGER(1);
+        SEXP att_step = NEW_INTEGER(1);
+        
+        SET_STRING_ELT(att_chrom, 0, mkChar(chrom));
+        INTEGER(att_start)[0] = start;
+        INTEGER(att_end)[0] = end;
+        INTEGER(att_step)[0] = istep;
+        
+        setAttrib(res, install("chrom"), att_chrom);
+        setAttrib(res, install("start"), att_start);
+        setAttrib(res, install("end"), att_end);
+        setAttrib(res, install("step"), att_step);
+
+      }      
       SET_VECTOR_ELT(result, i, res);
-      // if use attributes && !as_matrix => add attributes to vector
-      // ...
     }
     
     UNPROTECT(1);
   }
   
   // if (use attributes && as_matrix => add step size to matrix)
-  // ...
-  
-  
+  if (use_attributes && is_matrix) {
+    SEXP step_size = NEW_INTEGER(1);
+    INTEGER(step_size)[0] = istep;
+    
+    setAttrib(result, install("step"), step_size);
+  }
   
   // clean up
   if (bw != NULL) {
