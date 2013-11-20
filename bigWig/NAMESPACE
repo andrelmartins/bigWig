@@ -1,4 +1,4 @@
-useDynLib(bigwig, bigWig_load, bigWig_unload, bigWig_query, bigWig_query_by_step,bigWig_bed_query, bigWig_chrom_step_sum, foreach_bed)
+useDynLib(bigwig, bigWig_load, bigWig_unload, bigWig_query, bigWig_query_by_step,bigWig_bed_query, bigWig_chrom_step_sum, foreach_bed, bigWig_probe_query)
 export(load.bigWig)
 export(unload.bigWig)
 export(query.bigWig)
@@ -22,3 +22,6 @@ export(chromStepSum.bigWig)
 export(foreach.bed)
 export(subsample.meta.gene)
 export(plot.meta.gene)
+
+export(region.probeQuery.bigWig)
+export(bed.region.probeQuery.bigWig)
