@@ -30,7 +30,7 @@
  */
 bigWig_t * bigWig_for_chrom(SEXP obj, const char * chrom) {
   SEXP ptr;
-  bigWig_t * bigWig;
+  bigWig_t * bigWig = NULL;
 
   if (IS_CHARACTER(obj)) {
     struct errCatch * err;
@@ -267,4 +267,3 @@ SEXP bigWig_probe_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP s
   
   return result;
 }
-
