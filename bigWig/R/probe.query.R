@@ -36,6 +36,10 @@ step.probeQuery.bigWig <- function(bw, chrom, start, end, step, op = "sum", abs.
     return(rep(gap.value, (end - start) %/% step))
   }
   if (is.null(start) && is.null(end)) {
+    chromIdx = which(bw$chroms == chrom)
+    bed = data.frame(chrom, 0, bw$chromSizes[chromIdx])
+    
+    return(unlist(.Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value)))
   }
   if (is.null(start) || is.null(end))
     stop("either set both start and end to null (chromosome wide query) or neither")
