@@ -24,13 +24,11 @@
 /* Interface to abstract handling of fragmented bigWig objects
  * 
  * "obj" is either an R object of class 'bigWig' with an 'handle_ptr'
- * attribute (classic bigWig object) or it is a character vector with
- * length 2 or 4. Containing prefixes and suffixes to the path of each
- * bigWig fragment (path = <prefix><chrom><suffix>). If it has length 4
- * then the first pair corresponds to the plus strand and the second
- * pair to the minus strand prefix/suffix pairs.
+ * attribute (classic bigWig object) or it is a character vector 
+ * containing the prefix and suffix to the path of each
+ * bigWig fragment (path = <prefix><chrom><suffix>).
  */
-bigWig_t * bigWig_for_chrom(SEXP obj, const char * chrom, int plus_strand) {
+bigWig_t * bigWig_for_chrom(SEXP obj, const char * chrom) {
   SEXP ptr;
   bigWig_t * bigWig;
 
@@ -40,16 +38,11 @@ bigWig_t * bigWig_for_chrom(SEXP obj, const char * chrom, int plus_strand) {
     int slen;
     char * path;
     
-    if (Rf_length(obj) != 2 && Rf_length(obj) != 4)
-      error("bigWig fragment must be a set of one or two prefix/suffix pairs");
+    if (Rf_length(obj) != 2)
+      error("bigWig fragment must be a set of one prefix/suffix pair");
     
-    if (plus_strand == 1 || Rf_length(obj) == 2) {
-      prefix = STRING_ELT(obj, 0);
-      suffix = STRING_ELT(obj, 1);
-    } else {
-      prefix = STRING_ELT(obj, 2);
-      suffix = STRING_ELT(obj, 3);
-    }
+    prefix = STRING_ELT(obj, 0);
+    suffix = STRING_ELT(obj, 1);
     
     /* create path string */
     slen = strlen(chrom) + strlen(CHAR(prefix)) + strlen(CHAR(suffix)) + 1;
@@ -140,7 +133,7 @@ void fill_row(SEXP matrix, SEXP row, int row_idx) {
   }
 }
 
-SEXP bigWig_probe_query(SEXP obj, SEXP bed, SEXP op, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value) {
+SEXP bigWig_probe_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value) {
   bwStepOp bwOp;
   bigWig_t * bw = NULL;
   SEXP result;
@@ -216,11 +209,18 @@ SEXP bigWig_probe_query(SEXP obj, SEXP bed, SEXP op, SEXP step, SEXP use_strand,
     }
     
     if (prev_chrom == NULL || strcmp(chrom, prev_chrom) || prev_strand_plus != is_plus) {
-      if (bw != NULL)
-        bigWig_for_chrom_release(obj, bw);
+      if (bw != NULL) {
+        if (is_plus || obj_minus == R_NilValue)
+          bigWig_for_chrom_release(obj_plus, bw);
+        else
+          bigWig_for_chrom_release(obj_minus, bw);
+      }
       
       // get bigWig object
-      bw = bigWig_for_chrom(obj, chrom, is_plus);
+      if (is_plus || obj_minus == R_NilValue)
+        bw = bigWig_for_chrom(obj_plus, chrom);
+      else
+        bw = bigWig_for_chrom(obj_minus, chrom);
       
       // update
       prev_chrom = chrom;
@@ -236,7 +236,7 @@ SEXP bigWig_probe_query(SEXP obj, SEXP bed, SEXP op, SEXP step, SEXP use_strand,
   
     // reverse if on negative strand
     if (is_plus == 0)
-      vec_reverse(result);
+      vec_reverse(res);
     
     if (is_matrix) {
       fill_row(result, res, i);
@@ -256,8 +256,12 @@ SEXP bigWig_probe_query(SEXP obj, SEXP bed, SEXP op, SEXP step, SEXP use_strand,
   
   
   // clean up
-  if (bw != NULL)
-    bigWig_for_chrom_release(obj, bw);
+  if (bw != NULL) {
+    if (prev_strand_plus || obj_minus == R_NilValue)
+      bigWig_for_chrom_release(obj_plus, bw);
+    else
+      bigWig_for_chrom_release(obj_minus, bw);
+  }
 
   UNPROTECT(5);
   

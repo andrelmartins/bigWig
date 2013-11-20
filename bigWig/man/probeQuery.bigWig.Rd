@@ -1,4 +1,5 @@
 \name{probeQuery.bigWig}
+\alias{probeQuery.bigWig}
 \alias{region.probeQuery.bigWig}
 \alias{bed.region.probeQuery.bigWig}
 \alias{step.probeQuery.bigWig}
@@ -13,6 +14,8 @@ region.probeQuery.bigWig(bw, chrom, start, end, op = "sum", abs.value = FALSE, g
 
 bed.region.probeQuery.bigWig(bw, bed, op = "sum", abs.value = FALSE, gap.value = NA)
 
+bed6.region.probeQuery.bigWig(bw.plus, bw.minus, bed, op = "sum", abs.value = FALSE, gap.value = NA)
+
 step.probeQuery.bigWig(bw, chrom, start, end, step, op = "sum", abs.value = FALSE, gap.value = NA, with.attributes = TRUE)
 
 bed.step.probeQuery.bigWig(bw, bed, step, op = "sum", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE)
@@ -22,10 +25,9 @@ bed6.step.probeQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "sum", abs.value
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{bw}{either an R object of class 'bigWig' or a character vector containing prefixes and suffixes to the path of each bigWig fragment (path = <prefix><chrom><suffix>). If it has length 4 then the first pair corresponds to the plus strand and the second pair to the minus strand prefix/suffix pairs.}
+  \item{bw}{either an R object of class 'bigWig' or a character vector containing the prefix and suffix to the path of each bigWig fragment (path = <prefix><chrom><suffix>).}
   \item{bw.plus}{same as 'bw', but for use with plus strand queries.}
   \item{bw.minus}{same as 'bw', but for use with minus strand queries.}
-  \item{bw}{either an R object of class 'bigWig' or a character vector containing prefixes and suffixes to the path of each bigWig fragment (path = <prefix><chrom><suffix>). If it has length 4 then the first pair corresponds to the plus strand and the second pair to the minus strand prefix/suffix pairs.}
   \item{chrom}{the chromosome to which the query interval belongs to.}
   \item{start}{the start of the query interval (zero-based, left open coordinates like in BED files). In \code{step.probeQuery.bigWig} it can be NULL, indicating a full chromosome query.}
   \item{end}{the end of the query interval (zero-baed, left open coordinates like in BED files). In \code{step.probeQuery.bigWig} it can be NULL, indicating a full chromosome query.}
@@ -39,10 +41,7 @@ bed6.step.probeQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "sum", abs.value
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
-\value{Returns a N by 3 matrix with columns (start, end, value) where N
-  is the number of intervals contained in the bigWig file that intersect
-  with the query interval. Result coordinates are clipped to the query 
-  interval (unless \code{clip == FALSE}).}
+\value{Returns either a vector (non-bed functions) or either a list or a matrix (bed/bed6) functions.}
 \references{
 %% ~put references to the literature/web site here ~
 }
