@@ -1,0 +1,72 @@
+\name{probeQuery.bigWig}
+\alias{region.probeQuery.bigWig}
+\alias{bed.region.probeQuery.bigWig}
+\alias{step.probeQuery.bigWig}
+\alias{bed.step.probeQuery.bigWig}
+\alias{bed6.step.probeQuery.bigWig}
+
+\title{Query bigWig Files Containing Probe Data}
+\description{Collect values (or transformations of values) from intervals (probes) that overlap the query region(s).}
+\usage{
+
+region.probeQuery.bigWig(bw, chrom, start, end, op = "sum", abs.value = FALSE, gap.value = NA)
+
+bed.region.probeQuery.bigWig(bw, bed, op = "sum", abs.value = FALSE, gap.value = NA)
+
+step.probeQuery.bigWig(bw, chrom, start, end, step, op = "sum", abs.value = FALSE, gap.value = NA, with.attributes = TRUE)
+
+bed.step.probeQuery.bigWig(bw, bed, step, op = "sum", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE)
+
+bed6.step.probeQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "sum", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE)
+
+}
+%- maybe also 'usage' for other objects documented here.
+\arguments{
+  \item{bw}{either an R object of class 'bigWig' or a character vector containing prefixes and suffixes to the path of each bigWig fragment (path = <prefix><chrom><suffix>). If it has length 4 then the first pair corresponds to the plus strand and the second pair to the minus strand prefix/suffix pairs.}
+  \item{bw.plus}{same as 'bw', but for use with plus strand queries.}
+  \item{bw.minus}{same as 'bw', but for use with minus strand queries.}
+  \item{bw}{either an R object of class 'bigWig' or a character vector containing prefixes and suffixes to the path of each bigWig fragment (path = <prefix><chrom><suffix>). If it has length 4 then the first pair corresponds to the plus strand and the second pair to the minus strand prefix/suffix pairs.}
+  \item{chrom}{the chromosome to which the query interval belongs to.}
+  \item{start}{the start of the query interval (zero-based, left open coordinates like in BED files). In \code{step.probeQuery.bigWig} it can be NULL, indicating a full chromosome query.}
+  \item{end}{the end of the query interval (zero-baed, left open coordinates like in BED files). In \code{step.probeQuery.bigWig} it can be NULL, indicating a full chromosome query.}
+  \item{step}{step size in base pairs.}
+  \item{op}{name of the operation to apply to each query interval: "sum", "avg", "wavg", "min", "max". "wavg" computes the weighted average of overlapping probes, where each probe is weighted by the fraction of the (probe covered) query interval that it covers.}
+  \item{abs.value}{logical value; if TRUE, the absolute values of each probe is used as input the interval operation.}
+  \item{gap.value}{value assigned to query intervals that have no intercepting probes.}
+  \item{as.matrix}{logical value; if TRUE, in 'BED' type queries, the result is a matrix, otherwise it's a list of vectors, one per query 'BED' entry.}
+  \item{with.attributes}{logival value; if TRUE, results are annotated with their source coordinates and/or step size.}
+}
+\details{
+%%  ~~ If necessary, more details than the description above ~~
+}
+\value{Returns a N by 3 matrix with columns (start, end, value) where N
+  is the number of intervals contained in the bigWig file that intersect
+  with the query interval. Result coordinates are clipped to the query 
+  interval (unless \code{clip == FALSE}).}
+\references{
+%% ~put references to the literature/web site here ~
+}
+\author{André Luís Martins}
+\note{
+%%  ~~further notes~~
+}
+
+%% ~Make other sections like Warning with \section{Warning }{....} ~
+
+\seealso{See \code{\link{load.bigWig}} to load a bigWig. See
+  \code{\link{bedQuery.bigWig}} to query a BED file.}
+
+\examples{
+##---- Should be DIRECTLY executable !! ----
+##-- ==>  Define data, use random,
+##--	or do  help(data=index)  for the standard data sets.
+
+## The function is currently defined as
+function(bigWig, chrom, start, end) {
+  .Call("bigWig_query", bigWig, chrom, start, end)
+  }
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory.
+\keyword{ bigWig }
+\keyword{ query }% __ONLY ONE__ keyword per line

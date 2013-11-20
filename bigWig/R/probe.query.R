@@ -22,6 +22,11 @@ bed.region.probeQuery.bigWig <- function(bw, bed, op = "sum", abs.value = FALSE,
   .Call(bigWig_probe_query, bw, bed, op, NA, FALSE, FALSE, TRUE, gap.value, abs.value)
 }
 
+bed6.region.probeQuery.bigWig <- function(bw.plus, bw.minus, bed, op = "sum", abs.value = FALSE, gap.value = NA) {
+  valid.probe.op(op)
+  .Call(bigWig_probe_query, bw, bed, op, NA, FALSE, FALSE, TRUE, gap.value, abs.value)
+}
+
 # note: start, end are optional here (use NULL for both to get the entire choromosome)
 step.probeQuery.bigWig <- function(bw, chrom, start, end, step, op = "sum", abs.value = FALSE, gap.value = NA, with.attributes = TRUE) {
   valid.probe.op(op)

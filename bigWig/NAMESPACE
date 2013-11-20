@@ -25,6 +25,7 @@ export(plot.meta.gene)
 
 export(region.probeQuery.bigWig)
 export(bed.region.probeQuery.bigWig)
+export(bed6.region.probeQuery.bigWig)
 export(step.probeQuery.bigWig)
 export(bed.step.probeQuery.bigWig)
 export(bed6.step.probeQuery.bigWig)
