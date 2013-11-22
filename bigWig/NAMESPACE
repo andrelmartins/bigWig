@@ -29,3 +29,8 @@ export(bed6.region.probeQuery.bigWig)
 export(step.probeQuery.bigWig)
 export(bed.step.probeQuery.bigWig)
 export(bed6.step.probeQuery.bigWig)
+
+export(load.bwMap)
+export(unload.bwMap)
+export(print.bwMap)
+S3method(print, bwMap)

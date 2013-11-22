@@ -36,7 +36,7 @@ print.bigWig <- function(x, ...) {
   cat(" primaryDataSize:", prettyNum(x$primaryDataSize, big.mark=','), "\n")
   cat(" primaryIndexSize:", prettyNum(x$primaryIndexSize, big.mark=','), "\n")
   cat(" zoomLevels:", x$zoomLevels, "\n")
-  cat(" chromcount:", length(x$chroms), "\n")
+  cat(" chromCount:", length(x$chroms), "\n")
   for (i in 1:length(x$chroms))
     cat("    ", x$chroms[i], x$chromSizes[i], "\n")
   cat(" basesCovered:", prettyNum(x$basesCovered, big.mark=','), "\n")
