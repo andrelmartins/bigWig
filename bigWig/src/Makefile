@@ -77,7 +77,7 @@ prepare:
 	ln -f -s $(KENTHOME)/src/lib
 	[ -d jkweb ] || mkdir -p jkweb/font
 
-jkweb.a: prepare
+jkweb.a:
 	@for obj in $(O); do echo "CC $${obj}"; \
 	${CC} ${COPT} -I./inc ${CFLAGS} ${HG_DEFS} ${LOWELAB_DEFS} ${HG_WARN} ${HG_INC} ${XINC} -fPIC -o jkweb/$${obj} -c lib/`dirname $${obj}`/`basename $${obj} o`c; done
 	ar rcus jkweb.a $(JKWEBO)
@@ -85,8 +85,8 @@ jkweb.a: prepare
 #jkweb/%.o: lib/%.c
 #	${CC} ${COPT} -I./inc ${CFLAGS} ${HG_DEFS} ${LOWELAB_DEFS} ${HG_WARN} ${HG_INC} ${XINC} -fPIC -o $@ -c $<
 
-bigwig.so: jkweb.a bigWig_R.c utils_R.c bwgExtra.h bwgExtra.c
-	MAKEFLAGS=${MFLGSESC} R CMD SHLIB -o $@ bigWig_R.c utils_R.c bwgExtra.c ${MYLIBS} ${L}
+bigwig.so: prepare jkweb.a bigWig_R.c utils_R.c bwgExtra.h bwgExtra.c bw_query.h bw_query.c bigWig_R2.c
+	MAKEFLAGS=${MFLGSESC} R CMD SHLIB -o $@ bigWig_R.c utils_R.c bwgExtra.c  bw_query.c bigWig_R2.c ${MYLIBS} ${L}
 	rm inc lib
 
 clean:
