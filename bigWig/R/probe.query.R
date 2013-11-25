@@ -7,8 +7,44 @@ valid.probe.op <- function(op) {
     stop("invalid probe operation: ", op)
 }
 
+valid.query.range <- function(start, end, index = NA, step = NA) {
+  if (end <= start) {
+    if (!is.na(index))
+      stop("bed:", index, ": end must be > start: ", start, ", ", end)
+    else
+      stop("end must be > start: ", start, ", ", end)
+  }
+  if (start < 0 || end < 1) {
+    if (!is.na(index))
+      stop("bed:", index, ": start and end must be positive: ", start, ", ", end)
+    else
+      stop("start and end must be positive: ", start, ", ", end)
+  }
+  
+  if (!is.na(step) && (end - start) %/% step == 0) {
+    if (!is.na(index))
+      stop("bed:", index, ": query region is less than a step wide")
+    else
+      stop("query region is less than a step wide")
+  }
+  
+  if (!is.na(step) && (end - start) %% step > 0) {
+    if (!is.na(index))
+      warning("bed:", index, ": query region is not an integer multiple of step")
+    else
+      warning("query region is not an integer multiple of step")
+  }
+}
+
+bed.valid.query.range <- function(bed, step = NA) {
+  foreach.bed(bed, function(i, chrom, start, end, strand) {
+    valid.query.range(start, end, index = i, step = step)
+  })
+}
+
 region.probeQuery.bigWig <- function(bw, chrom, start, end, op = "wavg", abs.value = FALSE, gap.value = NA) {
   valid.probe.op(op)
+  valid.query.range(start, end)
   if (!any(bw$chroms == chrom)) {
     warning("bigWig does not contain information on chromosome: ", chrom)
     return(gap.value)
@@ -18,18 +54,21 @@ region.probeQuery.bigWig <- function(bw, chrom, start, end, op = "wavg", abs.val
 }
 
 bed.region.probeQuery.bigWig <- function(bw, bed, op = "wavg", abs.value = FALSE, gap.value = NA) {
+  bed.valid.query.range(bed)
   valid.probe.op(op)
   .Call(bigWig_probe_query, bw, NULL, bed[, 1:3], op, NA, FALSE, FALSE, TRUE, gap.value, abs.value)
 }
 
 bed6.region.probeQuery.bigWig <- function(bw.plus, bw.minus, bed, op = "wavg", abs.value = FALSE, gap.value = NA) {
   stopifnot(dim(bed)[2] >= 6)
+  bed.valid.query.range(bed)
   valid.probe.op(op)
   .Call(bigWig_probe_query, bw.plus, bw.minus, bed, op, NA, FALSE, FALSE, TRUE, gap.value, abs.value)
 }
 
 # note: start, end are optional here (use NULL for both to get the entire choromosome)
 step.probeQuery.bigWig <- function(bw, chrom, start, end, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = TRUE) {
+  valid.query.range(start, end, step = step)
   valid.probe.op(op)
   if (!any(bw$chroms == chrom)) {
     warning("bigWig does not contain information on chromosome: ", chrom)
@@ -49,6 +88,7 @@ step.probeQuery.bigWig <- function(bw, chrom, start, end, step, op = "wavg", abs
 }
 
 bed.step.probeQuery.bigWig <- function(bw, bed, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE) {
+  bed.valid.query.range(bed, step = step)
   valid.probe.op(op)
   if (as.matrix) {
     sizes = bed[,3] - bed[,2]
@@ -59,6 +99,7 @@ bed.step.probeQuery.bigWig <- function(bw, bed, step, op = "wavg", abs.value = F
 }
 
 bed6.step.probeQuery.bigWig <- function(bw.plus, bw.minus, bed, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE) {
+  bed.valid.query.range(bed, step = step)
   stopifnot(dim(bed)[2] >= 6)
   valid.probe.op(op)
   if (as.matrix) {
