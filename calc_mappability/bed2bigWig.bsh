@@ -1,0 +1,29 @@
+#!/usr/bin/bash
+#
+# Script to convert mappability bed files to a bigWig format.
+# Assumes that positions in the bed file do NOT overlap (i.e.,
+# counts positions in the genome no more than once).
+#
+# Requirements (In the current path): 
+# * The Kent source tools (twoBitInfo and bedGraphToBigWig).
+# * The bedops package.
+#
+# Input: 
+# * A mappability bed file created by calcUnmap.sh.
+# * A 2bit formatted genome file.
+#
+# Output:
+# * A bigWig of the positions in the target genome that are repetitive
+#   at the target read size. 
+
+function makeBigWig {
+ twoBitInfo $TWOBIT chromInfo
+ zcat $BEDPREFIX.unmap.bed.gz | grep "^chr" | awk 'BEGIN{OFS="\t"} {print $1,$2,$3,1}' > $BEDPREFIX.bedGraph
+ bedGraphToBigWig $BEDPREFIX.bedGraph chromInfo $BEDPREFIX.bw
+ rm $BEDPREFIX.bedGraph chromInfo
+}
+
+TWOBIT=/gbdb/hg19/hg19.2bit
+BEDPREFIX=30mers
+makeBigWig
+
