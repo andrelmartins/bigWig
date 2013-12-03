@@ -59,11 +59,11 @@ bed.region.probeQuery.bigWig <- function(bw, bed, op = "wavg", abs.value = FALSE
   .Call(bigWig_probe_query, bw, NULL, bed[, 1:3], op, NA, FALSE, FALSE, TRUE, gap.value, abs.value)
 }
 
-bed6.region.probeQuery.bigWig <- function(bw.plus, bw.minus, bed, op = "wavg", abs.value = FALSE, gap.value = NA) {
-  stopifnot(dim(bed)[2] >= 6)
-  bed.valid.query.range(bed)
+bed6.region.probeQuery.bigWig <- function(bw.plus, bw.minus, bed6, op = "wavg", abs.value = FALSE, gap.value = NA) {
+  stopifnot(dim(bed6)[2] >= 6)
+  bed.valid.query.range(bed6)
   valid.probe.op(op)
-  .Call(bigWig_probe_query, bw.plus, bw.minus, bed, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value)
+  .Call(bigWig_probe_query, bw.plus, bw.minus, bed6, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value)
 }
 
 # note: start, end are optional here (use NULL for both to get the entire choromosome)
@@ -81,7 +81,7 @@ step.probeQuery.bigWig <- function(bw, chrom, start, end, step, op = "wavg", abs
     return(.Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value)[[1]])
   }
   if (is.null(start) || is.null(end))
-    stop("either set both start and end to null (chromosome wide query) or neither")
+    stop("either set both start and end to null (chromosome-wide query) or neither")
   
   bed = data.frame(chrom, start, end)
   .Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value)[[1]]
@@ -98,14 +98,14 @@ bed.step.probeQuery.bigWig <- function(bw, bed, step, op = "wavg", abs.value = F
   .Call(bigWig_probe_query, bw, NULL, bed[, 1:3], op, step, FALSE, with.attributes, as.matrix, gap.value, abs.value)
 }
 
-bed6.step.probeQuery.bigWig <- function(bw.plus, bw.minus, bed, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE) {
-  bed.valid.query.range(bed, step = step)
-  stopifnot(dim(bed)[2] >= 6)
+bed6.step.probeQuery.bigWig <- function(bw.plus, bw.minus, bed6, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE) {
+  bed.valid.query.range(bed6, step = step)
+  stopifnot(dim(bed6)[2] >= 6)
   valid.probe.op(op)
   if (as.matrix) {
-    sizes = bed[,3] - bed[,2]
+    sizes = bed6[,3] - bed6[,2]
     stopifnot(all(sizes == sizes[1]))
   }
   
-  .Call(bigWig_probe_query, bw.plus, bw.minus, bed, op, step, TRUE, with.attributes, as.matrix, gap.value, abs.value)
+  .Call(bigWig_probe_query, bw.plus, bw.minus, bed6, op, step, TRUE, with.attributes, as.matrix, gap.value, abs.value)
 }
