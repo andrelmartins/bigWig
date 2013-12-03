@@ -22,3 +22,11 @@ Output
 1. A bed file representing the set of genomic coordinates where a read can not be unambiguously mapped.
 2. A bigWig file, compatible with the bigWig package.
 3. Several (large) temporary that can be removed after running.
+
+Instructions
+============
+
+1. Download and install the necessary dependencies.
+2. Modify the calcUnmap.sh and bed2bigWig.bsh scripts to update the target read size and genome location parameters.
+3. Run the calcUnmap.sh script.
+4. Run the bed2bigWig.bsh script.
