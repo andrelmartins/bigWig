@@ -61,6 +61,10 @@ void bw_op_add_max(bwStepOpData * data, double isize, double ivalue) {
     data->total = ivalue;
   data->count = 1.0;
 }
+void bw_op_add_thresh(bwStepOpData * data, double isize, double ivalue) {
+  data->count += ivalue * isize;
+}
+
 double bw_op_result_sum_min_max(bwStepOpData * data, int step) {
   if (data->count == 0.0)
     return data->defaultValue;
@@ -75,6 +79,12 @@ double bw_op_result_avg_bp(bwStepOpData * data, int step) {
   if (data->count == 0.0)
     return data->defaultValue;
   return data->total / step;
+}
+double bw_op_result_thresh(bwStepOpData * data, int step) {
+  if (data->count >= data->defaultValue) /* use defaultValue as threshold */
+    return 1.0;
+  else
+    return 0.0;
 }
 
 void bw_select_op(bwStepOp * op, const char * bw_op_type, int probe_mode) {
@@ -110,6 +120,10 @@ void bw_select_op(bwStepOp * op, const char * bw_op_type, int probe_mode) {
     op->clear = bw_op_clear_max;
     op->add = bw_op_add_max;
     op->result = bw_op_result_sum_min_max;
+  } else if (!strcmp("thresh", bw_op_type)) { /* this op uses 'defaultValue' (aka gap_value) as threshold */
+    op->clear = bw_op_clearz;
+    op->add = bw_op_add_thresh;
+    op->result = bw_op_result_thresh;
   } else {
       /* throw error! */
   }

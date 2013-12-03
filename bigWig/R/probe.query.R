@@ -7,8 +7,44 @@ valid.probe.op <- function(op) {
     stop("invalid probe operation: ", op)
 }
 
-region.probeQuery.bigWig <- function(bw, chrom, start, end, op = "sum", abs.value = FALSE, gap.value = NA) {
+valid.query.range <- function(start, end, index = NA, step = NA) {
+  if (end <= start) {
+    if (!is.na(index))
+      stop("bed:", index, ": end must be > start: ", start, ", ", end)
+    else
+      stop("end must be > start: ", start, ", ", end)
+  }
+  if (start < 0 || end < 1) {
+    if (!is.na(index))
+      stop("bed:", index, ": start and end must be positive: ", start, ", ", end)
+    else
+      stop("start and end must be positive: ", start, ", ", end)
+  }
+  
+  if (!is.na(step) && (end - start) %/% step == 0) {
+    if (!is.na(index))
+      stop("bed:", index, ": query region is less than a step wide")
+    else
+      stop("query region is less than a step wide")
+  }
+  
+  if (!is.na(step) && (end - start) %% step > 0) {
+    if (!is.na(index))
+      warning("bed:", index, ": query region is not an integer multiple of step")
+    else
+      warning("query region is not an integer multiple of step")
+  }
+}
+
+bed.valid.query.range <- function(bed, step = NA) {
+  foreach.bed(bed, function(i, chrom, start, end, strand) {
+    valid.query.range(start, end, index = i, step = step)
+  })
+}
+
+region.probeQuery.bigWig <- function(bw, chrom, start, end, op = "wavg", abs.value = FALSE, gap.value = NA) {
   valid.probe.op(op)
+  valid.query.range(start, end)
   if (!any(bw$chroms == chrom)) {
     warning("bigWig does not contain information on chromosome: ", chrom)
     return(gap.value)
@@ -17,19 +53,22 @@ region.probeQuery.bigWig <- function(bw, chrom, start, end, op = "sum", abs.valu
   .Call(bigWig_probe_query, bw, NULL, bed, op, NA, FALSE, FALSE, TRUE, gap.value, abs.value)
 }
 
-bed.region.probeQuery.bigWig <- function(bw, bed, op = "sum", abs.value = FALSE, gap.value = NA) {
+bed.region.probeQuery.bigWig <- function(bw, bed, op = "wavg", abs.value = FALSE, gap.value = NA) {
+  bed.valid.query.range(bed)
   valid.probe.op(op)
   .Call(bigWig_probe_query, bw, NULL, bed[, 1:3], op, NA, FALSE, FALSE, TRUE, gap.value, abs.value)
 }
 
-bed6.region.probeQuery.bigWig <- function(bw.plus, bw.minus, bed, op = "sum", abs.value = FALSE, gap.value = NA) {
-  stopifnot(dim(bed)[2] >= 6)
+bed6.region.probeQuery.bigWig <- function(bw.plus, bw.minus, bed6, op = "wavg", abs.value = FALSE, gap.value = NA) {
+  stopifnot(dim(bed6)[2] >= 6)
+  bed.valid.query.range(bed6)
   valid.probe.op(op)
-  .Call(bigWig_probe_query, bw.plus, bw.minus, bed, op, NA, FALSE, FALSE, TRUE, gap.value, abs.value)
+  .Call(bigWig_probe_query, bw.plus, bw.minus, bed6, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value)
 }
 
 # note: start, end are optional here (use NULL for both to get the entire choromosome)
-step.probeQuery.bigWig <- function(bw, chrom, start, end, step, op = "sum", abs.value = FALSE, gap.value = NA, with.attributes = TRUE) {
+step.probeQuery.bigWig <- function(bw, chrom, start, end, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = TRUE) {
+  valid.query.range(start, end, step = step)
   valid.probe.op(op)
   if (!any(bw$chroms == chrom)) {
     warning("bigWig does not contain information on chromosome: ", chrom)
@@ -42,13 +81,14 @@ step.probeQuery.bigWig <- function(bw, chrom, start, end, step, op = "sum", abs.
     return(.Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value)[[1]])
   }
   if (is.null(start) || is.null(end))
-    stop("either set both start and end to null (chromosome wide query) or neither")
+    stop("either set both start and end to null (chromosome-wide query) or neither")
   
   bed = data.frame(chrom, start, end)
   .Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value)[[1]]
 }
 
-bed.step.probeQuery.bigWig <- function(bw, bed, step, op = "sum", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE) {
+bed.step.probeQuery.bigWig <- function(bw, bed, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE) {
+  bed.valid.query.range(bed, step = step)
   valid.probe.op(op)
   if (as.matrix) {
     sizes = bed[,3] - bed[,2]
@@ -58,13 +98,14 @@ bed.step.probeQuery.bigWig <- function(bw, bed, step, op = "sum", abs.value = FA
   .Call(bigWig_probe_query, bw, NULL, bed[, 1:3], op, step, FALSE, with.attributes, as.matrix, gap.value, abs.value)
 }
 
-bed6.step.probeQuery.bigWig <- function(bw.plus, bw.minus, bed, step, op = "sum", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE) {
-  stopifnot(dim(bed)[2] >= 6)
+bed6.step.probeQuery.bigWig <- function(bw.plus, bw.minus, bed6, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE) {
+  bed.valid.query.range(bed6, step = step)
+  stopifnot(dim(bed6)[2] >= 6)
   valid.probe.op(op)
   if (as.matrix) {
-    sizes = bed[,3] - bed[,2]
+    sizes = bed6[,3] - bed6[,2]
     stopifnot(all(sizes == sizes[1]))
   }
   
-  .Call(bigWig_probe_query, bw.plus, bw.minus, bed, op, step, TRUE, with.attributes, as.matrix, gap.value, abs.value)
+  .Call(bigWig_probe_query, bw.plus, bw.minus, bed6, op, step, TRUE, with.attributes, as.matrix, gap.value, abs.value)
 }

@@ -133,8 +133,7 @@ void fill_row(SEXP matrix, SEXP row, int row_idx) {
   }
 }
 
-SEXP bigWig_probe_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value) {
-  bwStepOp bwOp;
+SEXP bigWig_region_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, bwStepOp bwOp, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value) {
   bigWig_t * bw = NULL;
   SEXP result;
   int i, N;
@@ -175,9 +174,6 @@ SEXP bigWig_probe_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP s
     if (!isFactor(strands) && TYPEOF(strands) != STRSXP)
       error("sixth column of bed file must be a factor or character vector");
   }
-  
-  // initialize selected operation
-  bw_select_op(&bwOp, CHAR(STRING_ELT(op, 0)), 1);
   
   // decide if output is list or matrix (assume that R side has validated the option)
   N = length(chroms);
@@ -285,3 +281,24 @@ SEXP bigWig_probe_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP s
   
   return result;
 }
+
+SEXP bigWig_probe_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value) {
+  bwStepOp bwOp;
+  
+  // initialize selected operation
+  bw_select_op(&bwOp, CHAR(STRING_ELT(op, 0)), 1);
+  
+  return bigWig_region_query(obj_plus, obj_minus, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value);
+}
+
+SEXP bigWig_bp_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value, SEXP bwMap) {
+  bwStepOp bwOp;
+  
+  // TODO: handle bwMap
+  
+  // initialize selected operation
+  bw_select_op(&bwOp, CHAR(STRING_ELT(op, 0)), 0);
+  
+  return bigWig_region_query(obj_plus, obj_minus, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value);
+}
+
