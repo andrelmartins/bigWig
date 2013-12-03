@@ -12,6 +12,7 @@ typedef struct {
   
   double total;
   double count;
+  double thresh;
 } bwStepOpData;
 
 typedef void (* bw_op_clear)(bwStepOpData * data);
@@ -25,7 +26,7 @@ typedef struct {
 } bwStepOp;
 
 void bw_select_op(bwStepOp * op, const char * bw_op_type, int probe_mode);
-SEXP bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs);
+SEXP bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs, double thresh);
 SEXP bw_chrom_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int step, double gap_value, int do_abs);SEXP bw_map_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double threshold);
 
 #endif

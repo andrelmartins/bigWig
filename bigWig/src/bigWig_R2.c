@@ -133,7 +133,9 @@ void fill_row(SEXP matrix, SEXP row, int row_idx) {
   }
 }
 
-SEXP bigWig_region_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, bwStepOp bwOp, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value) {
+typedef SEXP (*step_query_func)(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs, int is_plus, void * uptr);
+
+SEXP bigWig_region_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, bwStepOp bwOp, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value, step_query_func step_query, void * uptr) {
   bigWig_t * bw = NULL;
   SEXP result;
   int i, N;
@@ -228,8 +230,11 @@ SEXP bigWig_region_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, bwStepOp bwOp,
     end = INTEGER(ends)[i];
     if (no_step)
       istep = end - start;
-    
-    PROTECT(res = bw_step_query(bw, &bwOp, chrom, start, end, istep, d_gap, do_abs));
+
+    if (step_query != NULL)
+      PROTECT(res = (*step_query)(bw, &bwOp, chrom, start, end, istep, d_gap, do_abs, is_plus, uptr));
+    else
+      PROTECT(res = bw_step_query(bw, &bwOp, chrom, start, end, istep, d_gap, do_abs, 0.0));
   
     // reverse if on negative strand
     if (is_plus == 0)
@@ -288,7 +293,7 @@ SEXP bigWig_probe_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP s
   // initialize selected operation
   bw_select_op(&bwOp, CHAR(STRING_ELT(op, 0)), 1);
   
-  return bigWig_region_query(obj_plus, obj_minus, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value);
+  return bigWig_region_query(obj_plus, obj_minus, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value, NULL, NULL);
 }
 
 SEXP bigWig_bp_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value, SEXP bwMap) {
@@ -299,6 +304,147 @@ SEXP bigWig_bp_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP step
   // initialize selected operation
   bw_select_op(&bwOp, CHAR(STRING_ELT(op, 0)), 0);
   
-  return bigWig_region_query(obj_plus, obj_minus, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value);
+  return bigWig_region_query(obj_plus, obj_minus, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value, NULL, NULL);
+}
+
+SEXP getListElement(SEXP list, const char *str) {
+  SEXP elmt = R_NilValue;
+  SEXP names = getAttrib(list, R_NamesSymbol);
+
+  for (int i = 0; i < length(list); i++)
+    if(strcmp(CHAR(STRING_ELT(names, i)), str) == 0) {
+	    elmt = VECTOR_ELT(list, i);
+	    break;
+	}
+  
+  return elmt;
+}
+
+struct bw_map_query_data {
+  int readLen;
+  int readLeftEdge;
+  const char * op_name;
+  double thresh;
+};
+
+SEXP bw_map_step_query_func(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs, int is_plus, void * uptr) {
+  struct bw_map_query_data * data = (struct bw_map_query_data *) uptr;
+  
+  double thresh = data->thresh * step; // here gap_value := threshold.fraction
+  
+  if ((!is_plus && data->readLeftEdge == 1) || (is_plus && data->readLeftEdge == 0)) {
+    // need to shift coordinates / handle edges
+    int size = (end - start)/step;
+    int actual_end = start + size * step;
+    
+    // position i in 'read coordinates' corresponds to position i - readLen + 1 in 'mappability coordinates'
+    start = start - data->readLen + 1;
+    actual_end = actual_end - data->readLen + 1;
+    
+    if (actual_end <= 0) {
+      // everything is outside scope, fill with NAs
+      SEXP result = NEW_NUMERIC(size);
+      double * ptr = REAL(result);
+      int i;
+      
+      for (i = 0; i < size; ++i)
+        ptr[i] = 1;  // if outside chrom, then unmappable
+      
+      return result;
+    } else if (start < 0) { // but actual_end > 0
+      SEXP result = NEW_NUMERIC(size);
+      int cur_start;
+      int cur_end;
+      int i;
+            
+      for (cur_start = start, cur_end = cur_start + step, i = 0; cur_start < actual_end; cur_start += step, cur_end += step, ++i) {
+        if (cur_start >= 0) {
+          int j;
+          
+          // everything else is a regular block
+          SEXP tmp = bw_step_query(bigwig, op, chrom, cur_start, end, step, gap_value, do_abs, thresh);
+          
+          for (j = 0; j < Rf_length(tmp); ++j)
+            REAL(result)[i + j] = REAL(tmp)[j];
+          
+          break;
+        } else if (cur_end <= 0) {
+          REAL(result)[i] = 1; // if outside chrom, then unmappable
+        } else {
+          SEXP tmp;
+          // incomplete intervals: (valid ops: sum, avg, thresh)
+          // if sum or thresh, same thing is valid
+          // if avg, use sum then compute average
+          if (!strcmp(data->op_name, "avg")) {
+            bwStepOp opsum;
+            
+            bw_select_op(&opsum, "sum", 0);
+            
+            tmp = bw_step_query(bigwig, &opsum, chrom, 0, cur_end, cur_end, gap_value, do_abs, thresh);
+            
+            REAL(result)[i] = REAL(tmp)[0] / step;
+          } else if (!strcmp(data->op_name, "thresh")) {
+            bwStepOp opsum;
+            
+            bw_select_op(&opsum, "sum", 0);
+            
+            tmp = bw_step_query(bigwig, &opsum, chrom, 0, cur_end, cur_end, gap_value, do_abs, thresh);
+            
+            REAL(result)[i] = (REAL(tmp)[0] >= thresh ? 1 : 0);
+          } else {
+            tmp = bw_step_query(bigwig, op, chrom, 0, cur_end, cur_end, gap_value, do_abs, thresh);
+            
+            REAL(result)[i] = REAL(tmp)[0];
+          }
+        }
+      }
+      
+      return result;
+    } else {
+      // regular query
+      return bw_step_query(bigwig, op, chrom, start, actual_end, step, gap_value, do_abs, thresh);
+    }
+  } else
+    return bw_step_query(bigwig, op, chrom, start, end, step, gap_value, do_abs, thresh);
+}
+
+SEXP bwMap_bp_query(SEXP obj, SEXP bed, SEXP op, SEXP step, SEXP with_attributes, SEXP as_matrix) {
+  bwStepOp bwOp;
+  const char * op_name = CHAR(STRING_ELT(op, 0));
+  SEXP gap_value;
+  SEXP abs_value;
+  SEXP use_strand;
+  SEXP bw_obj = getListElement(obj, "bw");
+  SEXP thresh = getListElement(obj, "threshold.fraction");
+  SEXP readLeftEdge = getListElement(obj, "read.left.edge");
+  SEXP readLen = getListElement(obj, "read.len");
+  SEXP result;
+  struct bw_map_query_data data;
+  
+  PROTECT(readLen = AS_INTEGER(readLen));
+  PROTECT(readLeftEdge = AS_LOGICAL(readLeftEdge));
+  PROTECT(thresh = AS_NUMERIC(thresh));
+  
+  // initialize selected operation
+  bw_select_op(&bwOp, op_name, 0);
+  
+  PROTECT(abs_value = NEW_LOGICAL(1));
+  INTEGER(abs_value)[0] = FALSE;
+  PROTECT(use_strand = NEW_LOGICAL(1));
+  INTEGER(use_strand)[0] = TRUE;
+  PROTECT(gap_value = NEW_NUMERIC(1));
+  REAL(gap_value)[0] = 0; // by default, if no info then regions are mappable
+  
+  data.readLen = INTEGER(readLen)[0];
+  data.readLeftEdge = INTEGER(readLeftEdge)[0];
+  data.op_name = op_name;
+  data.thresh = REAL(thresh)[0];
+  
+  //
+  result = bigWig_region_query(bw_obj, bw_obj, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value, bw_map_step_query_func, &data);
+  
+  UNPROTECT(6);
+  
+  return result;
 }
 

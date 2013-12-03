@@ -62,7 +62,8 @@ void bw_op_add_max(bwStepOpData * data, double isize, double ivalue) {
   data->count = 1.0;
 }
 void bw_op_add_thresh(bwStepOpData * data, double isize, double ivalue) {
-  data->count += ivalue * isize;
+  data->total += ivalue * isize;
+  data->count = 1.0;
 }
 
 double bw_op_result_sum_min_max(bwStepOpData * data, int step) {
@@ -81,7 +82,10 @@ double bw_op_result_avg_bp(bwStepOpData * data, int step) {
   return data->total / step;
 }
 double bw_op_result_thresh(bwStepOpData * data, int step) {
-  if (data->count >= data->defaultValue) /* use defaultValue as threshold */
+  if (data->count == 0.0)
+    return data->defaultValue;
+  
+  if (data->total >= data->thresh)
     return 1.0;
   else
     return 0.0;
@@ -147,7 +151,7 @@ double interval_size(double step_start, double step_end, double istart, double i
     - optimized versions for chrom_step_query ... (all "intervals" are of size 1)
  */
 
-SEXP bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs) {
+SEXP bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs, double thresh) {
   bwStepOpData data;
   SEXP res = R_NilValue;
   struct lm * localMem = lmInit(0); /* use default value */
@@ -158,6 +162,7 @@ SEXP bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int sta
 
   data.defaultValue = gap_value;
   data.do_abs = do_abs;
+  data.thresh = thresh;
 
   /* collect bigWig intervals in range */
   intervals = bigWigIntervalQuery(bigwig, (char*) chrom, start, end, localMem); /* maybe always use the expanded interval ?? to simplify the code, or have an option in the op selection to picks one or the other ... */

@@ -61,7 +61,7 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
   if (!is.null(bwMap) && !valid.strand(strand))
     error("strand is required when using mappability information")
   
-  valid.probe.op(op)
+  valid.bp.op(op)
   valid.query.range(start, end, step = step)
   
   if (!any(bw$chroms == chrom)) {

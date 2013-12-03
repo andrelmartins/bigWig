@@ -44,3 +44,79 @@ print.bwMap <- function(x, ...) {
   cat.bool("readLeftEdge", x$read.left.edge)
   cat(" stepFractionThreshold:", x$threshold.fraction, "\n")
 }
+
+#
+# Query functions for "base pair" mode
+#
+
+valid.bwMap.op <- function(op) {
+  if (all(op != c("sum", "avg", "thresh")))
+    stop("invalid base pair operation: ", op)
+}
+
+region.bpQuery.bwMap <- function(bwMap, chrom, start, end, strand, op = "thresh") {
+  if (!valid.strand(strand))
+    error("strand is required when using mappability information")
+
+  valid.bwMap.op(op)
+  valid.query.range(start, end)
+  
+  if (!any(bwMap$bw$chroms == chrom)) {
+    warning("bigWig does not contain information on chromosome: ", chrom)
+    return(gap.value)
+  }
+
+  bed = data.frame(chrom, start, end, 0, 0, strand)
+  .Call(bwMap_bp_query, bwMap, bed, op, NA, FALSE, TRUE)
+}
+
+bed6.region.bpQuery.bwMap <- function(bwMap, bed6, op = "thresh") {
+  stopifnot(dim(bed6) >= 6)
+  stopifnot(all(valid.strand(as.character(bed6[,6]))))
+  valid.bwMap.op(op)
+  bed.valid.query.range(bed6)
+  
+  .Call(bwMap_bp_query, bwMap, bed6, op, NA, FALSE, TRUE)
+}
+
+# note: start, end are optional here (use NULL for both to get the entire choromosome)
+step.bpQuery.bwMap <- function(bwMap, chrom, start, end, step, strand, op = "thresh", with.attributes = TRUE) {
+  if (!valid.strand(strand))
+    error("strand is required when using mappability information")
+  
+  valid.bwMap.op(op)
+  valid.query.range(start, end, step = step)
+  
+  if (!any(bwMap$bw$chroms == chrom)) {
+    warning("bigWig does not contain information on chromosome: ", chrom)
+    return(rep(gap.value, (end - start) %/% step))
+  }
+  
+  if (is.null(start) && is.null(end)) {
+    chromIdx = which(bwMap$bw$chroms == chrom)
+    bed = data.frame(chrom, 0, bwMap$bw$chromSizes[chromIdx])
+    
+    #return(.Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value)[[1]])
+    stop("chromosome-wide queries not implemented yet!")
+  }
+  if (is.null(start) || is.null(end))
+    stop("either set both start and end to null (chromosome-wide query) or neither")
+    
+    
+  bed = data.frame(chrom, start, end, 0, 0, strand)
+  .Call(bwMap_bp_query, bwMap, bed, op, step, with.attributes, FALSE)[[1]]
+}
+
+bed6.step.bpQuery.bwMap <- function(bwMap, bed6, step, op = "thresh", with.attributes = FALSE, as.matrix = FALSE) {
+  stopifnot(dim(bed6)[2] >= 6)
+  stopifnot(all(valid.strand(as.character(bed6[,6]))))
+  valid.bwMap.op(op)
+  bed.valid.query.range(bed6, step = step)
+
+  if (as.matrix) {
+    sizes = bed6[,3] - bed6[,2]
+    stopifnot(all(sizes == sizes[1]))
+  }
+  
+  .Call(bwMap_bp_query, bwMap, bed6, op, step, with.attributes, as.matrix)
+}
