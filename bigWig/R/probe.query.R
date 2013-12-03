@@ -63,7 +63,7 @@ bed6.region.probeQuery.bigWig <- function(bw.plus, bw.minus, bed, op = "wavg", a
   stopifnot(dim(bed)[2] >= 6)
   bed.valid.query.range(bed)
   valid.probe.op(op)
-  .Call(bigWig_probe_query, bw.plus, bw.minus, bed, op, NA, FALSE, FALSE, TRUE, gap.value, abs.value)
+  .Call(bigWig_probe_query, bw.plus, bw.minus, bed, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value)
 }
 
 # note: start, end are optional here (use NULL for both to get the entire choromosome)
