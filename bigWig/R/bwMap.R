@@ -12,7 +12,7 @@ load.bwMap <- function(filename, read.len, read.left.edge, threshold.fraction = 
   
   if (bw$max != 1 || (bw$min != 1 && bw$min != 0)) {
     unload.bigWig(bw)
-    error("mappability bigWig file should only have zero or one values (one for unmappable positions)")
+    stop("mappability bigWig file should only have zero or one values (one for unmappable positions)")
   }
   
   res = list(bw = bw, read.len = read.len, read.left.edge = read.left.edge, threshold.fraction = threshold.fraction)
@@ -56,14 +56,14 @@ valid.bwMap.op <- function(op) {
 
 region.bpQuery.bwMap <- function(bwMap, chrom, start, end, strand, op = "thresh") {
   if (!valid.strand(strand))
-    error("strand is required when using mappability information")
+    stop("strand is required when using mappability information")
 
   valid.bwMap.op(op)
   valid.query.range(start, end)
   
   if (!any(bwMap$bw$chroms == chrom)) {
     warning("bigWig does not contain information on chromosome: ", chrom)
-    return(gap.value)
+    return(rep(0, end - start))
   }
 
   bed = data.frame(chrom, start, end, 0, 0, strand)
@@ -82,14 +82,14 @@ bed6.region.bpQuery.bwMap <- function(bwMap, bed6, op = "thresh") {
 # note: start, end are optional here (use NULL for both to get the entire choromosome)
 step.bpQuery.bwMap <- function(bwMap, chrom, start, end, step, strand, op = "thresh", with.attributes = TRUE) {
   if (!valid.strand(strand))
-    error("strand is required when using mappability information")
+    stop("strand is required when using mappability information")
   
   valid.bwMap.op(op)
   valid.query.range(start, end, step = step)
   
   if (!any(bwMap$bw$chroms == chrom)) {
     warning("bigWig does not contain information on chromosome: ", chrom)
-    return(rep(gap.value, (end - start) %/% step))
+    return(rep(0, (end - start) %/% step))
   }
   
   if (is.null(start) && is.null(end)) {

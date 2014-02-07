@@ -13,7 +13,7 @@ valid.strand <- function(strand) {
 
 region.bpQuery.bigWig <- function(bw, chrom, start, end, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL) {
   if (!is.null(bwMap) && !valid.strand(strand))
-    error("strand is required when using mappability information")
+    stop("strand is required when using mappability information")
 
   valid.bp.op(op)
   valid.query.range(start, end)
@@ -34,7 +34,7 @@ region.bpQuery.bigWig <- function(bw, chrom, start, end, strand = NA, op = "sum"
 
 bed.region.bpQuery.bigWig <- function(bw, bed, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL) {
   if (!is.null(bwMap) && !valid.strand(strand))
-    error("strand is required when using mappability information")
+    stop("strand is required when using mappability information")
   
   valid.bp.op(op)
   bed.valid.query.range(bed)
@@ -59,7 +59,7 @@ bed6.region.bpQuery.bigWig <- function(bw.plus, bw.minus, bed6, op = "sum", abs.
 # note: start, end are optional here (use NULL for both to get the entire choromosome)
 step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = TRUE) {
   if (!is.null(bwMap) && !valid.strand(strand))
-    error("strand is required when using mappability information")
+    stop("strand is required when using mappability information")
   
   valid.bp.op(op)
   valid.query.range(start, end, step = step)
@@ -91,7 +91,7 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
 
 bed.step.bpQuery.bigWig <- function(bw, bed, step, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = FALSE, as.matrix = FALSE) {
   if (!is.null(bwMap) && !valid.strand(strand))
-    error("strand is required when using mappability information")
+    stop("strand is required when using mappability information")
   
   valid.bp.op(op)
   bed.valid.query.range(bed, step = step)

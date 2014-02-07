@@ -14,7 +14,7 @@ region.probeQuery.bigWig(bw, chrom, start, end, op = "wavg", abs.value = FALSE, 
 
 bed.region.probeQuery.bigWig(bw, bed, op = "wavg", abs.value = FALSE, gap.value = NA)
 
-bed6.region.probeQuery.bigWig(bw.plus, bw.minus, bed, op = "wavg", abs.value = FALSE, gap.value = NA)
+bed6.region.probeQuery.bigWig(bw.plus, bw.minus, bed6, op = "wavg", abs.value = FALSE, gap.value = NA)
 
 step.probeQuery.bigWig(bw, chrom, start, end, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = TRUE)
 

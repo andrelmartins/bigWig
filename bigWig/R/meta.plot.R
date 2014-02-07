@@ -221,9 +221,8 @@ calc.scale.factor <- function(bed, bigWig.p.1, bigWig.m.1, bigWig.p.2, bigWig.m.
       if (strand == "-")
         bigWig = bigWig.m
 
-           bigWig.select(bigWig, chrom)
+      data = query.bigWig(bigWig, chrom, start, end)
 
-      data = bigWig.query.region(bigWig, start, end)
       if (!is.null(data))
         counts[i] = abs(sum(data[,3]))
     }
