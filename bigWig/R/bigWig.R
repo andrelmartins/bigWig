@@ -65,6 +65,7 @@ queryByStep.bigWig <- function(bigWig, chrom, start, end, step, do.sum=F, defaul
 }
 
 chromStepSum.bigWig <- function(bigwig, chrom, step, defaultValue) {
+  .Deprecated("step.bpQuery.bigWig", package="bigWig")
   stopifnot(step >= 1)
   stopifnot(any(bigwig$chroms == chrom))
   return(.Call(bigWig_chrom_step_sum, bigwig, chrom, step, defaultValue))

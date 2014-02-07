@@ -19,5 +19,7 @@
     }
 
   \item{queryByStep.bigWig: \code{\link{step.probeQuery.bigWig}}}
+  
+  \item{chromStepSum.bigWig: \code{\link{step.bpQuery.bigWig}}}
   }
 }
