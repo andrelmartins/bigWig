@@ -62,24 +62,42 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
     stop("strand is required when using mappability information")
   
   valid.bp.op(op)
-  valid.query.range(start, end, step = step)
+
+  if ((is.null(start) && !is.null(end)) || (!is.null(start) && is.null(end)))
+    stop("either set both start and end to null (chromosome-wide query) or neither")
   
   if (!any(bw$chroms == chrom)) {
     warning("bigWig does not contain information on chromosome: ", chrom)
+    
+    if (is.null(start))
+      start = 0
+    if (is.null(end)) {
+      chromIdx = which(bw$chroms == chrom)
+      end = bw$chromSizes[chromIdx]
+    }
+    
     return(rep(gap.value, (end - start) %/% step))
   }
   
   if (is.null(start) && is.null(end)) {
     chromIdx = which(bw$chroms == chrom)
-    bed = data.frame(chrom, 0, bw$chromSizes[chromIdx])
     
-    #return(.Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value)[[1]])
-    stop("chromosome-wide queries not implemented yet!")
+    result = .Call(bigWig_bp_chrom_query, bw, op, chrom, step, with.attributes, gap.value, abs.value, bwMap)
+    
+    if (with.attributes)
+      attr(result, "end") <- bw$chromSizes[chromIdx] # TODO: fix this on the C side or do everything here ...
+    
+    if (!is.na(strand) && strand == '-') {
+      ats = attributes(result)
+      result = rev(result)
+      attributes(result) <- ats
+    }
+
+    return(result)
   }
-  if (is.null(start) || is.null(end))
-    stop("either set both start and end to null (chromosome-wide query) or neither")
     
-    
+  valid.query.range(start, end, step = step)
+      
   if (!is.na(strand)) {
     bed = data.frame(chrom, start, end, 0, 0, strand)
     .Call(bigWig_bp_query, bw, NULL, bed, op, step, TRUE, with.attributes, FALSE, gap.value, abs.value, bwMap)[[1]]

@@ -307,6 +307,67 @@ SEXP bigWig_bp_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP step
   return bigWig_region_query(obj_plus, obj_minus, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value, NULL, NULL);
 }
 
+SEXP bigWig_bp_chrom_query(SEXP obj, SEXP op, SEXP chrom, SEXP step, SEXP with_attributes, SEXP gap_value, SEXP abs_value, SEXP bwMap) {
+  bigWig_t * bw = NULL;
+  SEXP result;
+  int istep;
+  double d_gap;
+  int do_abs = INTEGER(abs_value)[0] == TRUE;
+  int no_step = 0;
+  int use_attributes = INTEGER(with_attributes)[0] == TRUE;
+  bwStepOp bwOp;
+  const char * c_chrom;
+  
+  //
+  // TODO: handle bwMap
+  //
+
+  // initialize selected operation
+  bw_select_op(&bwOp, CHAR(STRING_ELT(op, 0)), 0);
+
+  c_chrom = char_elt(chrom, 0);
+  
+  PROTECT(step = AS_INTEGER(step));
+  istep = INTEGER(step)[0];
+  no_step = (istep == NA_INTEGER);
+  
+  if (no_step || istep <= 0)
+    error("step size must be >= 1");
+  
+  PROTECT(gap_value = AS_NUMERIC(gap_value));
+  d_gap = REAL(gap_value)[0];
+
+
+  bw = bigWig_for_chrom(obj, c_chrom);
+
+  result = bw_chrom_step_query(bw, &bwOp, c_chrom, istep, d_gap, do_abs);
+  
+  bigWig_for_chrom_release(obj, bw);
+  
+  // attributes
+  if (use_attributes) {
+    SEXP att_chrom = NEW_STRING(1);
+    SEXP att_start = NEW_INTEGER(1);
+    //SEXP att_end = NEW_INTEGER(1);
+    SEXP att_step = NEW_INTEGER(1);
+        
+    SET_STRING_ELT(att_chrom, 0, mkChar(c_chrom));
+    INTEGER(att_start)[0] = 0;
+    //INTEGER(att_end)[0] = end;
+    INTEGER(att_step)[0] = istep;
+        
+    setAttrib(result, install("chrom"), att_chrom);
+    setAttrib(result, install("start"), att_start);
+    setAttrib(result, install("end"), R_NilValue);
+    setAttrib(result, install("step"), att_step);
+  }
+  
+  UNPROTECT(2);
+  
+  return result;
+}
+
+
 SEXP getListElement(SEXP list, const char *str) {
   SEXP elmt = R_NilValue;
   SEXP names = getAttrib(list, R_NamesSymbol);

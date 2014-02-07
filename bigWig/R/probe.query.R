@@ -68,8 +68,11 @@ bed6.region.probeQuery.bigWig <- function(bw.plus, bw.minus, bed6, op = "wavg", 
 
 # note: start, end are optional here (use NULL for both to get the entire choromosome)
 step.probeQuery.bigWig <- function(bw, chrom, start, end, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = TRUE) {
-  valid.query.range(start, end, step = step)
   valid.probe.op(op)
+
+  if ((is.null(start) && !is.null(end)) || (!is.null(start) && is.null(end)))
+    stop("either set both start and end to null (chromosome-wide query) or neither")
+
   if (!any(bw$chroms == chrom)) {
     warning("bigWig does not contain information on chromosome: ", chrom)
     return(rep(gap.value, (end - start) %/% step))
@@ -80,8 +83,8 @@ step.probeQuery.bigWig <- function(bw, chrom, start, end, step, op = "wavg", abs
     
     return(.Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value)[[1]])
   }
-  if (is.null(start) || is.null(end))
-    stop("either set both start and end to null (chromosome-wide query) or neither")
+  
+  valid.query.range(start, end, step = step)
   
   bed = data.frame(chrom, start, end)
   .Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value)[[1]]
