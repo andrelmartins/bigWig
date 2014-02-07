@@ -47,6 +47,7 @@ print.bigWig <- function(x, ...) {
 }
 
 bedQuery.bigWig <- function(bed, bwPlus, bwMinus = NULL, gapValue = NULL, weighted = F, aggregator = "sum") {
+  .Deprecated("bed.region.probeQuery.bigWig' or 'bed6.region.probeQuery.bigWig", package="bigWig")
   return(.Call(bigWig_bed_query, bed, bwPlus, bwMinus, gapValue, weighted, aggregator))
 }
 
