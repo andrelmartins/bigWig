@@ -18,5 +18,6 @@
     Note: options \code{aggregator="mean", weighted=TRUE} in \code{bedQuery.bigWig} will not yield the same result as \code{op = "wavg"} in the new functions!
     }
 
+  \item{queryByStep.bigWig: \code{\link{step.probeQuery.bigWig}}}
   }
 }

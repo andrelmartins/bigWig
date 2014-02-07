@@ -2,6 +2,7 @@
 \alias{probeQuery.bigWig}
 \alias{region.probeQuery.bigWig}
 \alias{bed.region.probeQuery.bigWig}
+\alias{bed6.region.probeQuery.bigWig}
 \alias{step.probeQuery.bigWig}
 \alias{bed.step.probeQuery.bigWig}
 \alias{bed6.step.probeQuery.bigWig}

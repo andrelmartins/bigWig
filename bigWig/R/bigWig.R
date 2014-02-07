@@ -52,6 +52,7 @@ bedQuery.bigWig <- function(bed, bwPlus, bwMinus = NULL, gapValue = NULL, weight
 }
 
 queryByStep.bigWig <- function(bigWig, chrom, start, end, step, do.sum=F, default.null = T, defaultValue = 0) {
+  .Deprecated("step.probeQuery.bigWig", package="bigWig")
   stopifnot(step >= 1)
   if (!any(bigWig$chroms == chrom))
     warning("bigWig does not contain information on chromosome: ", chrom)
