@@ -1,6 +1,15 @@
 #
 # Query functions for "base pair" mode
 #
+valid.chrom <- function(bw, chrom) {
+  if (class(bw) == "bigWig")
+    chrom %in% bw$chroms
+  else if (is.character(bw) && length(bw) == 2) {
+    path = paste(bw[1], chrom, bw[2], sep='')
+    file.exists(path)
+  } else
+    stop("invalid bigWig object")
+}
 
 valid.bp.op <- function(op) {
   if (all(op != c("sum", "avg", "min", "max")))
@@ -18,7 +27,7 @@ region.bpQuery.bigWig <- function(bw, chrom, start, end, strand = NA, op = "sum"
   valid.bp.op(op)
   valid.query.range(start, end)
   
-  if (!any(bw$chroms == chrom)) {
+  if (!valid.chrom(bw, chrom)) {
     warning("bigWig does not contain information on chromosome: ", chrom)
     return(gap.value)
   }
@@ -66,20 +75,25 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
   if ((is.null(start) && !is.null(end)) || (!is.null(start) && is.null(end)))
     stop("either set both start and end to null (chromosome-wide query) or neither")
   
-  if (!any(bw$chroms == chrom)) {
+  if (!valid.chrom(bw, chrom)) {
+    if (is.null(end)) # start must also be null by above condition
+      stop("no start & end supplied and bigWig object has no information for chromosome: ", chrom)
+    
     warning("bigWig does not contain information on chromosome: ", chrom)
+
+    result = rep(gap.value, (end - start) %/% step)
     
-    if (is.null(start))
-      start = 0
-    if (is.null(end)) {
-      chromIdx = which(bw$chroms == chrom)
-      end = bw$chromSizes[chromIdx]
-    }
+    if (with.attributes)
+      attributes(result) <- list(chrom = chrom, start = start, end = end, step = step)
     
-    return(rep(gap.value, (end - start) %/% step))
+    return(result)
   }
   
   if (is.null(start) && is.null(end)) {
+    # if we got a path, load the bigWig file
+    if (is.character(bw))
+      bw = load.bigWig(paste(bw[1], chrom, bw[2], sep=''))
+
     chromIdx = which(bw$chroms == chrom)
     
     result = .Call(bigWig_bp_chrom_query, bw, op, chrom, step, with.attributes, gap.value, abs.value, bwMap)

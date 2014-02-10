@@ -21,6 +21,20 @@
 #include <R.h>
 #include <Rdefines.h>
 
+static int has_chrom(bigWig_t * bw, const char * chromName) {
+  struct bbiChromInfo * chrom, * chromList = bbiChromList(bw);
+    
+  for (chrom = chromList; chrom != NULL; chrom = chrom->next)
+    if (!strcmp(chromName, chrom->name)) {
+      bbiChromInfoFreeList(&chromList);
+      return 1;
+    }
+
+  bbiChromInfoFreeList(&chromList);
+
+  return 0;
+}
+
 /* Interface to abstract handling of fragmented bigWig objects
  * 
  * "obj" is either an R object of class 'bigWig' with an 'handle_ptr'
@@ -61,12 +75,18 @@ bigWig_t * bigWig_for_chrom(SEXP obj, const char * chrom) {
       */
       REprintf("error: %s\n", err->message->string);
       errCatchFree(&err);
-      UNPROTECT(1);
       return NULL;
     }
     errCatchFree(&err);
     
-    UNPROTECT(1);
+    /* check if chromsome exists in file */
+    if (has_chrom(bigWig, chrom) == 0) {
+      bbiFileClose(&bigWig);
+      
+      error("file '%s' has no information on chrom '%s'", path, chrom);
+      return NULL;
+    }
+    
     return bigWig;
   }
   
