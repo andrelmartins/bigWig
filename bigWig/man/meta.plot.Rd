@@ -3,6 +3,7 @@
 \alias{meta.plot.GROseq}
 \alias{meta.plot.GROseq.TSS}
 \alias{meta.subsample}
+\alias{meta.subsample.fragmented}
 \alias{meta.normalize}
 \alias{meta.accum}
 \title{Meta Plot Functions}
@@ -10,20 +11,17 @@
   files.}
 
 \usage{
-meta.accum(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS =
-FALSE, do.sum = FALSE)
+meta.accum(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS = FALSE, do.sum = FALSE)
 
-meta.subsample(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS
-= FALSE, do.sum = FALSE)
+meta.subsample(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS = FALSE, do.sum = FALSE)
 
-meta.subsample.fragmented(bed, bwFolder, bwSuffix, halfWindow, step, at.TSS
-= FALSE, do.sum = FALSE)
+meta.subsample.fragmented(bed, bwFolder, bwSuffix, halfWindow, step, at.TSS = FALSE, do.sum = FALSE)
 
 meta.plot(result, step, xlab="Distance to center (bp)", ylab="Signal", main=NULL, ylim=NULL, ...)
 
 meta.plot.GROseq(result.plus, result.minus, step, xlab="Distance to center (bp)", ylab="Average Reads", main=NULL, ylim = NULL, ...)
 
-meta.plot.GROseq.TSS <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, ...)
+meta.plot.GROseq.TSS(bed, bigWig.plus, bigWig.minus, halfWindow, step, ...)
 
 meta.normalize(result, scaleFactor)
 }

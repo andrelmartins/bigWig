@@ -7,8 +7,7 @@
 \usage{
 chromStepSum.bigWig(bigwig, chrom, step, defaultValue)
 
-queryByStep.bigWig(bigWig, chrom, start, end, step, do.sum = F,
-default.null = T, defaultValue = 0) 
+queryByStep.bigWig(bigwig, chrom, start, end, step, do.sum = F, default.null = T, defaultValue = 0) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

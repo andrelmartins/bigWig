@@ -32,6 +32,8 @@ bed6.step.probeQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "wavg", abs.valu
   \item{chrom}{the chromosome to which the query interval belongs to.}
   \item{start}{the start of the query interval (zero-based, left open coordinates like in BED files). In \code{step.probeQuery.bigWig} it can be NULL, indicating a full chromosome query.}
   \item{end}{the end of the query interval (zero-baed, left open coordinates like in BED files). In \code{step.probeQuery.bigWig} it can be NULL, indicating a full chromosome query.}
+  \item{bed}{data.frame with 'chrom', 'start' and 'end' coordinates as found in a BED3 file. Further columns are ignored.}
+  \item{bed6}{data.frame with 'chrom', 'start', 'end' and 'strand' (column 6) information as found in a BED6 file. Other columns are ignored.}
   \item{step}{step size in base pairs.}
   \item{op}{name of the operation to apply to each query interval: "sum", "avg", "wavg", "min", "max". "wavg" computes the weighted average of overlapping probes, where each probe is weighted by the fraction of the (probe covered) query interval that it covers.}
   \item{abs.value}{logical value; if TRUE, the absolute values of each probe is used as input the interval operation.}

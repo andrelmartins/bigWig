@@ -28,7 +28,10 @@ plot.meta.gene(result, xlab="Distance from TSS (bp)", ylab="Median Signal Densit
   \item{half.inner.steps}{how many steps to collect inside the gene
     bodies from each end.}
   \item{margin}{number of bp to collect outside gene bodies.}
-   \item{main}{meta plot title}
+  \item{result}{output from \code{subsample.meta.gene()}.}
+  \item{xlab}{label for x-axis.}
+  \item{ylab}{label for y-axis.}
+  \item{main}{meta plot title}
   \item{ylim}{specify to force a range on the y axis, otherwise scaled
     to fit data}
   \item{col}{color used for the main meta-plot line (median of subsamples).}

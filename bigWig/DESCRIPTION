@@ -10,3 +10,4 @@ Description: R interface to query UCSC bigWig files
 Depends: boot, grid
 License: BSD
 LazyLoad: yes
+Encoding: UTF-8
