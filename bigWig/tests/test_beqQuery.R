@@ -1,6 +1,7 @@
 library(bigWig)
 
-tmp = load.bigWig("test3.bigWig")
+fpath = system.file("extdata", "test3.bigWig", package="bigWig")
+tmp = load.bigWig(fpath)
 
 bedQuery_.bigWig <- function(bed, bwPlus, bwMinus = NULL, gapValue = NULL, weighted = F, aggregator = "sum") {
   op = aggregator

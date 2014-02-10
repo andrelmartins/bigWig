@@ -1,6 +1,7 @@
 library(bigWig)
 
-tmp = load.bigWig("test3.bigWig")
+fpath = system.file("extdata", "test3.bigWig", package="bigWig")
+tmp = load.bigWig(fpath)
 
 chromStepSum_.bigWig <- function (bigwig, chrom, step, defaultValue) {
   step.bpQuery.bigWig(bigwig, chrom, NULL, NULL, step, gap.value = defaultValue, with.attributes=FALSE)

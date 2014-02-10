@@ -1,6 +1,7 @@
 library(bigWig)
 
-tmp = load.bigWig("test3.bigWig")
+fpath = system.file("extdata", "test3.bigWig", package="bigWig")
+tmp = load.bigWig(fpath)
 
 queryByStep_.bigWig <- function (bigWig, chrom, start, end, step, do.sum = FALSE, default.null = TRUE, defaultValue = 0) 
 {
