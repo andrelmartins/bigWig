@@ -84,8 +84,13 @@ bigWig_t * bigWig_for_chrom(SEXP obj, const char * chrom) {
       /* TODO: Add some resource clean-up because Kent code doesn't
                clean up after itself on errors.
       */
-      REprintf("error: %s\n", err->message->string);
+      
+      /* copy error string into R object (will be freed by GC later) */
+      SEXP errStr = mkChar(err->message->string);
+      
       errCatchFree(&err);
+      
+      error("error: %s", CHAR(errStr)); /* use string to report error back to R */
       return NULL;
     }
     errCatchFree(&err);
