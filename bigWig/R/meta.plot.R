@@ -108,6 +108,10 @@ meta.subsample.fragmented <- function(bed, bwFolder, bwSuffix, halfWindow, step,
   #
   values.chrom = lapply(levels(bed[,1]), function(chrom) {
     bed.chrom = bed[bed[,1] == chrom,]
+    
+    if (dim(bed.chrom)[1] == 0)
+      return(NULL)
+    
     filename = paste(bwFolder, "/", chrom, ".", bwSuffix, sep='')
 
     bwChrom = load.bigWig(filename)
