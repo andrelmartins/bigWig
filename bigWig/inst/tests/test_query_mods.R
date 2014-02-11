@@ -9,12 +9,12 @@ for (step in c(-1, 0)) {
   expect_error(step.bpQuery.bigWig(bwTest, "chrB", 10, 20, step))
   expect_error(step.bpQuery.bigWig(bwTest, "chrB", NULL, NULL, step))
   expect_error(bed.step.bpQuery.bigWig(bwTest, bed, step))
-  expect_error(bed6.step.bpQuery.bigWig(bwTest, bed6, step))
+  expect_error(bed6.step.bpQuery.bigWig(bwTest, bwTest, bed6, step))
 
   expect_error(step.probeQuery.bigWig(bwTest, "chrB", 10, 20, step))
   expect_error(step.probeQuery.bigWig(bwTest, "chrB", NULL, NULL, step))
   expect_error(bed.step.probeQuery.bigWig(bwTest, bed, step))
-  expect_error(bed6.step.probeQuery.bigWig(bwTest, bed6, step))
+  expect_error(bed6.step.probeQuery.bigWig(bwTest, bwTest, bed6, step))
 }
 })
 

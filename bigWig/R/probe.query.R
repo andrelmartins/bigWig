@@ -51,6 +51,10 @@ valid.query.range <- function(start, end, index = NA, step = NA) {
   }
 }
 
+valid.strand <- function(strand) {
+  is.character(strand) & (strand == "+" | strand == "-")
+}
+
 bed.valid.query.range <- function(bed, step = NA) {
   foreach.bed(bed, function(i, chrom, start, end, strand) {
     valid.query.range(start, end, index = i, step = step)
@@ -74,6 +78,7 @@ bed.region.probeQuery.bigWig <- function(bw, bed, op = "wavg", abs.value = FALSE
 
 bed6.region.probeQuery.bigWig <- function(bw.plus, bw.minus, bed6, op = "wavg", abs.value = FALSE, gap.value = NA) {
   stopifnot(dim(bed6)[2] >= 6)
+  stopifnot(all(valid.strand(as.character(bed6[,6]))))
   bed.valid.query.range(bed6)
   valid.probe.op(op)
   .Call(bigWig_probe_query, bw.plus, bw.minus, bed6, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value)
@@ -118,6 +123,7 @@ bed.step.probeQuery.bigWig <- function(bw, bed, step, op = "wavg", abs.value = F
 bed6.step.probeQuery.bigWig <- function(bw.plus, bw.minus, bed6, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE) {
   bed.valid.query.range(bed6, step = step)
   stopifnot(dim(bed6)[2] >= 6)
+  stopifnot(all(valid.strand(as.character(bed6[,6]))))
   valid.probe.op(op)
   if (as.matrix) {
     sizes = bed6[,3] - bed6[,2]

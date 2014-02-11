@@ -61,7 +61,7 @@ bed.region.bpQuery.bigWig <- function(bw, bed, strand = NA, op = "sum", abs.valu
 }
 
 bed6.region.bpQuery.bigWig <- function(bw.plus, bw.minus, bed6, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL) {
-  stopifnot(dim(bed6) >= 6)
+  stopifnot(dim(bed6)[2] >= 6)
   stopifnot(all(valid.strand(as.character(bed6[,6]))))
   valid.bp.op(op)
   bed.valid.query.range(bed6)
