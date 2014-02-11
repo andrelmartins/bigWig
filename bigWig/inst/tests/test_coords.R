@@ -106,3 +106,13 @@ expect_error(bed6.step.bpQuery.bigWig(bwTest, bed6, 1))
 expect_error(bed6.region.probeQuery.bigWig(bwTest, bed6))
 expect_error(bed6.step.probeQuery.bigWig(bwTest, bed6, 1))
 })
+
+test_that("no strand in BED6 queries", {
+bed5 = data.frame("chrB", 10, 20, "N", 0)
+
+expect_error(bed6.region.bpQuery.bigWig(bwTest, bed5))
+expect_error(bed6.step.bpQuery.bigWig(bwTest, bed5, 1))
+
+expect_error(bed6.region.probeQuery.bigWig(bwTest, bed5))
+expect_error(bed6.step.probeQuery.bigWig(bwTest, bed5, 1))
+})
