@@ -44,3 +44,27 @@ expect_error(step.probeQuery.bigWig(bw, "chrBogus", NULL, NULL, 1))
 expect_error(bed.step.probeQuery.bigWig(bw, bed, 1))
 expect_error(bed6.step.probeQuery.bigWig(bw, bed6, 1))
 })
+
+test_that("end > start", {
+
+bed = data.frame("chrB", c(10, 11), c(9, 11))
+bed6 = data.frame("chrB", c(10, 11), c(9, 11), "N", 0, "+")
+
+expect_error(region.bpQuery.bigWig(bwTest, "chrB", 10, 9))
+expect_error(region.bpQuery.bigWig(bwTest, "chrB", 11, 11))
+expect_error(bed.region.bpQuery.bigWig(bwTest, bed))
+expect_error(bed6.region.bpQuery.bigWig(bwTest, bed6))
+expect_error(step.bpQuery.bigWig(bwTest, "chrB", 10, 9, 1))
+expect_error(step.bpQuery.bigWig(bwTest, "chrB", 11, 11, 1))
+expect_error(bed.step.bpQuery.bigWig(bwTest, bed, 1))
+expect_error(bed6.step.bpQuery.bigWig(bwTest, bed6, 1))
+
+expect_error(region.probeQuery.bigWig(bwTest, "chrB", 10, 9))
+expect_error(region.probeQuery.bigWig(bwTest, "chrB", 11, 11))
+expect_error(bed.region.probeQuery.bigWig(bwTest, bed))
+expect_error(bed6.region.probeQuery.bigWig(bwTest, bed6))
+expect_error(step.probeQuery.bigWig(bwTest, "chrB", 10, 9, 1))
+expect_error(step.probeQuery.bigWig(bwTest, "chrB", 11, 11, 1))
+expect_error(bed.step.probeQuery.bigWig(bwTest, bed, 1))
+expect_error(bed6.step.probeQuery.bigWig(bwTest, bed6, 1))
+})
