@@ -35,6 +35,17 @@ static int has_chrom(bigWig_t * bw, const char * chromName) {
   return 0;
 }
 
+static int chrom_size(bigWig_t * bw, const char * chromName) {
+  struct bbiChromInfo * chrom, * chromList = bbiChromList(bw);
+ 
+  for (chrom = chromList; chrom != NULL; chrom = chrom->next)
+    if (!strcmp(chromName, chrom->name))
+      return chrom->size;
+
+  return 0;
+}
+
+
 /* Interface to abstract handling of fragmented bigWig objects
  * 
  * "obj" is either an R object of class 'bigWig' with an 'handle_ptr'
@@ -362,25 +373,25 @@ SEXP bigWig_bp_chrom_query(SEXP obj, SEXP op, SEXP chrom, SEXP step, SEXP with_a
 
   result = bw_chrom_step_query(bw, &bwOp, c_chrom, istep, d_gap, do_abs);
   
-  bigWig_for_chrom_release(obj, bw);
-  
   // attributes
   if (use_attributes) {
     SEXP att_chrom = NEW_STRING(1);
     SEXP att_start = NEW_INTEGER(1);
-    //SEXP att_end = NEW_INTEGER(1);
+    SEXP att_end = NEW_INTEGER(1);
     SEXP att_step = NEW_INTEGER(1);
         
     SET_STRING_ELT(att_chrom, 0, mkChar(c_chrom));
     INTEGER(att_start)[0] = 0;
-    //INTEGER(att_end)[0] = end;
+    INTEGER(att_end)[0] = chrom_size(bw, c_chrom);
     INTEGER(att_step)[0] = istep;
         
     setAttrib(result, install("chrom"), att_chrom);
     setAttrib(result, install("start"), att_start);
-    setAttrib(result, install("end"), R_NilValue);
+    setAttrib(result, install("end"), att_end);
     setAttrib(result, install("step"), att_step);
   }
+
+  bigWig_for_chrom_release(obj, bw);
   
   UNPROTECT(2);
   

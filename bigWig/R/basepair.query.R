@@ -90,16 +90,7 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
   }
   
   if (is.null(start) && is.null(end)) {
-    # if we got a path, load the bigWig file
-    if (is.character(bw))
-      bw = load.bigWig(paste(bw[1], chrom, bw[2], sep=''))
-
-    chromIdx = which(bw$chroms == chrom)
-    
     result = .Call(bigWig_bp_chrom_query, bw, op, chrom, step, with.attributes, gap.value, abs.value, bwMap)
-    
-    if (with.attributes)
-      attr(result, "end") <- bw$chromSizes[chromIdx] # TODO: fix this on the C side or do everything here ...
     
     if (!is.na(strand) && strand == '-') {
       ats = attributes(result)
