@@ -2,6 +2,8 @@
 # Query functions for "base pair" mode
 #
 valid.chrom <- function(bw, chrom) {
+  stopifnot(is.character(chrom))
+
   if (class(bw) == "bigWig") {
     if (!(chrom %in% bw$chroms))
      stop("bigWig does not contain information on chromosome: ", chrom)
