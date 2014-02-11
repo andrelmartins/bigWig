@@ -116,6 +116,11 @@ bigWig_t * bigWig_for_chrom(SEXP obj, const char * chrom) {
   }
   
   UNPROTECT(1);
+  
+  if (has_chrom(bigWig, chrom) == 0) {
+    error("bigWig has no information on chromosome: '%s'", chrom);
+  }
+  
   return bigWig;
 }
 

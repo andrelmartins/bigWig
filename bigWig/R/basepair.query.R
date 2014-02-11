@@ -2,11 +2,15 @@
 # Query functions for "base pair" mode
 #
 valid.chrom <- function(bw, chrom) {
-  if (class(bw) == "bigWig")
-    chrom %in% bw$chroms
-  else if (is.character(bw) && length(bw) == 2) {
+  if (class(bw) == "bigWig") {
+    if (!(chrom %in% bw$chroms))
+     stop("bigWig does not contain information on chromosome: ", chrom)
+    return(TRUE)
+  } else if (is.character(bw) && length(bw) == 2) {
     path = paste(bw[1], chrom, bw[2], sep='')
-    file.exists(path)
+    if (file.exists(path))
+      return(TRUE)
+    stop("can't find bigWig file for chromosome: ", chrom)
   } else
     stop("invalid bigWig object")
 }
@@ -26,12 +30,8 @@ region.bpQuery.bigWig <- function(bw, chrom, start, end, strand = NA, op = "sum"
 
   valid.bp.op(op)
   valid.query.range(start, end)
+  valid.chrom(bw, chrom)
   
-  if (!valid.chrom(bw, chrom)) {
-    warning("bigWig does not contain information on chromosome: ", chrom)
-    return(gap.value)
-  }
-
   if (!is.na(strand)) {
     bed = data.frame(chrom, start, end, 0, 0, strand)
     .Call(bigWig_bp_query, bw, bw, bed, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value, bwMap)
@@ -71,23 +71,10 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
     stop("strand is required when using mappability information")
   
   valid.bp.op(op)
+  valid.chrom(bw, chrom)
 
   if ((is.null(start) && !is.null(end)) || (!is.null(start) && is.null(end)))
     stop("either set both start and end to null (chromosome-wide query) or neither")
-  
-  if (!valid.chrom(bw, chrom)) {
-    if (is.null(end)) # start must also be null by above condition
-      stop("no start & end supplied and bigWig object has no information for chromosome: ", chrom)
-    
-    warning("bigWig does not contain information on chromosome: ", chrom)
-
-    result = rep(gap.value, (end - start) %/% step)
-    
-    if (with.attributes)
-      attributes(result) <- list(chrom = chrom, start = start, end = end, step = step)
-    
-    return(result)
-  }
   
   if (is.null(start) && is.null(end)) {
     result = .Call(bigWig_bp_chrom_query, bw, op, chrom, step, with.attributes, gap.value, abs.value, bwMap)
