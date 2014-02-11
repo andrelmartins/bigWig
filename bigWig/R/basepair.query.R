@@ -23,7 +23,7 @@ valid.bp.op <- function(op) {
 }
 
 valid.strand <- function(strand) {
-  !is.na(strand) & (strand == "+" | strand == "-")
+  is.character(strand) & (strand == "+" | strand == "-")
 }
 
 region.bpQuery.bigWig <- function(bw, chrom, start, end, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL) {
@@ -35,6 +35,7 @@ region.bpQuery.bigWig <- function(bw, chrom, start, end, strand = NA, op = "sum"
   valid.chrom(bw, chrom)
   
   if (!is.na(strand)) {
+    stopifnot(valid.strand(strand))
     bed = data.frame(chrom, start, end, 0, 0, strand)
     .Call(bigWig_bp_query, bw, bw, bed, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value, bwMap)
   } else {
@@ -51,6 +52,7 @@ bed.region.bpQuery.bigWig <- function(bw, bed, strand = NA, op = "sum", abs.valu
   bed.valid.query.range(bed)
     
   if (!is.na(strand)) {
+    stopifnot(valid.strand(strand))
     bed = cbind(bed, data.frame(0, 0, strand))
     .Call(bigWig_bp_query, bw, bw, bed, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value, bwMap)
   } else {
@@ -79,6 +81,7 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
     stop("either set both start and end to null (chromosome-wide query) or neither")
   
   if (is.null(start) && is.null(end)) {
+    stopifnot(valid.strand(strand))
     result = .Call(bigWig_bp_chrom_query, bw, op, chrom, step, with.attributes, gap.value, abs.value, bwMap)
     
     if (!is.na(strand) && strand == '-') {
@@ -93,6 +96,7 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
   valid.query.range(start, end, step = step)
       
   if (!is.na(strand)) {
+    stopifnot(valid.strand(strand))
     bed = data.frame(chrom, start, end, 0, 0, strand)
     .Call(bigWig_bp_query, bw, NULL, bed, op, step, TRUE, with.attributes, FALSE, gap.value, abs.value, bwMap)[[1]]
   } else {
@@ -109,6 +113,7 @@ bed.step.bpQuery.bigWig <- function(bw, bed, step, strand = NA, op = "sum", abs.
   bed.valid.query.range(bed, step = step)
   
   if (!is.na(strand)) {
+    stopifnot(valid.strand(strand))
     bed = cbind(bed, data.frame(0, 0, strand))
     .Call(bigWig_bp_query, bw, bw, bed, op, step, TRUE, with.attributes, as.matrix, gap.value, abs.value, bwMap)
   } else {

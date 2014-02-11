@@ -68,3 +68,41 @@ expect_error(step.probeQuery.bigWig(bwTest, "chrB", 11, 11, 1))
 expect_error(bed.step.probeQuery.bigWig(bwTest, bed, 1))
 expect_error(bed6.step.probeQuery.bigWig(bwTest, bed6, 1))
 })
+
+test_that("start >= 0", {
+
+bed = data.frame("chrB", -2, 10)
+bed6 = data.frame("chrB", -1, 10, "N", 0, "+")
+
+expect_error(region.bpQuery.bigWig(bwTest, "chrB", -2, 9))
+expect_error(bed.region.bpQuery.bigWig(bwTest, bed))
+expect_error(bed6.region.bpQuery.bigWig(bwTest, bed6))
+expect_error(step.bpQuery.bigWig(bwTest, "chrB", -2, 9, 1))
+expect_error(bed.step.bpQuery.bigWig(bwTest, bed, 1))
+expect_error(bed6.step.bpQuery.bigWig(bwTest, bed6, 1))
+
+expect_error(region.probeQuery.bigWig(bwTest, "chrB", -2, 9))
+expect_error(bed.region.probeQuery.bigWig(bwTest, bed))
+expect_error(bed6.region.probeQuery.bigWig(bwTest, bed6))
+expect_error(step.probeQuery.bigWig(bwTest, "chrB", 10, -2, 1))
+expect_error(bed.step.probeQuery.bigWig(bwTest, bed, 1))
+expect_error(bed6.step.probeQuery.bigWig(bwTest, bed6, 1))
+
+})
+
+test_that("invalid strand", {
+
+bed = data.frame("chrB", 10, 20)
+bed6 = data.frame("chrB", 10, 20, "N", 0, "?")
+
+expect_error(region.bpQuery.bigWig(bwTest, "chrB", 10, 20, strand = "?"))
+expect_error(bed.region.bpQuery.bigWig(bwTest, bed, strand = "?"))
+expect_error(bed6.region.bpQuery.bigWig(bwTest, bed6))
+expect_error(step.bpQuery.bigWig(bwTest, "chrB", 10, 20, 1, strand = "?"))
+expect_error(step.bpQuery.bigWig(bwTest, "chrB", NULL, NULL, 1, strand = "?"))
+expect_error(bed.step.bpQuery.bigWig(bwTest, bed, 1, strand = "?"))
+expect_error(bed6.step.bpQuery.bigWig(bwTest, bed6, 1))
+
+expect_error(bed6.region.probeQuery.bigWig(bwTest, bed6))
+expect_error(bed6.step.probeQuery.bigWig(bwTest, bed6, 1))
+})
