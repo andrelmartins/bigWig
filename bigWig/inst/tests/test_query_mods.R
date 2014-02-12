@@ -28,7 +28,47 @@ test_that("query not multiple of step size", {
 
 
 test_that("abs.value", {
-# TODO
+
+bed = data.frame(c("chrB", "chrBm"), 10, 20)
+bed6 = data.frame(c("chrB", "chrBm"), 10, 20, "N", 0, "+")
+
+expect_true(region.bpQuery.bigWig(bwTest, "chrBm", 10, 20) < 0)
+expect_true(region.bpQuery.bigWig(bwTest, "chrBm", 10, 20, abs.value = TRUE) >= 0)
+
+expect_equal(bed.region.bpQuery.bigWig(bwTest, bed) < 0,  c(FALSE, TRUE))
+expect_equal(bed.region.bpQuery.bigWig(bwTest, bed, abs.value = TRUE) < 0, c(FALSE, FALSE))
+
+expect_equal(bed6.region.bpQuery.bigWig(bwTest, bwTest, bed6) < 0, c(FALSE, TRUE))
+expect_equal(bed6.region.bpQuery.bigWig(bwTest, bwTest, bed6, abs.value = TRUE) < 0, c(FALSE, FALSE))
+
+expect_true(all(step.bpQuery.bigWig(bwTest, "chrBm", 10, 20, 1) <= 0))
+expect_true(all(step.bpQuery.bigWig(bwTest, "chrBm", 10, 20, 1, abs.value = TRUE) >= 0))
+
+expect_true(all(bed.step.bpQuery.bigWig(bwTest, bed, 1, as.matrix = TRUE)[2,] <= 0))
+expect_true(all(bed.step.bpQuery.bigWig(bwTest, bed, 1, as.matrix = TRUE, abs.value = TRUE) >= 0))
+
+expect_true(all(bed6.step.bpQuery.bigWig(bwTest, bwTest, bed6, 1, as.matrix = TRUE)[2,] <= 0))
+expect_true(all(bed6.step.bpQuery.bigWig(bwTest, bwTest, bed6, 1, as.matrix = TRUE, abs.value = TRUE) >= 0))
+
+#
+# now with probe functions
+expect_true(region.probeQuery.bigWig(bwTest, "chrBm", 10, 20) < 0)
+expect_true(region.probeQuery.bigWig(bwTest, "chrBm", 10, 20, abs.value = TRUE) >= 0)
+
+expect_equal(bed.region.probeQuery.bigWig(bwTest, bed) < 0,  c(FALSE, TRUE))
+expect_equal(bed.region.probeQuery.bigWig(bwTest, bed, abs.value = TRUE) < 0, c(FALSE, FALSE))
+
+expect_equal(bed6.region.probeQuery.bigWig(bwTest, bwTest, bed6) < 0, c(FALSE, TRUE))
+expect_equal(bed6.region.probeQuery.bigWig(bwTest, bwTest, bed6, abs.value = TRUE) < 0, c(FALSE, FALSE))
+
+expect_true(all(step.probeQuery.bigWig(bwTest, "chrBm", 10, 20, 1) < 0, na.rm = TRUE))
+expect_true(all(step.probeQuery.bigWig(bwTest, "chrBm", 10, 20, 1, abs.value = TRUE) > 0, na.rm = TRUE))
+
+expect_true(all(bed.step.probeQuery.bigWig(bwTest, bed, 1, as.matrix = TRUE)[2,] < 0, na.rm = TRUE))
+expect_true(all(bed.step.probeQuery.bigWig(bwTest, bed, 1, as.matrix = TRUE, abs.value = TRUE) > 0, na.rm = TRUE))
+
+expect_true(all(bed6.step.probeQuery.bigWig(bwTest, bwTest, bed6, 1, as.matrix = TRUE)[2,] < 0, na.rm = TRUE))
+expect_true(all(bed6.step.probeQuery.bigWig(bwTest, bwTest, bed6, 1, as.matrix = TRUE, abs.value = TRUE) > 0, na.rm = TRUE))
 })
 
 test_that("strand reverse result", {
