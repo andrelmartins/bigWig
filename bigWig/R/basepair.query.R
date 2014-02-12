@@ -1,6 +1,23 @@
 #
 # Query functions for "base pair" mode
 #
+original.expr <- function(arg, n) {
+  newname <- substitute(arg)
+ 
+   # Travel up the frame stack until we hit the top.
+   for(i in 1:n) {
+     oldname <- do.call("substitute", list(as.name(newname), parent.frame(i)))
+     newname <- oldname
+   }
+   deparse(newname)
+}
+
+valid.bw <- function(bw) {
+  if (!(class(bw) == "bigWig" || (is.character(bw) && length(bw) == 2 && (!any(is.na(bw) | is.null(bw)))))) {
+    stop("invalid bigWig: ", original.expr(bw, 2))
+  }
+}
+
 valid.chrom <- function(bw, chrom) {
   stopifnot(is.character(chrom))
 
@@ -30,6 +47,7 @@ region.bpQuery.bigWig <- function(bw, chrom, start, end, strand = NA, op = "sum"
   if (!is.null(bwMap) && !valid.strand(strand))
     stop("strand is required when using mappability information")
 
+  valid.bw(bw)
   valid.bp.op(op)
   valid.query.range(start, end)
   valid.chrom(bw, chrom)
@@ -47,7 +65,8 @@ region.bpQuery.bigWig <- function(bw, chrom, start, end, strand = NA, op = "sum"
 bed.region.bpQuery.bigWig <- function(bw, bed, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL) {
   if (!is.null(bwMap) && !valid.strand(strand))
     stop("strand is required when using mappability information")
-  
+
+  valid.bw(bw)
   valid.bp.op(op)
   bed.valid.query.range(bed)
     
@@ -61,6 +80,8 @@ bed.region.bpQuery.bigWig <- function(bw, bed, strand = NA, op = "sum", abs.valu
 }
 
 bed6.region.bpQuery.bigWig <- function(bw.plus, bw.minus, bed6, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL) {
+  valid.bw(bw.plus)
+  valid.bw(bw.minus)
   stopifnot(dim(bed6)[2] >= 6)
   stopifnot(all(valid.strand(as.character(bed6[,6]))))
   valid.bp.op(op)
@@ -74,6 +95,7 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
   if (!is.null(bwMap) && !valid.strand(strand))
     stop("strand is required when using mappability information")
   
+  valid.bw(bw)
   valid.bp.op(op)
   valid.chrom(bw, chrom)
 
@@ -108,7 +130,8 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
 bed.step.bpQuery.bigWig <- function(bw, bed, step, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = FALSE, as.matrix = FALSE) {
   if (!is.null(bwMap) && !valid.strand(strand))
     stop("strand is required when using mappability information")
-  
+    
+  valid.bw(bw)
   valid.bp.op(op)
   bed.valid.query.range(bed, step = step)
   
@@ -122,6 +145,8 @@ bed.step.bpQuery.bigWig <- function(bw, bed, step, strand = NA, op = "sum", abs.
 }
 
 bed6.step.bpQuery.bigWig <- function(bw.plus, bw.minus, bed6, step, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = FALSE, as.matrix = FALSE) {
+  valid.bw(bw.plus)
+  valid.bw(bw.minus)
   stopifnot(dim(bed6)[2] >= 6)
   stopifnot(all(valid.strand(as.character(bed6[,6]))))
   valid.bp.op(op)
