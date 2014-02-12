@@ -76,8 +76,22 @@ test_that("strand reverse result", {
 })
 
 test_that("as.matrix", {
-# TODO: result is matrix or not
+#
+# this only applies to bed.step.* and bed6.step.* operations
 
-# TODO: result attributes
+bed = data.frame(c("chrB", "chrBm"), 10, 20)
+bed6 = data.frame(c("chrB", "chrBm"), 10, 20, "N", 0, "+")
+
+expect_is(bed.step.bpQuery.bigWig(bwTest, bed, 1), "list")
+expect_is(bed.step.bpQuery.bigWig(bwTest, bed, 1, as.matrix = TRUE), "matrix")
+
+expect_is(bed6.step.bpQuery.bigWig(bwTest, bwTest, bed6, 1), "list")
+expect_is(bed6.step.bpQuery.bigWig(bwTest, bwTest, bed6, 1, as.matrix = TRUE), "matrix")
+
+expect_is(bed.step.probeQuery.bigWig(bwTest, bed, 1), "list")
+expect_is(bed.step.probeQuery.bigWig(bwTest, bed, 1, as.matrix = TRUE), "matrix")
+
+expect_is(bed6.step.probeQuery.bigWig(bwTest, bwTest, bed6, 1), "list")
+expect_is(bed6.step.probeQuery.bigWig(bwTest, bwTest, bed6, 1, as.matrix = TRUE), "matrix")
 })
 
