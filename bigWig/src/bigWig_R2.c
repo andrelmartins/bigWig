@@ -292,7 +292,7 @@ SEXP bigWig_region_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, bwStepOp bwOp,
         
         SET_STRING_ELT(att_chrom, 0, mkChar(chrom));
         INTEGER(att_start)[0] = start;
-        INTEGER(att_end)[0] = end;
+        INTEGER(att_end)[0] = start + Rf_length(res) * istep;
         INTEGER(att_step)[0] = istep;
         
         setAttrib(res, install("chrom"), att_chrom);

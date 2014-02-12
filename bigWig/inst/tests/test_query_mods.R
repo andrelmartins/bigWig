@@ -20,11 +20,32 @@ test_that("step >= 1", {
 
 test_that("query not multiple of step size", {
 
+  bed = data.frame("chrB", 10, 20)
+  bed6 = data.frame("chrB", 10, 20, "N", 0, "+")
   
-# TODO: check for warning
-
-
-# TODO: check 'end' attribute
+  # check for warning & 'end' attribute correctness
+  expect_warning((v1 = step.bpQuery.bigWig(bwTest, "chrB", 10, 20, 3)), "query region is not an integer multiple of step")
+  expect_equal(attr(v1, "end"), 10 + length(v1)*3)
+  
+  expect_warning((v1 = bed.step.bpQuery.bigWig(bwTest, bed, 3, with.attributes = TRUE)), "query region is not an integer multiple of step")
+  for(res in v1)
+    expect_equal(attr(res, "end"), 10 + length(res)*3)
+  
+  expect_warning((v1 = bed6.step.bpQuery.bigWig(bwTest, bwTest, bed6, 3, with.attributes = TRUE)), "query region is not an integer multiple of step")
+  for(res in v1)
+    expect_equal(attr(res, "end"), 10 + length(res)*3)
+  
+  #
+  expect_warning((v1 = step.probeQuery.bigWig(bwTest, "chrB", 10, 20, 3)), "query region is not an integer multiple of step")
+  expect_equal(attr(v1, "end"), 10 + length(v1)*3)
+  
+  expect_warning((v1 = bed.step.probeQuery.bigWig(bwTest, bed, 3, with.attributes = TRUE)), "query region is not an integer multiple of step")
+  for(res in v1)
+    expect_equal(attr(res, "end"), 10 + length(res)*3)
+  
+  expect_warning((v1 = bed6.step.probeQuery.bigWig(bwTest, bwTest, bed6, 3, with.attributes = TRUE)), "query region is not an integer multiple of step")
+  for(res in v1)
+    expect_equal(attr(res, "end"), 10 + length(res)*3)
 })
 
 
