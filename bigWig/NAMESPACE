@@ -52,3 +52,8 @@ export(fiveprime.bed)
 export(threeprime.bed)
 export(downstream.bed)
 export(upstream.bed)
+
+export(rpkm.scale)
+export(densityToOne.scale)
+export(maxToOne.scale)
+export(zeroToOne.scale)
