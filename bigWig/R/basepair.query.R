@@ -62,7 +62,7 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
     stop("either set both start and end to null (chromosome-wide query) or neither")
   
   if (is.null(start) && is.null(end)) {
-    stopifnot(valid.strand(strand))
+    stopifnot(is.na(strand) || valid.strand(strand))
     result = .Call(bigWig_bp_chrom_query, bw, op, chrom, step, with.attributes, gap.value, abs.value, FALSE, bwMap)
     
     if (!is.na(strand) && strand == '-') {
