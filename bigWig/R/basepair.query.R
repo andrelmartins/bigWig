@@ -65,12 +65,6 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
     stopifnot(is.na(strand) || valid.strand(strand))
     result = .Call(bigWig_bp_chrom_query, bw, op, chrom, step, with.attributes, gap.value, abs.value, FALSE, bwMap)
     
-    if (!is.na(strand) && strand == '-') {
-      ats = attributes(result)
-      result = rev(result)
-      attributes(result) <- ats
-    }
-
     return(result)
   }
     

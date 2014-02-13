@@ -103,6 +103,11 @@ test_that("strand reverse result", {
   v2 = step.bpQuery.bigWig(bwTest, "chrB", 10, 20, 1, strand = '-')
   expect_equal(v1, v2)
   
+  # full chrom query
+  v1 = step.bpQuery.bigWig(bwTest, "chrB", NULL, NULL, 1)
+  v2 = step.bpQuery.bigWig(bwTest, "chrB", NULL, NULL, 1, strand = '-')
+  expect_equal(v1, v2)
+  
   v1 = bed.step.bpQuery.bigWig(bwTest, bed, 1)
   v2 = bed.step.bpQuery.bigWig(bwTest, bed, 1, strand = '-')
   for (i in 1:(dim(bed)[1]))
