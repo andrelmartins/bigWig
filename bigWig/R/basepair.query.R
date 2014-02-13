@@ -65,6 +65,14 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
     stopifnot(is.na(strand) || valid.strand(strand))
     result = .Call(bigWig_bp_chrom_query, bw, op, chrom, step, with.attributes, gap.value, abs.value, FALSE, bwMap)
     
+    # for now handle bwMap here
+    if (!is.null(bwMap)) {
+      res_map = step.bpQuery.bwMap(bwMap, chrom, NULL, NULL, step, strand, op = "thresh", with.attributes = FALSE)
+      
+      result[res_map == 1] = NA
+      res_map = NULL
+    }
+
     return(result)
   }
     
