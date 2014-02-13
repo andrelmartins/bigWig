@@ -21,7 +21,7 @@ step.bpQuery.bigWig(bw, chrom, start, end, step, strand = NA, op = "sum", abs.va
 
 bed.step.bpQuery.bigWig(bw, bed, step, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = FALSE, as.matrix = FALSE)
 
-bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = FALSE, as.matrix = FALSE)
+bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = FALSE, as.matrix = FALSE, follow.strand = FALSE)
 
 }
 %- maybe also 'usage' for other objects documented here.
@@ -42,6 +42,7 @@ bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "sum", abs.value = 
   \item{as.matrix}{logical value; if TRUE, in 'BED' type queries, the result is a matrix, otherwise it's a list of vectors, one per query 'BED' entry.}
   \item{with.attributes}{logival value; if TRUE, results are annotated with their source coordinates and/or step size.}
   \item{bwMap}{R object of class 'bwMap' containing the information required to call steps or regions as unmappable. **not implemented yet**}
+  \item{follow.strand}{logical value; if TRUE, results vectors/rows corresponding to minus strand queries are reversed.}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~

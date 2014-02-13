@@ -98,26 +98,33 @@ test_that("strand reverse result", {
   bed6 = data.frame(c("chrB", "chrBm"), 10, 20, "N", 0, "+")
   bed6.m = data.frame(c("chrB", "chrBm"), 10, 20, "N", 0, "-")
 
-  # in step queries, - strand reverses the result
+  # in step queries, - strand does *not* reverse the result
   v1 = step.bpQuery.bigWig(bwTest, "chrB", 10, 20, 1)
   v2 = step.bpQuery.bigWig(bwTest, "chrB", 10, 20, 1, strand = '-')
-  expect_equal(as.vector(v1), rev(v2))
+  expect_equal(v1, v2)
   
   v1 = bed.step.bpQuery.bigWig(bwTest, bed, 1)
   v2 = bed.step.bpQuery.bigWig(bwTest, bed, 1, strand = '-')
   for (i in 1:(dim(bed)[1]))
-    expect_equal(as.vector(v1[[i]]), rev(v2[[i]]))
+    expect_equal(v1[[i]], v2[[i]])
   
+  # but bed6 do with follow.strand = TRUE
   v1 = bed6.step.bpQuery.bigWig(bwTest, bwTest, bed6, 1)
   v2 = bed6.step.bpQuery.bigWig(bwTest, bwTest, bed6.m, 1)
-  for (i in 1:(dim(bed)[1]))
-    expect_equal(as.vector(v1[[i]]), rev(v2[[i]]))
+  v3 = bed6.step.bpQuery.bigWig(bwTest, bwTest, bed6.m, 1, follow.strand = TRUE)
+  for (i in 1:(dim(bed)[1])) {
+    expect_equal(v1[[i]], v2[[i]])
+    expect_equal(as.vector(v1[[i]]), rev(v3[[i]]))
+  }
   
-  # now for probes (only bed6 has strand)
+  # now for probes (only bed6 has strand, same as above)
   v1 = bed6.step.probeQuery.bigWig(bwTest, bwTest, bed6, 1)
   v2 = bed6.step.probeQuery.bigWig(bwTest, bwTest, bed6.m, 1)
-  for (i in 1:(dim(bed)[1]))
-    expect_equal(as.vector(v1[[i]]), rev(v2[[i]]))
+  v3 = bed6.step.probeQuery.bigWig(bwTest, bwTest, bed6.m, 1, follow.strand = TRUE)
+  for (i in 1:(dim(bed)[1])) {
+    expect_equal(v1[[i]], v2[[i]])
+    expect_equal(as.vector(v1[[i]]), rev(v3[[i]]))
+  }
 })
 
 test_that("as.matrix", {

@@ -176,7 +176,7 @@ void fill_row(SEXP matrix, SEXP row, int row_idx) {
 
 typedef SEXP (*step_query_func)(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs, int is_plus, void * uptr);
 
-SEXP bigWig_region_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, bwStepOp bwOp, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value, step_query_func step_query, void * uptr) {
+SEXP bigWig_region_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, bwStepOp bwOp, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value, SEXP follow_strand, step_query_func step_query, void * uptr) {
   bigWig_t * bw = NULL;
   SEXP result;
   int i, N;
@@ -188,6 +188,7 @@ SEXP bigWig_region_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, bwStepOp bwOp,
   int is_matrix = INTEGER(as_matrix)[0] == TRUE;
   int no_step = 0;
   int use_attributes = INTEGER(with_attributes)[0] == TRUE;
+  int do_rev_strand = INTEGER(follow_strand)[0] == TRUE;
   
   PROTECT(step = AS_INTEGER(step));
   istep = INTEGER(step)[0];
@@ -278,7 +279,7 @@ SEXP bigWig_region_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, bwStepOp bwOp,
       PROTECT(res = bw_step_query(bw, &bwOp, chrom, start, end, istep, d_gap, do_abs, 0.0));
   
     // reverse if on negative strand
-    if (is_plus == 0)
+    if (is_plus == 0 && do_rev_strand)
       vec_reverse(res);
     
     if (is_matrix) {
@@ -328,16 +329,16 @@ SEXP bigWig_region_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, bwStepOp bwOp,
   return result;
 }
 
-SEXP bigWig_probe_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value) {
+SEXP bigWig_probe_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value, SEXP follow_strand) {
   bwStepOp bwOp;
   
   // initialize selected operation
   bw_select_op(&bwOp, CHAR(STRING_ELT(op, 0)), 1);
   
-  return bigWig_region_query(obj_plus, obj_minus, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value, NULL, NULL);
+  return bigWig_region_query(obj_plus, obj_minus, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value, follow_strand, NULL, NULL);
 }
 
-SEXP bigWig_bp_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value, SEXP bwMap) {
+SEXP bigWig_bp_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value, SEXP follow_strand, SEXP bwMap) {
   bwStepOp bwOp;
   
   // TODO: handle bwMap
@@ -345,7 +346,7 @@ SEXP bigWig_bp_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP step
   // initialize selected operation
   bw_select_op(&bwOp, CHAR(STRING_ELT(op, 0)), 0);
   
-  return bigWig_region_query(obj_plus, obj_minus, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value, NULL, NULL);
+  return bigWig_region_query(obj_plus, obj_minus, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value, follow_strand, NULL, NULL);
 }
 
 SEXP bigWig_bp_chrom_query(SEXP obj, SEXP op, SEXP chrom, SEXP step, SEXP with_attributes, SEXP gap_value, SEXP abs_value, SEXP bwMap) {
@@ -543,7 +544,7 @@ SEXP bwMap_bp_query(SEXP obj, SEXP bed, SEXP op, SEXP step, SEXP with_attributes
   data.thresh = REAL(thresh)[0];
   
   //
-  result = bigWig_region_query(bw_obj, bw_obj, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value, bw_map_step_query_func, &data);
+  result = bigWig_region_query(bw_obj, bw_obj, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value, 0, bw_map_step_query_func, &data);
   
   UNPROTECT(6);
   

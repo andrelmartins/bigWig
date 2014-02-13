@@ -21,7 +21,7 @@ step.probeQuery.bigWig(bw, chrom, start, end, step, op = "wavg", abs.value = FAL
 
 bed.step.probeQuery.bigWig(bw, bed, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE)
 
-bed6.step.probeQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE)
+bed6.step.probeQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE, follow.strand = FALSE)
 
 }
 %- maybe also 'usage' for other objects documented here.
@@ -40,6 +40,7 @@ bed6.step.probeQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "wavg", abs.valu
   \item{gap.value}{value assigned to query intervals that have no intercepting probes.}
   \item{as.matrix}{logical value; if TRUE, in 'BED' type queries, the result is a matrix, otherwise it's a list of vectors, one per query 'BED' entry.}
   \item{with.attributes}{logival value; if TRUE, results are annotated with their source coordinates and/or step size.}
+  \item{follow.strand}{logical value; if TRUE, results vectors/rows corresponding to minus strand queries are reversed.}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~

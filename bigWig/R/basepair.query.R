@@ -55,10 +55,10 @@ region.bpQuery.bigWig <- function(bw, chrom, start, end, strand = NA, op = "sum"
   if (!is.na(strand)) {
     stopifnot(valid.strand(strand))
     bed = data.frame(chrom, start, end, 0, 0, strand)
-    .Call(bigWig_bp_query, bw, bw, bed, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value, bwMap)
+    .Call(bigWig_bp_query, bw, bw, bed, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value, FALSE, bwMap)
   } else {
     bed = data.frame(chrom, start, end)
-    .Call(bigWig_bp_query, bw, NULL, bed, op, NA, FALSE, FALSE, TRUE, gap.value, abs.value, bwMap)
+    .Call(bigWig_bp_query, bw, NULL, bed, op, NA, FALSE, FALSE, TRUE, gap.value, abs.value, FALSE, bwMap)
   }
 }
 
@@ -75,7 +75,7 @@ bed.region.bpQuery.bigWig <- function(bw, bed, strand = NA, op = "sum", abs.valu
     bed = cbind(bed, data.frame(0, 0, strand))
     .Call(bigWig_bp_query, bw, bw, bed, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value, bwMap)
   } else {
-    .Call(bigWig_bp_query, bw, NULL, bed, op, NA, FALSE, FALSE, TRUE, gap.value, abs.value, bwMap)
+    .Call(bigWig_bp_query, bw, NULL, bed, op, NA, FALSE, FALSE, TRUE, gap.value, abs.value, FALSE, bwMap)
   }
 }
 
@@ -87,7 +87,7 @@ bed6.region.bpQuery.bigWig <- function(bw.plus, bw.minus, bed6, op = "sum", abs.
   valid.bp.op(op)
   bed.valid.query.range(bed6)
   
-  .Call(bigWig_bp_query, bw.plus, bw.minus, bed6, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value, bwMap)
+  .Call(bigWig_bp_query, bw.plus, bw.minus, bed6, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value, FALSE, bwMap)
 }
 
 # note: start, end are optional here (use NULL for both to get the entire choromosome)
@@ -104,7 +104,7 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
   
   if (is.null(start) && is.null(end)) {
     stopifnot(valid.strand(strand))
-    result = .Call(bigWig_bp_chrom_query, bw, op, chrom, step, with.attributes, gap.value, abs.value, bwMap)
+    result = .Call(bigWig_bp_chrom_query, bw, op, chrom, step, with.attributes, gap.value, abs.value, FALSE, bwMap)
     
     if (!is.na(strand) && strand == '-') {
       ats = attributes(result)
@@ -120,10 +120,10 @@ step.bpQuery.bigWig <- function(bw, chrom, start, end, step, strand = NA, op = "
   if (!is.na(strand)) {
     stopifnot(valid.strand(strand))
     bed = data.frame(chrom, start, end, 0, 0, strand)
-    .Call(bigWig_bp_query, bw, NULL, bed, op, step, TRUE, with.attributes, FALSE, gap.value, abs.value, bwMap)[[1]]
+    .Call(bigWig_bp_query, bw, NULL, bed, op, step, TRUE, with.attributes, FALSE, gap.value, abs.value, FALSE, bwMap)[[1]]
   } else {
     bed = data.frame(chrom, start, end)
-    .Call(bigWig_bp_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value, bwMap)[[1]]
+    .Call(bigWig_bp_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value, FALSE, bwMap)[[1]]
   }
 }
 
@@ -138,13 +138,13 @@ bed.step.bpQuery.bigWig <- function(bw, bed, step, strand = NA, op = "sum", abs.
   if (!is.na(strand)) {
     stopifnot(valid.strand(strand))
     bed = cbind(bed, data.frame(0, 0, strand))
-    .Call(bigWig_bp_query, bw, bw, bed, op, step, TRUE, with.attributes, as.matrix, gap.value, abs.value, bwMap)
+    .Call(bigWig_bp_query, bw, bw, bed, op, step, TRUE, with.attributes, as.matrix, gap.value, abs.value, FALSE, bwMap)
   } else {
-    .Call(bigWig_bp_query, bw, NULL, bed, op, step, FALSE, with.attributes, as.matrix, gap.value, abs.value, bwMap)
+    .Call(bigWig_bp_query, bw, NULL, bed, op, step, FALSE, with.attributes, as.matrix, gap.value, abs.value, FALSE, bwMap)
   }
 }
 
-bed6.step.bpQuery.bigWig <- function(bw.plus, bw.minus, bed6, step, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = FALSE, as.matrix = FALSE) {
+bed6.step.bpQuery.bigWig <- function(bw.plus, bw.minus, bed6, step, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = FALSE, as.matrix = FALSE, follow.strand = FALSE) {
   valid.bw(bw.plus)
   valid.bw(bw.minus)
   stopifnot(dim(bed6)[2] >= 6)
@@ -157,5 +157,5 @@ bed6.step.bpQuery.bigWig <- function(bw.plus, bw.minus, bed6, step, op = "sum", 
     stopifnot(all(sizes == sizes[1]))
   }
   
-  .Call(bigWig_bp_query, bw.plus, bw.minus, bed6, op, step, TRUE, with.attributes, as.matrix, gap.value, abs.value, bwMap)
+  .Call(bigWig_bp_query, bw.plus, bw.minus, bed6, op, step, TRUE, with.attributes, as.matrix, gap.value, abs.value, follow.strand, bwMap)
 }
