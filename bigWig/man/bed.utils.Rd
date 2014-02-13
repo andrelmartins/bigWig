@@ -23,7 +23,7 @@ upstream.bed(bed, upstreamWindow)
 \arguments{
   \item{bed}{the input BED data.frame.}
   \item{upstreamWindow}{integer number of bases to include upstream of the anchor point.}
-  \item{downastreamWindow}{integer number of bases to include downstream of the anchor point.}
+  \item{downstreamWindow}{integer number of bases to include downstream of the anchor point.}
 }
 
 \details{
