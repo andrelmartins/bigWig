@@ -39,8 +39,11 @@ static int chrom_size(bigWig_t * bw, const char * chromName) {
   struct bbiChromInfo * chrom, * chromList = bbiChromList(bw);
  
   for (chrom = chromList; chrom != NULL; chrom = chrom->next)
-    if (!strcmp(chromName, chrom->name))
-      return chrom->size;
+    if (!strcmp(chromName, chrom->name)) {
+      int result = chrom->size;
+      bbiChromInfoFreeList(&chromList);
+      return result;
+    }
 
   return 0;
 }
