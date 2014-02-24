@@ -63,3 +63,5 @@ export(subsampled.quantile.profile)
 export(confint.profile)
 export(bootstrapped.confint.profile)
 export(profile.bigWig)
+
+export(plot.profile.bigWig)
