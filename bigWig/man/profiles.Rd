@@ -11,7 +11,7 @@
 
 quantile.profile(mat, quantiles = c(0.875, 0.5, 0.125))
 
-subsampled.quantile.profile(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10, n.samples = 10000)
+subsampled.quantile.profile(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10, n.samples = 1000)
 
 confint.profile(mat, alpha = 0.05)
 
