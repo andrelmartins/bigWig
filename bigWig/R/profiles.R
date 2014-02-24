@@ -19,7 +19,7 @@ quantile.profile <- function(mat, quantiles = c(0.875, 0.5, 0.125)) {
   return(list(top = cTop, middle = cMid, bottom = cBottom))
 }
 
-subsampled.quantile.profile <- function(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10, n.samples = 10000) {
+subsampled.quantile.profile <- function(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10, n.samples = 1000) {
   stopifnot(length(quantiles) == 3)
   stopifnot(all(quantiles < 1 & quantiles > 0))
   
