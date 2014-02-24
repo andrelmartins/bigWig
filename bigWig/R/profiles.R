@@ -8,13 +8,13 @@ quantile.profile <- function(mat, quantiles = c(0.875, 0.5, 0.125)) {
   
   qTop = quantiles[1]
   qMid = quantiles[2]
-  qBottom = quantiles[2]
+  qBottom = quantiles[3]
   
   N = dim(mat)[2]
   
   cTop = sapply(1:N, function(idx) quantile(mat[, idx], qTop))
-  cMid = sapply(1:N, function(idx) quantile(mat[, idx], cMid))
-  cBottom = sapply(1:N, function(idx) quantile(mat[, idx], cBottom))
+  cMid = sapply(1:N, function(idx) quantile(mat[, idx], qMid))
+  cBottom = sapply(1:N, function(idx) quantile(mat[, idx], qBottom))
   
   return(list(top = cTop, middle = cMid, bottom = cBottom))
 }
