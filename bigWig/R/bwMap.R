@@ -88,16 +88,14 @@ step.bpQuery.bwMap <- function(bwMap, chrom, start, end, step, strand, op = "thr
   valid.query.range(start, end, step = step)
   
   if (!any(bwMap$bw$chroms == chrom)) {
-    warning("bigWig does not contain information on chromosome: ", chrom)
-    return(rep(0, (end - start) %/% step))
+    stop("bigWig does not contain information on chromosome: ", chrom)
   }
   
   if (is.null(start) && is.null(end)) {
     chromIdx = which(bwMap$bw$chroms == chrom)
-    bed = data.frame(chrom, 0, bwMap$bw$chromSizes[chromIdx])
+    bed = data.frame(chrom, 0, bwMap$bw$chromSizes[chromIdx], 0, 0, strand)
     
-    #return(.Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value)[[1]])
-    stop("chromosome-wide queries not implemented yet!")
+    return(.Call(bwMap_bp_query, bwMap, bed, op, step, with.attributes, FALSE)[[1]])
   }
   if (is.null(start) || is.null(end))
     stop("either set both start and end to null (chromosome-wide query) or neither")
