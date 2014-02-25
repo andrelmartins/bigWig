@@ -62,8 +62,7 @@ region.bpQuery.bwMap <- function(bwMap, chrom, start, end, strand, op = "thresh"
   valid.query.range(start, end)
   
   if (!any(bwMap$bw$chroms == chrom)) {
-    warning("bigWig does not contain information on chromosome: ", chrom)
-    return(rep(0, end - start))
+    stop("bigWig does not contain information on chromosome: ", chrom)
   }
 
   bed = data.frame(chrom, start, end, 0, 0, strand)

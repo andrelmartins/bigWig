@@ -32,7 +32,7 @@ bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "sum", abs.value = 
   \item{chrom}{the chromosome to which the query interval belongs to.}
   \item{start}{the start of the query interval (zero-based, left open coordinates like in BED files). In \code{step.bpQuery.bigWig} it can be NULL, indicating a full chromosome query.}
   \item{end}{the end of the query interval (zero-baed, left open coordinates like in BED files). In \code{step.bpQuery.bigWig} it can be NULL, indicating a full chromosome query.}
-  \item{strand}{+ or - character indicating the strand of the supplied coordinates. When coordinates are in the minus strand, the output will be reversed.}
+  \item{strand}{+ or - character indicating the strand of the supplied coordinates.}
   \item{bed}{data.frame with 'chrom', 'start' and 'end' coordinates as found in a BED3 file. Further columns are ignored.}
   \item{bed6}{data.frame with 'chrom', 'start', 'end' and 'strand' (column 6) information as found in a BED6 file. Other columns are ignored.}
   \item{step}{step size in base pairs.}
