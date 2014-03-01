@@ -61,7 +61,7 @@ plot.profile.bigWig <- function(plus.profile, minus.profile = NULL, X0 = 0, draw
     grid.newpage()
 
   pushViewport(plotViewport(margins = par()$mar)) # TODO: This is probably not the 'right' thing to do
-  pushViewport(dataViewport(xscale = xlim, yscale = ylim, name = "profilePlot"))
+  pushViewport(dataViewport(xscale = xlim, yscale = ylim, name = "profilePlot", clip = TRUE))
 
   # error polygon(s) (see draw.error and smoothed arguments and use colors from col)
   if (draw.error) {
@@ -93,6 +93,9 @@ plot.profile.bigWig <- function(plus.profile, minus.profile = NULL, X0 = 0, draw
     grid.polyline(x = unit(x, "native"), y = unit(-minus.profile$middle, "native"), gp = gpmain)
   }
   
+  # stop clipping (not sure if this is the best way to do it ...)
+  pushViewport(viewport(clip = "off"))
+  
   # axis (see draw.axis and scalebar arguments)
   if (draw.axis[1])
     grid.xaxis(gp = gp)
@@ -108,7 +111,7 @@ plot.profile.bigWig <- function(plus.profile, minus.profile = NULL, X0 = 0, draw
   # TODO: gpar ??
   # TODO: draw ??
   
-  upViewport(2)
+  upViewport(3)
 }
 
 #
