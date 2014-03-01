@@ -78,7 +78,7 @@ plot.profile.bigWig <- function(plus.profile, minus.profile = NULL, X0 = 0, draw
       gperr$fill = col[4]
       gperr$col = col[4]
     
-      grid.polygon(x = c(x, rev(x)), y = -c(minus.profile$top, minus.profile$bottom), gp = gperr, default.units = "native")
+      grid.polygon(x = c(x, rev(x)), y = -c(minus.profile$bottom, minus.profile$top), gp = gperr, default.units = "native")
     }
   }
   
