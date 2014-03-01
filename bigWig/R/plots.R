@@ -94,7 +94,7 @@ plot.profile.bigWig <- function(plus.profile, minus.profile = NULL, X0 = 0, draw
   }
   
   # stop clipping (not sure if this is the best way to do it ...)
-  pushViewport(viewport(clip = "off"))
+  pushViewport(dataViewport(xscale = xlim, yscale = ylim, name = "profilePlot", clip = "off"))
   
   # axis (see draw.axis and scalebar arguments)
   if (draw.axis[1])
