@@ -17,13 +17,13 @@ plot.profile.bigWig <- function(plus.profile, minus.profile = NULL, X0 = 0, draw
   N = length(plus.profile$middle)
   stopifnot(X0 <= length(plus.profile$middle) && X0 >= 0)
     
-  step = attr(plus.profile, "step")
+  step = plus.profile$step
   if (is.null(step))
-    stop("plus.profile is missing the 'step' attribute")
+    stop("plus.profile is missing the 'step' element")
   
   if (!is.null(minus.profile)) {
     stopifnot(length(plus.profile$middle) == length(minus.profile$middle))
-    stopifnot(attr(plus.profile, "step") == attr(minus.profile, "step"))
+    stopifnot(plus.profile$step == minus.profile$step)
   }
 
   x = (1:N - X0) * step

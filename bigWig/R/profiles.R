@@ -16,7 +16,11 @@ quantile.profile <- function(mat, quantiles = c(0.875, 0.5, 0.125)) {
   cMid = sapply(1:N, function(idx) quantile(mat[, idx], qMid, na.rm = TRUE))
   cBottom = sapply(1:N, function(idx) quantile(mat[, idx], qBottom, na.rm = TRUE))
   
-  return(list(top = cTop, middle = cMid, bottom = cBottom))
+  # add step if present
+  if (!is.null(attr(mat, "step")))
+    return(list(step = attr(mat, "step"), top = cTop, middle = cMid, bottom = cBottom))
+  else
+    return(list(top = cTop, middle = cMid, bottom = cBottom))
 }
 
 subsampled.quantile.profile <- function(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10, n.samples = 1000) {
@@ -35,6 +39,9 @@ subsampled.quantile.profile <- function(mat, quantiles = c(0.875, 0.5, 0.125), f
     
     result[i, ] = colMeans(mat[idx, ], na.rm = TRUE)
   }
+  
+  # propagate step attribute
+  attr(result, "step") <- attr(mat, "step")
 
   return(quantile.profile(result, quantiles))
 }
@@ -50,7 +57,11 @@ confint.profile <- function(mat, alpha = 0.05) {
   
   delta = pnorm(1 - alpha/2) * sderrs
   
-  return(list(top = cMid + delta, middle = cMid, bottom = cMid - delta))
+  # add step if present
+  if (!is.null(attr(mat, "step")))
+    return(list(step = attr(mat, "step"), top = cMid + delta, middle = cMid, bottom = cMid - delta))
+  else
+    return(list(top = cMid + delta, middle = cMid, bottom = cMid - delta))
 }
 
 bootstrapped.confint.profile <- function(mat, alpha = 0.05, n.samples = 300) {
@@ -64,7 +75,11 @@ bootstrapped.confint.profile <- function(mat, alpha = 0.05, n.samples = 300) {
     c(tmp$normal[,2], tmp$t0, tmp$normal[,3])
   })
   
-  return(list(top = aux[3,], middle = aux[2,], bottom = aux[1,]))
+  # add step if present
+  if (!is.null(attr(mat, "step")))
+    return(list(step = attr(mat, "step"), top = aux[3,], middle = aux[2,], bottom = aux[1,]))
+  else
+    return(list(top = aux[3,], middle = aux[2,], bottom = aux[1,]))
 }
 
 #
@@ -105,5 +120,5 @@ profile.bigWig <- function(bed, bw.plus, bw.minus = NULL, step = 1, name = "Sign
   # 4. create result
   X0 = 0 # can't really tell what X0 was from the input arguments
   
-  c(list(name = name, X0 = X0, step = step), result)
+  c(list(name = name, X0 = X0), result)
 }

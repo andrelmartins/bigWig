@@ -39,7 +39,7 @@ profile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal", matrix.
 \details{
 }
 
-\value{*.profile functions return a list with 'top', 'middle' and 'bottom' profiles. profile.bigWig returns a list with 'name', 'X0' (= 0), 'step' and the 'top', 'middle' and 'bottom' profiles.
+\value{*.profile functions return a list with 'top', 'middle' and 'bottom' profiles and the 'step' value if present as an attribute in the input matrix. 'step' item is required for the \code{plot.profile.bigWig} function. profile.bigWig returns a list with 'name', 'X0' (= 0), 'step' and the 'top', 'middle' and 'bottom' profiles.
 }
 
 \author{André Luís Martins}
