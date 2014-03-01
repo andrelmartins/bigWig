@@ -19,9 +19,9 @@ bed6.region.bpQuery.bigWig(bw.plus, bw.minus, bed6, op = "sum", abs.value = FALS
 
 step.bpQuery.bigWig(bw, chrom, start, end, step, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = TRUE)
 
-bed.step.bpQuery.bigWig(bw, bed, step, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = FALSE, as.matrix = FALSE)
+bed.step.bpQuery.bigWig(bw, bed, step, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE)
 
-bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = FALSE, as.matrix = FALSE, follow.strand = FALSE)
+bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE, follow.strand = FALSE)
 
 }
 %- maybe also 'usage' for other objects documented here.

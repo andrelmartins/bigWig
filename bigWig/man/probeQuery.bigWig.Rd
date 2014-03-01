@@ -19,9 +19,9 @@ bed6.region.probeQuery.bigWig(bw.plus, bw.minus, bed6, op = "wavg", abs.value = 
 
 step.probeQuery.bigWig(bw, chrom, start, end, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = TRUE)
 
-bed.step.probeQuery.bigWig(bw, bed, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE)
+bed.step.probeQuery.bigWig(bw, bed, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = TRUE, as.matrix = FALSE)
 
-bed6.step.probeQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE, follow.strand = FALSE)
+bed6.step.probeQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = TRUE, as.matrix = FALSE, follow.strand = FALSE)
 
 }
 %- maybe also 'usage' for other objects documented here.

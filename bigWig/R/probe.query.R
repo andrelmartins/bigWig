@@ -61,7 +61,7 @@ step.probeQuery.bigWig <- function(bw, chrom, start, end, step, op = "wavg", abs
   .Call(bigWig_probe_query, bw, NULL, bed, op, step, FALSE, with.attributes, FALSE, gap.value, abs.value, FALSE)[[1]]
 }
 
-bed.step.probeQuery.bigWig <- function(bw, bed, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE) {
+bed.step.probeQuery.bigWig <- function(bw, bed, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = TRUE, as.matrix = FALSE) {
   valid.bw(bw)
   bed.valid.query.range(bed, step = step)
   valid.probe.op(op)
@@ -73,7 +73,7 @@ bed.step.probeQuery.bigWig <- function(bw, bed, step, op = "wavg", abs.value = F
   .Call(bigWig_probe_query, bw, NULL, bed[, 1:3], op, step, FALSE, with.attributes, as.matrix, gap.value, abs.value, FALSE)
 }
 
-bed6.step.probeQuery.bigWig <- function(bw.plus, bw.minus, bed6, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = FALSE, as.matrix = FALSE, follow.strand = FALSE) {
+bed6.step.probeQuery.bigWig <- function(bw.plus, bw.minus, bed6, step, op = "wavg", abs.value = FALSE, gap.value = NA, with.attributes = TRUE, as.matrix = FALSE, follow.strand = FALSE) {
   valid.bw(bw.plus)
   valid.bw(bw.minus)
   bed.valid.query.range(bed6, step = step)
