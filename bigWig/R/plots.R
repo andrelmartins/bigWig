@@ -6,6 +6,62 @@
 # track plotting functions
 #
 
+plot.track.bigWig <- function(counts.plus, counts.minus = NULL, newpage = TRUE) {
+  vec.double <- function(x) {
+    as.vector(sapply(x, function(val) c(val, val)))
+  }
+  
+  # get and validate attributes
+  attr.plus = attributes(counts.plus)
+  stopifnot(length(attr.plus) > 0)
+  stopifnot(all(c("chrom", "start", "end", "step") %in% names(attr.plus)))
+
+  if (!is.null(counts.minus)) {
+    attr.minus = attributes(counts.minus)
+
+    stopifnot(attr.plus$chrom == attr.minus$chrom)
+    stopifnot(attr.plus$start == attr.minus$start)
+    stopifnot(attr.plus$end == attr.minus$end)
+    stopifnot(attr.plus$step == attr.minus$step)
+  }
+  
+  # define yrange
+  ylim = NULL
+  if (!is.null(counts.minus)) {
+    ymax = max(counts.plus, abs(counts.minus))
+    ylim = c(-ymax, ymax)
+  } else {
+    ymax = max(counts.plus)
+    ylim = c(0, ymax)
+  }
+
+  x.points = attr.plus$start + (1:length(counts.plus)) * attr.plus$step
+  y.points.plus = counts.plus
+  y.points.minus = counts.minus
+  if (attr.plus$step > 1) {
+    y.points.plus = c(0, vec.double(counts.plus), 0)
+    y.points.minus = c(0, vec.double(-abs(counts.minus)), 0)
+    x.points = attr.plus$start + (1:(length(counts.plus) + 1)) * attr.plus$step
+    x.points = vec.double(x.points)
+  }
+
+  # draw
+  #
+  if (newpage)
+      grid.newpage()
+
+  pushViewport(viewport(xscale=c(attr.plus$start, attr.plus$end), yscale=ylim))
+
+  grid.polygon(x.points, y.points.plus, default.units = "native", gp = gpar(fill = 'red', col=NA))
+
+  if (!is.null(counts.minus)) {
+    grid.polygon(x.points, y.points.minus, default.units = "native", gp = gpar(fill = 'blue', col=NA))
+    
+  }
+  popViewport()
+}
+
+
 plot.profile.bigWig <- function(plus.profile, minus.profile = NULL, X0 = 0, draw.error = TRUE, new.page = TRUE, xlim = NULL, ylim = NULL, draw.axis = c(TRUE, TRUE), scalebar = NA, fill = FALSE, smoothed = FALSE, draw = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"), gp = gpar()) {
   # check if profiles are all >= 0 (computed with abs.value = TRUE)
   if (!(all(plus.profile$top >= 0) && all(plus.profile$middle >= 0) && all(plus.profile$bottom >= 0)))
