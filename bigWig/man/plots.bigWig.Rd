@@ -4,7 +4,8 @@
 \description{Functions to plot data collected using bigWig functions.}
 
 \usage{
-plot.track.bigWig(counts.plus, counts.minus = NULL, newpage = TRUE)
+plot.track.bigWig(counts.plus, counts.minus = NULL, newpage = TRUE, ylim
+= NULl)
 }
 \arguments{
   \item{counts.plus}{Values collected from a 'step' function
@@ -13,7 +14,10 @@ plot.track.bigWig(counts.plus, counts.minus = NULL, newpage = TRUE)
   \item{counts.minus}{Values collected from a 'step' function
     (\code{step.bpQuery.bigWig} or \code{step.probeQuery.bigWig}) (for
     the minus strand).}
-  \item{newpage}{Logical value, if TRUE a new page is created before drawing.}
+  \item{newpage}{Logical value, if TRUE a new page is created before
+    drawing.}
+  \item{ylim}{numeric vector of length two, which, if not NULL, defines
+    the plotting range.}
 }
 
 \details{

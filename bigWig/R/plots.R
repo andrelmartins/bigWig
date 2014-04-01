@@ -6,7 +6,7 @@
 # track plotting functions
 #
 
-plot.track.bigWig <- function(counts.plus, counts.minus = NULL, newpage = TRUE) {
+plot.track.bigWig <- function(counts.plus, counts.minus = NULL, newpage = TRUE, ylim = NULL) {
   vec.double <- function(x) {
     as.vector(sapply(x, function(val) c(val, val)))
   }
@@ -26,13 +26,15 @@ plot.track.bigWig <- function(counts.plus, counts.minus = NULL, newpage = TRUE) 
   }
   
   # define yrange
-  ylim = NULL
-  if (!is.null(counts.minus)) {
-    ymax = max(counts.plus, abs(counts.minus))
-    ylim = c(-ymax, ymax)
-  } else {
-    ymax = max(counts.plus)
-    ylim = c(0, ymax)
+  if (is.null(ylim)) {
+    ylim = NULL
+    if (!is.null(counts.minus)) {
+      ymax = max(counts.plus, abs(counts.minus))
+      ylim = c(-ymax, ymax)
+    } else {
+      ymax = max(counts.plus)
+      ylim = c(0, ymax)
+    }
   }
 
   x.points = attr.plus$start + (1:length(counts.plus)) * attr.plus$step
