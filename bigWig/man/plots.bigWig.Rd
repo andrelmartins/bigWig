@@ -5,7 +5,7 @@
 
 \usage{
 plot.track.bigWig(counts.plus, counts.minus = NULL, newpage = TRUE, ylim
-= NULl)
+= NULl, fill = c("#E41A1C", "#377EB8"))
 }
 \arguments{
   \item{counts.plus}{Values collected from a 'step' function
@@ -18,6 +18,7 @@ plot.track.bigWig(counts.plus, counts.minus = NULL, newpage = TRUE, ylim
     drawing.}
   \item{ylim}{numeric vector of length two, which, if not NULL, defines
     the plotting range.}
+  \item{fill}{colors to use for each strand.}
 }
 
 \details{

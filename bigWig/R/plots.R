@@ -6,7 +6,7 @@
 # track plotting functions
 #
 
-plot.track.bigWig <- function(counts.plus, counts.minus = NULL, newpage = TRUE, ylim = NULL) {
+plot.track.bigWig <- function(counts.plus, counts.minus = NULL, newpage = TRUE, ylim = NULL, fill = c("#E41A1C", "#377EB8")) {
   vec.double <- function(x) {
     as.vector(sapply(x, function(val) c(val, val)))
   }
@@ -37,15 +37,10 @@ plot.track.bigWig <- function(counts.plus, counts.minus = NULL, newpage = TRUE, 
     }
   }
 
-  x.points = attr.plus$start + (1:length(counts.plus)) * attr.plus$step
-  y.points.plus = counts.plus
-  y.points.minus = counts.minus
-  if (attr.plus$step > 1) {
-    y.points.plus = c(0, vec.double(counts.plus), 0)
-    y.points.minus = c(0, vec.double(-abs(counts.minus)), 0)
-    x.points = attr.plus$start + (1:(length(counts.plus) + 1)) * attr.plus$step
-    x.points = vec.double(x.points)
-  }
+  y.points.plus = c(0, vec.double(counts.plus), 0)
+  y.points.minus = c(0, vec.double(-abs(counts.minus)), 0)
+  x.points = attr.plus$start + (1:(length(counts.plus) + 1)) * attr.plus$step
+  x.points = vec.double(x.points)
 
   # draw
   #
@@ -54,10 +49,10 @@ plot.track.bigWig <- function(counts.plus, counts.minus = NULL, newpage = TRUE, 
 
   pushViewport(viewport(xscale=c(attr.plus$start, attr.plus$end), yscale=ylim))
 
-  grid.polygon(x.points, y.points.plus, default.units = "native", gp = gpar(fill = 'red', col=NA))
+  grid.polygon(x.points, y.points.plus, default.units = "native", gp = gpar(fill = fill[1], col=NA))
 
   if (!is.null(counts.minus)) {
-    grid.polygon(x.points, y.points.minus, default.units = "native", gp = gpar(fill = 'blue', col=NA))
+    grid.polygon(x.points, y.points.minus, default.units = "native", gp = gpar(fill = fill[2], col=NA))
     
   }
   popViewport()
@@ -146,9 +141,9 @@ plot.bed.track.bigWig <- function(bed, chrom, start, end, newpage = TRUE, margin
     # fill color
     gp = NULL
     if (has.color) {
-      gp = gpar(col = colors[i], fill = colors[i])
+      gp = gpar(col = NA, fill = colors[i])
     } else {
-      gp = gpar(fill = "black")
+      gp = gpar(col = NA, fill = "black")
     }
     #
     grid.rect(x, y, width = w, height = height, just = c(0, 0), gp = gp)
