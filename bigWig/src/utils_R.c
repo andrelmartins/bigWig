@@ -79,3 +79,140 @@ SEXP foreach_bed(SEXP bed, SEXP function, SEXP envir) {
   
   return R_NilValue;
 }
+
+/*
+ * 
+ *  region stacking code 
+ * 
+ */
+
+struct region {
+  int index;
+
+  int subtree_max_end;
+
+  struct region * left;
+  struct region * right;
+};
+
+
+static void insert(struct region ** root, struct region * rec, int key_new, int * starts, int this_end) {
+  int key_this;
+  struct region * ptr = *root;
+
+  if (ptr == NULL) {
+    *root = rec;
+    return;
+  }
+
+  key_this = starts[ptr->index];
+  if (this_end > ptr->subtree_max_end)
+    ptr->subtree_max_end = this_end;
+
+  if (key_this > key_new)
+    insert(&(ptr->left), rec, key_new, starts, this_end);
+  else
+    insert(&(ptr->right), rec, key_new, starts, this_end);
+}
+
+struct end_frame {
+  int max_end;
+  struct end_frame * next;
+};
+
+static int place_record(struct end_frame ** frames, int start, int end) {
+  int level = 0;
+  struct end_frame * ptr;
+
+  if (*frames == NULL) {
+    level = 1;
+    *frames = Calloc(1, struct end_frame);
+    (*frames)->max_end = end;
+    (*frames)->next = NULL;
+    return level;
+  }
+
+  ptr = *frames;
+  while(1) {
+    ++level;
+
+    if (ptr->max_end < start) {
+      ptr->max_end = end;
+      return level;
+    }
+
+    if (ptr->next == NULL) {
+      ptr->next = Calloc(1, struct end_frame);
+      ptr->next->max_end = end;
+      ptr->next->next = NULL;
+      return level + 1;
+    }
+
+    ptr = ptr->next;
+  }
+}
+
+static void free_frames(struct end_frame * frames) {
+  struct end_frame * next;
+
+  while (frames != NULL) {
+    next = frames->next;
+    Free(frames);
+    frames = next;
+  }
+}
+
+static void recursive_stack_levels(struct end_frame ** frames, struct region * node, int * starts, int * ends, int * output) {
+
+  if (node == NULL)
+    return;
+
+  /* visit left (smaller) */
+  if (node->left != NULL)
+    recursive_stack_levels(frames, node->left, starts, ends, output);
+
+  /* visit node */
+  output[node->index] = place_record(frames, starts[node->index], ends[node->index]);
+
+  /* visit right (greater) */
+  if (node->right != NULL)
+    recursive_stack_levels(frames, node->right, starts, ends, output);
+}
+
+static void stack_levels(struct region * root, int * starts, int * ends, int * output) {
+  struct end_frame * frames = NULL;
+
+  recursive_stack_levels(&frames, root, starts, ends, output);
+  free_frames(frames);
+}
+
+SEXP stack_bed(SEXP starts, SEXP ends) {
+  SEXP result;
+  int i, N;
+  struct region * root = NULL;
+  
+  PROTECT(starts = AS_INTEGER(starts));
+  PROTECT(ends = AS_INTEGER(ends));
+  
+  N = Rf_length(starts);
+  PROTECT(result = NEW_INTEGER(N));
+  
+  /* add regions */
+  for (i = 0; i < N; ++i) {
+    struct region * rec = (struct region*) R_alloc(1, sizeof(struct region));
+
+    rec->index = i;
+    rec->left = NULL;
+    rec->right = NULL;
+    rec->subtree_max_end = INTEGER(ends)[i];
+
+    insert(&root, rec, INTEGER(starts)[i], INTEGER(starts), INTEGER(ends)[i]);
+  }
+  
+  /* run interval scheduling algorithm */
+  stack_levels(root, INTEGER(starts), INTEGER(ends), INTEGER(result));
+  
+  UNPROTECT(3);
+  
+  return result;
+}
