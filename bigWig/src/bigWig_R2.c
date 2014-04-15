@@ -529,6 +529,7 @@ SEXP bwMap_bp_query(SEXP obj, SEXP bed, SEXP op, SEXP step, SEXP with_attributes
   SEXP gap_value;
   SEXP abs_value;
   SEXP use_strand;
+  SEXP follow_strand;
   SEXP bw_obj = getListElement(obj, "bw");
   
   SEXP result;
@@ -543,13 +544,15 @@ SEXP bwMap_bp_query(SEXP obj, SEXP bed, SEXP op, SEXP step, SEXP with_attributes
   INTEGER(use_strand)[0] = TRUE;
   PROTECT(gap_value = NEW_NUMERIC(1));
   REAL(gap_value)[0] = 0; // by default, if no info then regions are mappable
+  PROTECT(follow_strand = NEW_LOGICAL(1));
+  INTEGER(follow_strand)[0] = FALSE;
   
   fill_bw_map_query_data(obj, op_name, &data);
   
   //
-  result = bigWig_region_query(bw_obj, bw_obj, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value, 0, bw_map_step_query_func, &data);
+  result = bigWig_region_query(bw_obj, bw_obj, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value, follow_strand, bw_map_step_query_func, &data);
   
-  UNPROTECT(3);
+  UNPROTECT(4);
   
   return result;
 }
