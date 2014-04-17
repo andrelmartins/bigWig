@@ -139,6 +139,10 @@ double interval_size(double step_start, double step_end, double istart, double i
   return end - start;
 }
 
+int bw_step_query_size(int start, int end, int step) {
+  return (end - start)/step;
+}
+
 /* TODO:
   - mappability: pass vector of step sum of mappable values and use that as the step value
                  (or fill steps with NA if "step value" == 0)
@@ -157,7 +161,7 @@ SEXP bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int sta
   struct lm * localMem = lmInit(0); /* use default value */
   struct bbiInterval * intervals;
   int nIntervals;
-  int size = (end - start)/step;
+  int size = bw_step_query_size(start, end, step);
   int idx;     
 
   data.defaultValue = gap_value;
@@ -254,7 +258,7 @@ SEXP bw_chrom_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, i
   if (!bigWigValsOnChromFetchData(chromVals, (char*) chrom, bigwig))
     error("could not retrieve information on chrom: %s", chrom);
   
-  n = chromVals->chromSize / step;
+  n = bw_step_query_size(0, chromVals->chromSize, step);
   PROTECT(res = NEW_NUMERIC(n));
   
   for (i = 0, j = 0, valptr=chromVals->valBuf; i < n; ++i) {
