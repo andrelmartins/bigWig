@@ -1,5 +1,6 @@
 #include "bw_query.h"
 #include <string.h>
+ #include <math.h>
 #include "common.h"
 #include "bigWig.h"
 #include "localmem.h"
@@ -9,11 +10,11 @@ void bw_op_clearz(bwStepOpData * data) {
   data->count = 0;
 }
 void bw_op_clear_min(bwStepOpData * data) {
-  data->total = R_PosInf;
+  data->total = INFINITY; //R_PosInf;
   data->count = 0;
 }
 void bw_op_clear_max(bwStepOpData * data) {
-  data->total = R_NegInf;
+  data->total = -INFINITY; //R_NegInf;
   data->count = 0;
 }
 
@@ -155,9 +156,8 @@ int bw_step_query_size(int start, int end, int step) {
     - optimized versions for chrom_step_query ... (all "intervals" are of size 1)
  */
 
-SEXP bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs, double thresh) {
+void bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs, double thresh, double * buffer) {
   bwStepOpData data;
-  SEXP res = R_NilValue;
   struct lm * localMem = lmInit(0); /* use default value */
   struct bbiInterval * intervals;
   int nIntervals;
@@ -173,9 +173,8 @@ SEXP bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int sta
   nIntervals = slCount(intervals);
   
   /* initialize result vector */
-  PROTECT(res = NEW_NUMERIC(size));
   for (idx = 0; idx < size; ++idx)
-    REAL(res)[idx] = gap_value;
+    buffer[idx] = gap_value;
   
   /* fill in values */
   if (nIntervals > 0) {
@@ -192,7 +191,7 @@ SEXP bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int sta
       /* interval starts beyond current step */
       if (((double)interval->start) >= right) {
         /* save current value */
-        REAL(res)[idx] = (*(op->result))(&data, step);
+        buffer[idx] = (*(op->result))(&data, step);
         
         /* start next */
         (*(op->clear))(&data);          
@@ -214,7 +213,7 @@ SEXP bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int sta
       if (((double)interval->end) >= right && idx < size) {
         do {
           /* save current value */
-          REAL(res)[idx] = (*(op->result))(&data, step);
+          buffer[idx] = (*(op->result))(&data, step);
         
           /* start next */
           (*(op->clear))(&data);
@@ -234,20 +233,17 @@ SEXP bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int sta
     }
     
     if (idx < size)
-      REAL(res)[idx] = (*(op->result))(&data, step);
+      buffer[idx] = (*(op->result))(&data, step);
   }
   
   lmCleanup(&localMem);
-  UNPROTECT(1);
-  return res;
 }
 
 /* not valid for probe mode! */
-SEXP bw_chrom_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int step, double gap_value, int do_abs) {
+int bw_chrom_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int step, double gap_value, int do_abs, double * buffer) {
   int n;
   int i, j, k;
   double * valptr;
-  SEXP res;
   
   struct bigWigValsOnChrom *chromVals = bigWigValsOnChromNew();
   bwStepOpData data;
@@ -256,10 +252,9 @@ SEXP bw_chrom_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, i
   data.do_abs = do_abs;
   
   if (!bigWigValsOnChromFetchData(chromVals, (char*) chrom, bigwig))
-    error("could not retrieve information on chrom: %s", chrom);
+    return -1;
   
   n = bw_step_query_size(0, chromVals->chromSize, step);
-  PROTECT(res = NEW_NUMERIC(n));
   
   for (i = 0, j = 0, valptr=chromVals->valBuf; i < n; ++i) {
     (*(op->clear))(&data);
@@ -269,13 +264,12 @@ SEXP bw_chrom_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, i
         (*(op->add))(&data, 1, *valptr);
     }
 
-    REAL(res)[i] = (*(op->result))(&data, step);
+    buffer[i] = (*(op->result))(&data, step);
   }
   
-  UNPROTECT(1);
   bigWigValsOnChromFree(&chromVals);
 
-  return(res);
+  return 0;
 }
 
 

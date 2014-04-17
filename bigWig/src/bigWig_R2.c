@@ -150,6 +150,14 @@ void fill_row(SEXP matrix, SEXP row, int row_idx) {
   }
 }
 
+static SEXP R_bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs, double thresh) {
+  int size = bw_step_query_size(start, end, step);
+  SEXP result = NEW_NUMERIC(size);
+  bw_step_query(bigwig, op, chrom, start, end, step, gap_value, do_abs, thresh, REAL(result));
+  
+  return result;
+}
+
 typedef SEXP (*step_query_func)(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs, int is_plus, void * uptr);
 
 SEXP bigWig_region_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, bwStepOp bwOp, SEXP step, SEXP use_strand, SEXP with_attributes, SEXP as_matrix, SEXP gap_value, SEXP abs_value, SEXP follow_strand, step_query_func step_query, void * uptr) {
@@ -252,7 +260,7 @@ SEXP bigWig_region_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, bwStepOp bwOp,
     if (step_query != NULL)
       PROTECT(res = (*step_query)(bw, &bwOp, chrom, start, end, istep, d_gap, do_abs, is_plus, uptr));
     else
-      PROTECT(res = bw_step_query(bw, &bwOp, chrom, start, end, istep, d_gap, do_abs, 0.0));
+      PROTECT(res = R_bw_step_query(bw, &bwOp, chrom, start, end, istep, d_gap, do_abs, 0.0));
   
     // reverse if on negative strand
     if (is_plus == 0 && do_rev_strand)
@@ -347,7 +355,8 @@ SEXP bigWig_bp_chrom_query(SEXP obj, SEXP op, SEXP chrom, SEXP step, SEXP with_a
 
   bw = bigWig_for_chrom(obj, c_chrom);
 
-  result = bw_chrom_step_query(bw, &bwOp, c_chrom, istep, d_gap, do_abs);
+  PROTECT(result = NEW_NUMERIC(bw_step_query_size(0, bw_chrom_size(bw, c_chrom), istep)));
+  bw_chrom_step_query(bw, &bwOp, c_chrom, istep, d_gap, do_abs, REAL(result));
   
   // attributes
   if (use_attributes) {
@@ -369,7 +378,7 @@ SEXP bigWig_bp_chrom_query(SEXP obj, SEXP op, SEXP chrom, SEXP step, SEXP with_a
 
   bigWig_for_chrom_release(obj, bw);
   
-  UNPROTECT(2);
+  UNPROTECT(3);
   
   return result;
 }
@@ -441,7 +450,7 @@ SEXP bw_map_step_query_func(bigWig_t * bigwig, bwStepOp * op, const char * chrom
           int len;
 
           // everything else is a regular block
-          SEXP tmp = bw_step_query(bigwig, op, chrom, cur_start, end, step, gap_value, do_abs, thresh);
+          SEXP tmp = R_bw_step_query(bigwig, op, chrom, cur_start, end, step, gap_value, do_abs, thresh);
           PROTECT(tmp);
           
           len = Rf_length(tmp);
@@ -465,7 +474,7 @@ SEXP bw_map_step_query_func(bigWig_t * bigwig, bwStepOp * op, const char * chrom
             
             bw_select_op(&opsum, "sum", 0);
             
-            tmp = bw_step_query(bigwig, &opsum, chrom, 0, cur_end, cur_end, gap_value, do_abs, thresh);
+            tmp = R_bw_step_query(bigwig, &opsum, chrom, 0, cur_end, cur_end, gap_value, do_abs, thresh);
             
             REAL(result)[i] = REAL(tmp)[0] / step;
           } else if (!strcmp(data->op_name, "thresh")) {
@@ -473,11 +482,11 @@ SEXP bw_map_step_query_func(bigWig_t * bigwig, bwStepOp * op, const char * chrom
             
             bw_select_op(&opsum, "sum", 0);
             
-            tmp = bw_step_query(bigwig, &opsum, chrom, 0, cur_end, cur_end, gap_value, do_abs, thresh);
+            tmp = R_bw_step_query(bigwig, &opsum, chrom, 0, cur_end, cur_end, gap_value, do_abs, thresh);
             
             REAL(result)[i] = (REAL(tmp)[0] >= thresh ? 1 : 0);
           } else {
-            tmp = bw_step_query(bigwig, op, chrom, 0, cur_end, cur_end, gap_value, do_abs, thresh);
+            tmp = R_bw_step_query(bigwig, op, chrom, 0, cur_end, cur_end, gap_value, do_abs, thresh);
             
             REAL(result)[i] = REAL(tmp)[0];
           }
@@ -489,10 +498,10 @@ SEXP bw_map_step_query_func(bigWig_t * bigwig, bwStepOp * op, const char * chrom
       return result;
     } else {
       // regular query
-      return bw_step_query(bigwig, op, chrom, start, actual_end, step, gap_value, do_abs, thresh);
+      return R_bw_step_query(bigwig, op, chrom, start, actual_end, step, gap_value, do_abs, thresh);
     }
   } else
-    return bw_step_query(bigwig, op, chrom, start, end, step, gap_value, do_abs, thresh);
+    return R_bw_step_query(bigwig, op, chrom, start, end, step, gap_value, do_abs, thresh);
 }
 
 void fill_bw_map_query_data(SEXP obj, const char * op_name, struct bw_map_query_data * data) {
@@ -556,7 +565,7 @@ SEXP bw_with_map_step_query_func(bigWig_t * bigwig, bwStepOp * op, const char * 
   bwStepOp bwMapOp;
   
   // run regular query
-  PROTECT(res = bw_step_query(bigwig, op, chrom, start, end, step, gap_value, do_abs, 0.0));
+  PROTECT(res = R_bw_step_query(bigwig, op, chrom, start, end, step, gap_value, do_abs, 0.0));
   
   // run bwMap query
   bw_map = bigWig_for_chrom(data->bwMap, chrom);

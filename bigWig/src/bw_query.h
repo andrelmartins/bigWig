@@ -1,9 +1,6 @@
 #ifndef BW_QUERY_H
 #define BW_QUERY_H
 
-#include <R.h>
-#include <Rdefines.h>
-
 #include "bw_base.h"
 
 typedef struct {
@@ -27,7 +24,7 @@ typedef struct {
 
 void bw_select_op(bwStepOp * op, const char * bw_op_type, int probe_mode);
 int bw_step_query_size(int start, int end, int step);
-SEXP bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs, double thresh);
-SEXP bw_chrom_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int step, double gap_value, int do_abs);
+void bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs, double thresh, double * buffer);
+int bw_chrom_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int step, double gap_value, int do_abs, double * buffer);
 
 #endif
