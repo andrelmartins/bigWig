@@ -9,6 +9,10 @@
 # from
 #  http://cufflinks.cbcb.umd.edu/faq.html
 rpkm.scale <- function(mat, step, libSize) {
+  # mat is in reads / step
+  # m1 = mat * (step / 1000) => reads / kb
+  # million mapped := libSize / 10^6
+  # m1 / (libSize / 10^6) => reads / kb / million mapped
   scaleFactor = (step / 1000) / (libSize / 10^6)
   
   mat * scaleFactor
