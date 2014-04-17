@@ -8,6 +8,9 @@ ifeq (${MACHTYPE},)
 	MACHTYPE=x86_64
 endif
 
+CC:=$(shell R CMD config CC)
+LDFLAGS:=$(shell R CMD config LDFLAGS)
+
 L += ${SOCKETLIB} -lm -lz
 #MYLIBDIR = ./lib/${MACHTYPE}
 #MYLIBS = ${MYLIBDIR}/jkweb.a
@@ -100,13 +103,13 @@ bigwiglib.a: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
 
 bigwiglib.so: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
 	ln -f -s $(KENTHOME)/src/inc
-	$(CC) -shared -fPIC -I./inc ${COPT} ${CFLAGS} -o $@ bw_base.c bw_query.c bigwiglib.c jkweb.a ${MYLIBS} ${L}
+	$(CC) -shared -fPIC -I./inc ${COPT} ${CFLAGS} -o $@ bw_base.c bw_query.c bigwiglib.c jkweb.a ${MYLIBS} ${L} ${LDFLAGS}
 	rm inc
 
 clean:
 	rm -f bigwig.so *.o lib inc jkweb/*.o jkweb/font/*.o jkweb.a
 
 tgtclean:
-	rm bigwig.so bigwiglib.a bigwiglib.so *.o
+	rm -f bigwig.so bigwiglib.a bigwiglib.so *.o
 
 .PHONY: prepare
