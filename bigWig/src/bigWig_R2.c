@@ -441,30 +441,44 @@ SEXP bw_map_step_query_func(bigWig_t * bigwig, bwStepOp * op, const char * chrom
     
     if (actual_end <= 0) {
       // everything is outside scope, fill with NAs
-      SEXP result = NEW_NUMERIC(size);
-      double * ptr = REAL(result);
+      SEXP result;
+      double * ptr;
       int i;
-      
+
+      PROTECT(result = NEW_NUMERIC(size));
+
+      ptr = REAL(result);
       for (i = 0; i < size; ++i)
         ptr[i] = 1;  // if outside chrom, then unmappable
       
+      UNPROTECT(result);
+      
       return result;
     } else if (start < 0) { // but actual_end > 0
-      SEXP result = NEW_NUMERIC(size);
+      SEXP result;
       int cur_start;
       int cur_end;
       int i;
+      
+      PROTECT(result = NEW_NUMERIC(size));
             
       for (cur_start = start, cur_end = cur_start + step, i = 0; cur_start < actual_end; cur_start += step, cur_end += step, ++i) {
         if (cur_start >= 0) {
           int j;
-          
+          int len;
+
           // everything else is a regular block
           SEXP tmp = bw_step_query(bigwig, op, chrom, cur_start, end, step, gap_value, do_abs, thresh);
+          PROTECT(tmp);
           
-          for (j = 0; j < Rf_length(tmp); ++j)
+          len = Rf_length(tmp);
+          if (i + Rf_length(tmp) > size) // TODO: we're dropping the last element ... check if this is the right thing to do ...
+            len = size - i;
+          
+          for (j = 0; j < len; ++j)
             REAL(result)[i + j] = REAL(tmp)[j];
           
+          UNPROTECT(1);
           break;
         } else if (cur_end <= 0) {
           REAL(result)[i] = 1; // if outside chrom, then unmappable
@@ -496,6 +510,8 @@ SEXP bw_map_step_query_func(bigWig_t * bigwig, bwStepOp * op, const char * chrom
           }
         }
       }
+      
+      UNPROTECT(1);
       
       return result;
     } else {
