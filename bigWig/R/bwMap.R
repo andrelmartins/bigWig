@@ -84,7 +84,6 @@ step.bpQuery.bwMap <- function(bwMap, chrom, start, end, step, strand, op = "thr
     stop("strand is required when using mappability information")
   
   valid.bwMap.op(op)
-  valid.query.range(start, end, step = step)
   
   if (!any(bwMap$bw$chroms == chrom)) {
     stop("bigWig does not contain information on chromosome: ", chrom)
@@ -98,7 +97,8 @@ step.bpQuery.bwMap <- function(bwMap, chrom, start, end, step, strand, op = "thr
   }
   if (is.null(start) || is.null(end))
     stop("either set both start and end to null (chromosome-wide query) or neither")
-    
+
+  valid.query.range(start, end, step = step)
     
   bed = data.frame(chrom, start, end, 0, 0, strand)
   .Call(bwMap_bp_query, bwMap, bed, op, step, with.attributes, FALSE)[[1]]
