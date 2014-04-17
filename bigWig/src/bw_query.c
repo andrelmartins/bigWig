@@ -156,7 +156,7 @@ int bw_step_query_size(int start, int end, int step) {
     - optimized versions for chrom_step_query ... (all "intervals" are of size 1)
  */
 
-void bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs, double thresh, double * buffer) {
+int bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int start, int end, int step, double gap_value, int do_abs, double thresh, double * buffer) {
   bwStepOpData data;
   struct lm * localMem = lmInit(0); /* use default value */
   struct bbiInterval * intervals;
@@ -237,6 +237,8 @@ void bw_step_query(bigWig_t * bigwig, bwStepOp * op, const char * chrom, int sta
   }
   
   lmCleanup(&localMem);
+  
+  return nIntervals;
 }
 
 /* not valid for probe mode! */

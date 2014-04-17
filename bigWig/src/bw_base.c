@@ -24,7 +24,6 @@ int bw_has_chrom(bigWig_t * bw, const char * chromName) {
   return 0;
 }
 
-
 long bw_chrom_size(bigWig_t * bw, const char * chromName) {
   struct bbiChromInfo * chrom, * chromList = bbiChromList(bw);
  
@@ -35,5 +34,5 @@ long bw_chrom_size(bigWig_t * bw, const char * chromName) {
       return result;
     }
 
-  return 0;
+  return -1;
 }

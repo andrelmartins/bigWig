@@ -70,7 +70,7 @@ O = aliType.o annoFilter.o annoFormatter.o annoFormatTab.o \
 
 JKWEBO := $(patsubst %.o,jkweb/%.o,$(O))
 
-all: prepare bigwig.so
+all: prepare bigwig.so bigwiglib.a bigwiglib.so
 
 prepare:
 	ln -f -s $(KENTHOME)/src/inc
@@ -89,7 +89,24 @@ bigwig.so: prepare jkweb.a bigWig_R.c utils_R.c bwgExtra.h bwgExtra.c bw_query.h
 	MAKEFLAGS=${MFLGSESC} R CMD SHLIB -o $@ bigWig_R.c utils_R.c bwgExtra.c  bw_base.c bw_query.c bigWig_R2.c ${MYLIBS} ${L}
 	rm inc lib
 
+bigwiglib.a: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
+	ln -f -s $(KENTHOME)/src/inc
+	$(CC) -fPIC -I./inc ${COPT} ${CFLAGS} -c -o bigwiglib_base.o bw_base.c
+	$(CC) -fPIC -I./inc ${COPT} ${CFLAGS} -c -o bigwiglib_query.o bw_query.c
+	$(CC) -fPIC -I./inc ${COPT} ${CFLAGS} -c -o bigwiglib.o bigwiglib.c
+	ar rcs $@ bigwiglib.o bigwiglib_base.o bigwiglib_query.o $(JKWEBO)
+	rm inc
+	cp bigwiglib.a ../inst/libs
+
+bigwiglib.so: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
+	ln -f -s $(KENTHOME)/src/inc
+	$(CC) -shared -fPIC -I./inc ${COPT} ${CFLAGS} -o $@ bw_base.c bw_query.c bigwiglib.c jkweb.a ${MYLIBS} ${L}
+	rm inc
+
 clean:
 	rm -f bigwig.so *.o lib inc jkweb/*.o jkweb/font/*.o jkweb.a
+
+tgtclean:
+	rm bigwig.so bigwiglib.a bigwiglib.so *.o
 
 .PHONY: prepare
