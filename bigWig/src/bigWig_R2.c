@@ -21,33 +21,6 @@
 #include <R.h>
 #include <Rdefines.h>
 
-static int has_chrom(bigWig_t * bw, const char * chromName) {
-  struct bbiChromInfo * chrom, * chromList = bbiChromList(bw);
-    
-  for (chrom = chromList; chrom != NULL; chrom = chrom->next)
-    if (!strcmp(chromName, chrom->name)) {
-      bbiChromInfoFreeList(&chromList);
-      return 1;
-    }
-
-  bbiChromInfoFreeList(&chromList);
-
-  return 0;
-}
-
-static int chrom_size(bigWig_t * bw, const char * chromName) {
-  struct bbiChromInfo * chrom, * chromList = bbiChromList(bw);
- 
-  for (chrom = chromList; chrom != NULL; chrom = chrom->next)
-    if (!strcmp(chromName, chrom->name)) {
-      int result = chrom->size;
-      bbiChromInfoFreeList(&chromList);
-      return result;
-    }
-
-  return 0;
-}
-
 
 /* Interface to abstract handling of fragmented bigWig objects
  * 
@@ -99,7 +72,7 @@ bigWig_t * bigWig_for_chrom(SEXP obj, const char * chrom) {
     errCatchFree(&err);
     
     /* check if chromsome exists in file */
-    if (has_chrom(bigWig, chrom) == 0) {
+    if (bw_has_chrom(bigWig, chrom) == 0) {
       bbiFileClose(&bigWig);
       
       error("file '%s' has no information on chrom '%s'", path, chrom);
@@ -120,7 +93,7 @@ bigWig_t * bigWig_for_chrom(SEXP obj, const char * chrom) {
   
   UNPROTECT(1);
   
-  if (has_chrom(bigWig, chrom) == 0) {
+  if (bw_has_chrom(bigWig, chrom) == 0) {
     error("bigWig has no information on chromosome: '%s'", chrom);
   }
   
@@ -385,7 +358,7 @@ SEXP bigWig_bp_chrom_query(SEXP obj, SEXP op, SEXP chrom, SEXP step, SEXP with_a
         
     SET_STRING_ELT(att_chrom, 0, mkChar(c_chrom));
     INTEGER(att_start)[0] = 0;
-    INTEGER(att_end)[0] = chrom_size(bw, c_chrom);
+    INTEGER(att_end)[0] = bw_chrom_size(bw, c_chrom);
     INTEGER(att_step)[0] = istep;
         
     setAttrib(result, install("chrom"), att_chrom);
@@ -451,7 +424,7 @@ SEXP bw_map_step_query_func(bigWig_t * bigwig, bwStepOp * op, const char * chrom
       for (i = 0; i < size; ++i)
         ptr[i] = 1;  // if outside chrom, then unmappable
       
-      UNPROTECT(result);
+      UNPROTECT(1);
       
       return result;
     } else if (start < 0) { // but actual_end > 0

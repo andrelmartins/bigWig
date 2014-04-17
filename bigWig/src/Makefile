@@ -85,8 +85,8 @@ jkweb.a:
 #jkweb/%.o: lib/%.c
 #	${CC} ${COPT} -I./inc ${CFLAGS} ${HG_DEFS} ${LOWELAB_DEFS} ${HG_WARN} ${HG_INC} ${XINC} -fPIC -o $@ -c $<
 
-bigwig.so: prepare jkweb.a bigWig_R.c utils_R.c bwgExtra.h bwgExtra.c bw_query.h bw_query.c bigWig_R2.c
-	MAKEFLAGS=${MFLGSESC} R CMD SHLIB -o $@ bigWig_R.c utils_R.c bwgExtra.c  bw_query.c bigWig_R2.c ${MYLIBS} ${L}
+bigwig.so: prepare jkweb.a bigWig_R.c utils_R.c bwgExtra.h bwgExtra.c bw_query.h bw_query.c bw_base.h bw_base.c bigWig_R2.c
+	MAKEFLAGS=${MFLGSESC} R CMD SHLIB -o $@ bigWig_R.c utils_R.c bwgExtra.c  bw_base.c bw_query.c bigWig_R2.c ${MYLIBS} ${L}
 	rm inc lib
 
 clean:

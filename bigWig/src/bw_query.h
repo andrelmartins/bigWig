@@ -4,7 +4,7 @@
 #include <R.h>
 #include <Rdefines.h>
 
-typedef struct bbiFile bigWig_t;
+#include "bw_base.h"
 
 typedef struct {
   double defaultValue;
