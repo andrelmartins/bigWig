@@ -22,7 +22,7 @@ load.bwMap <- function(filename, read.len, read.left.edge, threshold.fraction = 
 }
 
 unload.bwMap <- function(bwMap) {
-  stopifnot(class(bwMap) != "bwMap")
+  stopifnot(class(bwMap) == "bwMap")
   unload.bigWig(bwMap$bw)
 }
 
