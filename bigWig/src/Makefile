@@ -99,6 +99,7 @@ bigwiglib.a: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
 	$(CC) -fPIC -I./inc ${COPT} ${CFLAGS} -c -o bigwiglib.o bigwiglib.c
 	ar rcs $@ bigwiglib.o bigwiglib_base.o bigwiglib_query.o $(JKWEBO)
 	rm inc
+	[ -d ../inst/libs ] || mkdir ../inst/libs
 	cp bigwiglib.a ../inst/libs
 
 bigwiglib.so: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
