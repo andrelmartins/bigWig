@@ -1,5 +1,5 @@
 #ifndef BIGWIGLIB_H
-#define BIGIWGLIB_H
+#define BIGWIGLIB_H
 
 typedef struct bbiFile bigWig_t;
 
