@@ -28,7 +28,7 @@ gt tallymer mkindex -mersize $mapsize -minocc 2  -indexname $SCRATCH/$mapsize\me
 gt tallymer search -output qseqnum qpos counts sequence -strand fp -tyr $SCRATCH/$mapsize\mers -q $GENOME | gzip > $SCRATCH/$mapsize\mers.gtTxt.gz
 
 ## Transfer to a (MUCH) more compact bed format.
-SEQNAMES=`zcat ../hg19.rRNA.fa.gz | grep ">" | sed "s/^>//g"`
+SEQNAMES=`zcat $GENOME | grep ">" | sed "s/^>//g"`
 zcat $SCRATCH/$mapsize\mers.gtTxt.gz | perl tallymer2bed.pl $SEQNAMES | bedops -m  - | gzip > $mapsize\mers.unmap.bed.gz
 
 
