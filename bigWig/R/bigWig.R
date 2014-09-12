@@ -3,7 +3,10 @@
 #
 
 load.bigWig <- function(filename, udcDir=NULL) {
-  res = .Call(bigWig_load, filename, udcDir)
+  if (!is.null(udcDir)) {
+    udcDir = path.expand(udcDir)
+  }
+  res = .Call(bigWig_load, path.expand(filename), udcDir)
   class(res) <- "bigWig"
   return(res)
 }
