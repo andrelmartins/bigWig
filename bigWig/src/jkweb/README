@@ -1,0 +1,9 @@
+Contents and Copyrights
+------------------------------------------------------------------------------------------
+
+Contents of this folder (used to build jkweb.a) were obtained from:
+
+git://genome-source.cse.ucsc.edu/kent.git
+commit: e2269faa28d4c61e8ed1218e9b20749e4db75227
+
+and are redistributed with permission from Jim Kent under a BSD license (see LICENSE file).

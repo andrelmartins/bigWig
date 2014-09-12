@@ -1,6 +1,6 @@
 #include "bwgExtra.h"
 
-/* Adapted from Kent source to not perform clipping */
+/* Adapted from Kent source (included jkweb folder) to not perform clipping */
 
 struct bbiInterval *bigWigIntervalQueryNoClip(struct bbiFile *bwf, char *chrom, bits32
                                         start, bits32 end,
