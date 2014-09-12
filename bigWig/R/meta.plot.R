@@ -4,6 +4,7 @@
 # Adapted by Andre Martins
 
 collect.counts <- function(bigWig, chrom, start, end, step, do.sum = FALSE) {
+  .Deprecated("Will be dropped in 1.0", package="bigWig")
   res <- .Call(bigWig_query_by_step, bigWig, chrom, start, end, step, do.sum, 0)
   if (is.null(res))
     return(0)
@@ -12,6 +13,7 @@ collect.counts <- function(bigWig, chrom, start, end, step, do.sum = FALSE) {
 
 
 collect.many <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS = FALSE, do.sum = FALSE) {
+  .Deprecated("Will be dropped in 1.0", package="bigWig")
   windowSize = (2*halfWindow) %/% step
   midPoint = (bed[,2] + bed[,3]) / 2
 
@@ -59,11 +61,13 @@ collect.many <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TS
 }
 
 meta.accum <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS = FALSE, do.sum = FALSE) {
+  .Deprecated("Will be dropped in 1.0", package="bigWig")
   colSums(collect.many(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS, do.sum))/(dim(bed)[1])
 }
 
 
 meta.subsample <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.TSS=FALSE, do.sum = FALSE) {
+  .Deprecated("Will be dropped in 1.0", package="bigWig")
   N = dim(bed)[1]
   
   nPermut = 1000
@@ -95,6 +99,7 @@ meta.subsample <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, at.
 }
 
 meta.subsample.fragmented <- function(bed, bwFolder, bwSuffix, halfWindow, step, at.TSS=FALSE, do.sum = FALSE) {
+  .Deprecated("Will be dropped in 1.0", package="bigWig")
   N = dim(bed)[1]
   
   nPermut = 1000
@@ -146,6 +151,7 @@ meta.subsample.fragmented <- function(bed, bwFolder, bwSuffix, halfWindow, step,
 }
 
 meta.plot <- function(result, step, xlab="Distance to center (bp)", ylab="Signal", main=NULL, ylim=NULL, ...) {
+  .Deprecated("Will be dropped in 1.0", package="bigWig")
   N = length(result[[4]])
   x = ((1:N) - N/2)* step
 
@@ -165,6 +171,7 @@ meta.plot <- function(result, step, xlab="Distance to center (bp)", ylab="Signal
 
 
 meta.plot.GROseq <- function(result.plus, result.minus, step, xlab="Distance to center (bp)", ylab="Average Reads", main=NULL, ylim = NULL, ...) {
+  .Deprecated("Will be dropped in 1.0", package="bigWig")
   N = length(result.plus[[4]])
   x = ((1:N) - N/2)* step
 
@@ -186,6 +193,7 @@ meta.plot.GROseq <- function(result.plus, result.minus, step, xlab="Distance to 
 }
 
 meta.plot.GROseq.TSS <- function(bed, bigWig.plus, bigWig.minus, halfWindow, step, ...) {
+  .Deprecated("Will be dropped in 1.0", package="bigWig")
   sizes = bed[,3] - bed[,2]
   cat("*", sum(sizes > halfWindow), "TSSs selected\n")
   cat("* forward signal ...\n")
@@ -197,20 +205,24 @@ meta.plot.GROseq.TSS <- function(bed, bigWig.plus, bigWig.minus, halfWindow, ste
 }
 
 pair.ylim <- function(res1, res2) {
+  .Deprecated("Will be dropped in 1.0", package="bigWig")
   c(min(sapply(c(res1[2:4], res2[2:4]), min)),
     max(sapply(c(res1[2:4], res2[2:4]), max)))
 }
 
 quad.ylim <- function(res1.p, res1.m, res2.p, res2.m) {
+  .Deprecated("Will be dropped in 1.0", package="bigWig")
   c(-max(sapply(c(res1.m[2:4], res2.m[2:4]), max)),
     max(sapply(c(res1.p[2:4], res2.p[2:4]), max)))
 }
 
 meta.normalize <- function(result, scaleFactor) {
+  .Deprecated("Will be dropped in 1.0", package="bigWig")
   lapply(result, function(res) res * scaleFactor)
 }
 
 calc.scale.factor <- function(bed, bigWig.p.1, bigWig.m.1, bigWig.p.2, bigWig.m.2) {
+  .Deprecated("Will be dropped in 1.0", package="bigWig")
   getCounts <- function(bed, bigWig.p, bigWig.m) {
     N = dim(bed)[1]
 
