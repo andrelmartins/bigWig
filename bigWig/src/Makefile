@@ -22,7 +22,7 @@ MFLGSESC := $(subst $(space),\$(space),$(MFLGS))
 all: bigwig.so bigwiglib.a bigwiglib.so
 
 jkweb.a:
-  [ -d jkweb/lib/${MATCHTYPE} ] || mkdir jkweb/lib/${MATCHTYPE}
+	[ -d jkweb/lib/${MATCHTYPE} ] || mkdir jkweb/lib/${MATCHTYPE}
 	$(MAKE) -C jkweb/lib
 	ln -s jkweb/lib/${MACHTYPE}/jkweb.a jkweb.a	
 
