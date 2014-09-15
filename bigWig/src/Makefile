@@ -43,6 +43,7 @@ bigwiglib.so: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
 clean:
 	rm -f bigwig.so bigwiglib.a bigwiglib.so *.o jkweb.a
 	$(MAKE) -C jkweb/lib clean
+	rm -f ../inst/libs/bigwiglib.a
 
 tgtclean:
 	rm -f bigwig.so bigwiglib.a bigwiglib.so *.o
