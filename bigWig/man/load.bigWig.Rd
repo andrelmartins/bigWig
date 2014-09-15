@@ -1,6 +1,6 @@
 \name{load.bigWig}
 \alias{load.bigWig}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{Load bigWig Files}
 \description{Load UCSC bigWig files. Only the file header is loaded into
   memory, enough to perform subsequent queries. As with bigWig command
@@ -40,19 +40,6 @@ load.bigWig(filename, udcDir = NULL)
 
 \seealso{See \code{\link{unload.bigWig}} to safely unload a bigWig}
 
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function (filename) 
-{
-    res = .Call("bigWig_load", filename)
-    class(res) <- "bigWig"
-    return(res)
-  }
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ bigWig }

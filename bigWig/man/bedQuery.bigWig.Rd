@@ -25,27 +25,18 @@ bedQuery.bigWig(bed, bwPlus, bwMinus = NULL, gapValue = NULL, weighted = F, aggr
   \item{aggregator}{choice of aggregation function to use on each BED
     interval. Possible values are "min", "max", "sum" and "mean".}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{Returns a numeric vector with length equal to the number of
   intervals in the BED file.}
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{André Luís Martins}
-\note{
-%%  ~~further notes~~
-}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{See \code{\link{load.bigWig}} to load a bigWig. See
   \code{\link{query.bigWig}} to query a single interval.}
-\examples{
 
 
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ bigWig }

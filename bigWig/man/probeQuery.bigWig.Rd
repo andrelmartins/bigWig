@@ -59,16 +59,6 @@ bed6.step.probeQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "wavg", abs.valu
 \seealso{See \code{\link{load.bigWig}} to load a bigWig. See
   \code{\link{bedQuery.bigWig}} to query a BED file.}
 
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function(bigWig, chrom, start, end) {
-  .Call("bigWig_query", bigWig, chrom, start, end)
-  }
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ bigWig }

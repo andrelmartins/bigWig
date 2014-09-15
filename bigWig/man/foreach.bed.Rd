@@ -30,18 +30,13 @@ foreach.bed(bed, func, envir = parent.frame())
   file (actually the data.frame corresponding to the BED file).
 }
 \value{No return value.}
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{André Luís Martins}
 \note{Remember to use <<- when doing assignments of variables outside
   the loop.}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
 #
 # Silly example to compute sizes of Bed entries

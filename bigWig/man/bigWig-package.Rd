@@ -33,6 +33,3 @@ Maintainer: André Luís Martins <alm253@cornell.edu>
 \keyword{ package }
 \seealso{
 }
-\examples{
-~~ simple examples of the most important functions ~~
-}

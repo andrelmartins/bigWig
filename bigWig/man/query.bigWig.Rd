@@ -24,29 +24,15 @@ query.bigWig(bigWig, chrom, start, end, clip = TRUE)
   is the number of intervals contained in the bigWig file that intersect
   with the query interval. Result coordinates are clipped to the query 
   interval (unless \code{clip == FALSE}).}
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{André Luís Martins}
-\note{
-%%  ~~further notes~~
-}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{See \code{\link{load.bigWig}} to load a bigWig. See
   \code{\link{bedQuery.bigWig}} to query a BED file.}
 
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
 
-## The function is currently defined as
-function(bigWig, chrom, start, end) {
-  .Call("bigWig_query", bigWig, chrom, start, end)
-  }
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ bigWig }

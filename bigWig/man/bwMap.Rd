@@ -55,24 +55,13 @@ By convention, a mappability bigWig indicates mappable positions as 0 and unmapp
 
 }
 \value{Returns either a vector (non-bed functions) or either a list or a matrix (bed/bed6) functions.}
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{André Luís Martins}
-\note{
-%%  ~~further notes~~
-}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{See \code{\link{load.bigWig}} to load a bigWig. See
   \code{\link{bedQuery.bigWig}} to query a BED file.}
-
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-}
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

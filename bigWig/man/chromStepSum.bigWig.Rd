@@ -25,28 +25,18 @@ queryByStep.bigWig(bigwig, chrom, start, end, step, do.sum = F, default.null = T
   \item{default.null}{if TRUE, when there is no data, returns NULL,
     otherwise returns vector of defaultValue.}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
 \value{
   \item{chromStepSum.bigWig}{Returns a vector of size \code{chromSize \%/\% step} filled with the sums of the per base values in each block step.}
   \item{queryByStep.bigWig}{Returns a vector of the size \code{(end - start) \%/\% step} filled with the sums of the per bigWig interval values in each block step.}
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{André Luís Martins}
-\note{
-%%  ~~further notes~~
-}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{See \code{\link{load.bigWig}} to load a bigWig. See
   \code{\link{query.bigWig}} to query a single interval. See
   \code{\link{bedQuery.bigWig}} to query a BED file.}
-\examples{
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ bigWig }
