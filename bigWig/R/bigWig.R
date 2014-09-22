@@ -48,28 +48,3 @@ print.bigWig <- function(x, ...) {
   cat(" max: ", x$max, "\n")
   cat(" std: ", x$std, "\n")
 }
-
-bedQuery.bigWig <- function(bed, bwPlus, bwMinus = NULL, gapValue = NULL, weighted = F, aggregator = "sum") {
-  .Deprecated("bed.region.probeQuery.bigWig' or 'bed6.region.probeQuery.bigWig", package="bigWig")
-  return(.Call(bigWig_bed_query, bed, bwPlus, bwMinus, gapValue, weighted, aggregator))
-}
-
-queryByStep.bigWig <- function(bigwig, chrom, start, end, step, do.sum=F, default.null = T, defaultValue = 0) {
-  .Deprecated("step.probeQuery.bigWig", package="bigWig")
-  stopifnot(step >= 1)
-  if (!any(bigwig$chroms == chrom))
-    warning("bigWig does not contain information on chromosome: ", chrom)
-
-  result = .Call(bigWig_query_by_step, bigwig, chrom, start, end, step, do.sum, defaultValue)
-  if (is.null(result) && default.null == FALSE)
-    result = rep(defaultValue, (end - start) %/% step)
-  
-  return(result)
-}
-
-chromStepSum.bigWig <- function(bigwig, chrom, step, defaultValue) {
-  .Deprecated("step.bpQuery.bigWig", package="bigWig")
-  stopifnot(step >= 1)
-  stopifnot(any(bigwig$chroms == chrom))
-  return(.Call(bigWig_chrom_step_sum, bigwig, chrom, step, defaultValue))
-}
