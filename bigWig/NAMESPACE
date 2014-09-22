@@ -48,7 +48,3 @@ export(subsampled.quantile.profile)
 export(confint.profile)
 export(bootstrapped.confint.profile)
 export(profile.bigWig)
-
-export(plot.track.bigWig)
-export(plot.bed.track.bigWig)
-export(plot.profile.bigWig)
