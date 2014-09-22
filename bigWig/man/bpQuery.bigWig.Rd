@@ -55,8 +55,7 @@ bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "sum", abs.value = 
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{See \code{\link{load.bigWig}} to load a bigWig. See
-  \code{\link{bedQuery.bigWig}} to query a BED file.}
+\seealso{See \code{\link{load.bigWig}} to load a bigWig.}
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

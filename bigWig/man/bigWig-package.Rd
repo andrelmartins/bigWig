@@ -29,7 +29,8 @@ André Luís Martins
 
 Maintainer: André Luís Martins <alm253@cornell.edu>
 }
-\references{}
-\keyword{ package }
-\seealso{
+\references{
+Kent WJ, Zweig AS, Barber G, Hinrichs AS, Karolchik D. BigWig and BigBed: enabling browsing of large distributed data sets. \emph{Bioinformatics}. 2010;26(17):2204-7
 }
+\keyword{ package }
+

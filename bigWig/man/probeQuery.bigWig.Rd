@@ -42,22 +42,14 @@ bed6.step.probeQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "wavg", abs.valu
   \item{with.attributes}{logival value; if TRUE, results are annotated with their source coordinates and/or step size.}
   \item{follow.strand}{logical value; if TRUE, results vectors/rows corresponding to minus strand queries are reversed.}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{Returns either a vector (non-bed functions) or either a list or a matrix (bed/bed6) functions.}
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{André Luís Martins}
-\note{
-%%  ~~further notes~~
-}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{See \code{\link{load.bigWig}} to load a bigWig. See
-  \code{\link{bedQuery.bigWig}} to query a BED file.}
+\seealso{See \code{\link{load.bigWig}} to load a bigWig.}
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

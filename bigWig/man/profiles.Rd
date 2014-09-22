@@ -36,9 +36,6 @@ profile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal", matrix.
   \item{...}{extra arguments to be passed to matrix.op and/or profile.op.}
 }
 
-\details{
-}
-
 \value{*.profile functions return a list with 'top', 'middle' and 'bottom' profiles and the 'step' value if present as an attribute in the input matrix. 'step' item is required for the \code{plot.profile.bigWig} function. profile.bigWig returns a list with 'name', 'X0' (= 0), 'step' and the 'top', 'middle' and 'bottom' profiles.
 }
 

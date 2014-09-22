@@ -60,8 +60,7 @@ By convention, a mappability bigWig indicates mappable positions as 0 and unmapp
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{See \code{\link{load.bigWig}} to load a bigWig. See
-  \code{\link{bedQuery.bigWig}} to query a BED file.}
+\seealso{See \code{\link{load.bigWig}} to load a bigWig.}
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

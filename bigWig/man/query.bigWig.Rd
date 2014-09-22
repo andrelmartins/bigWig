@@ -17,9 +17,7 @@ query.bigWig(bigWig, chrom, start, end, clip = TRUE)
     coordinates like in BED ifles).}
   \item{clip}{logical value; if TRUE bigWig regions are clipped to the query interval.}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{Returns a N by 3 matrix with columns (start, end, value) where N
   is the number of intervals contained in the bigWig file that intersect
   with the query interval. Result coordinates are clipped to the query 
@@ -29,8 +27,7 @@ query.bigWig(bigWig, chrom, start, end, clip = TRUE)
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{See \code{\link{load.bigWig}} to load a bigWig. See
-  \code{\link{bedQuery.bigWig}} to query a BED file.}
+\seealso{See \code{\link{load.bigWig}} to load a bigWig.}
 
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the

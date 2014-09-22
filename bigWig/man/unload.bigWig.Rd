@@ -10,14 +10,8 @@ unload.bigWig(bigWig)
 \arguments{
   \item{bigWig}{a bigWig object}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
 
-\author{André Luís Martins
-%%  ~~who you are~~
-}
-\note{}
+\author{André Luís Martins}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 

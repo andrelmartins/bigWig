@@ -17,23 +17,29 @@ load.bigWig(filename, udcDir = NULL)
     use the default location (/tmp/udcCache).
     }
 }
-\details{
-  
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+Returns an object of the bigWig class, which contains a C pointer (see note bellow) and the following accessible parts:
+\item{basesCovered}{Number of bp covered by bigWig data.}
+\item{chromSizes}{Integer vector with number of bases per chromosome (same order as chroms vector.}
+\item{chroms}{Character vector with chromosome names for which there is data in the bigWig file.}
+\item{isCompressed}{Logical value indicating state of internal bigWig file compression.}
+\item{isSwapped}{Logical value indicating if binary representation is byte swapped (big vs little endian).}
+\item{max}{Numeric value containing the maximum value stored in the bigWig file.}
+\item{mean}{Numeric value containing the mean value across all covered bases in the bigWig file.}
+\item{min}{Numeric value containing the minimum value stored in the bigWig file.}
+\item{primaryDataSize}{Integer number of bytes used by data.}
+\item{primaryIndexSize}{Integer number of bytes used by index.}
+\item{std}{Standard deviation of bigWig values over covered bases.}
+\item{version}{Integer version number for bigWig file format.}
+\item{zoomLevels}{Integer number of zoom level supported by bigWig file.}
 }
 \references{
-%% ~put references to the literature/web site here ~
+Kent WJ, Zweig AS, Barber G, Hinrichs AS, Karolchik D. BigWig and BigBed: enabling browsing of large distributed data sets. \emph{Bioinformatics}. 2010;26(17):2204-7
 }
 \author{André Luís Martins}
 \note{Return value contains a pointer to a C allocated structure stored
-  as an attribute (handle_pte). Do not change this value directly!©
+  as an attribute (handle_pte). Do not change this value directly!
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
