@@ -69,9 +69,9 @@ bootstrapped.confint.profile <- function(mat, alpha = 0.05, n.samples = 300) {
     colMeans(tbl[idxs,], na.rm=TRUE)
   }
   
-  res = boot(mat, stat, R = n.samples)
+  res = boot::boot(mat, stat, R = n.samples)
   aux = sapply(1:dim(mat)[2], function(idx) {
-    tmp = boot.ci(res, type = "norm", index = idx, conf = 1 - alpha)
+    tmp = boot::boot.ci(res, type = "norm", index = idx, conf = 1 - alpha)
     c(tmp$normal[,2], tmp$t0, tmp$normal[,3])
   })
   

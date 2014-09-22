@@ -8,7 +8,8 @@ Author: Andre L. Martins
 Maintainer: Andre L. Martins <alm253@cornell.edu>
 Description: R interface to query UCSC bigWig files
   Implementation uses UCSC Genome Browser code, so it supports the access modes that bigWig tools support, including http access to remote bigWig files.
-Depends: boot, grid
+Depends: grid
+Imports: boot
 Suggests: testthat
 License: BSD_3_clause + file LICENSE
 LazyLoad: yes
