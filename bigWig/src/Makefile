@@ -44,6 +44,7 @@ clean:
 	rm -f bigwig.so bigwiglib.a bigwiglib.so *.o jkweb.a
 	$(MAKE) -C jkweb/lib clean
 	rm -f ../inst/libs/bigwiglib.a
+	rm -Rf bigwiglib.so.dSYM
 
 tgtclean:
 	rm -f bigwig.so bigwiglib.a bigwiglib.so *.o
