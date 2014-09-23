@@ -1,23 +1,23 @@
 \name{profiles}
-\alias{quantile.profile}
-\alias{subsampled.quantile.profile}
-\alias{confint.profile}
-\alias{bootstrapped.confint.profile}
-\alias{profile.bigWig}
+\alias{quantiles.metaprofile}
+\alias{subsampled.quantiles.metaprofile}
+\alias{confinterval.metaprofile}
+\alias{bootstrapped.confinterval.metaprofile}
+\alias{metaprofile.bigWig}
 \title{Data Profile Utility Functions}
 \description{Functions to create summary profiles out of data matrices.}
 
 \usage{
 
-quantile.profile(mat, quantiles = c(0.875, 0.5, 0.125))
+quantiles.metaprofile(mat, quantiles = c(0.875, 0.5, 0.125))
 
-subsampled.quantile.profile(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10, n.samples = 1000)
+subsampled.quantiles.metaprofile(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10, n.samples = 1000)
 
-confint.profile(mat, alpha = 0.05)
+confinterval.metaprofile(mat, alpha = 0.05)
 
-bootstrapped.confint.profile(mat, alpha = 0.05, n.samples = 300)
+bootstrapped.confinterval.metaprofile(mat, alpha = 0.05, n.samples = 300)
 
-profile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal", matrix.op = NULL, profile.op = subsampled.quantile.profile, ...)
+metaprofile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal", matrix.op = NULL, profile.op = subsampled.quantiles.metaprofile, ...)
 
 }
 \arguments{

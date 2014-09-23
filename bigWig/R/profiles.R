@@ -2,7 +2,7 @@
 # Functions to process data matrices into lists of top, middle, bottom vectors
 #
 
-quantile.profile <- function(mat, quantiles = c(0.875, 0.5, 0.125)) {
+quantiles.metaprofile <- function(mat, quantiles = c(0.875, 0.5, 0.125)) {
   stopifnot(length(quantiles) == 3)
   stopifnot(all(quantiles < 1 & quantiles > 0))
   
@@ -23,7 +23,7 @@ quantile.profile <- function(mat, quantiles = c(0.875, 0.5, 0.125)) {
     return(list(top = cTop, middle = cMid, bottom = cBottom))
 }
 
-subsampled.quantile.profile <- function(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10, n.samples = 1000) {
+subsampled.quantiles.metaprofile <- function(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10, n.samples = 1000) {
   stopifnot(length(quantiles) == 3)
   stopifnot(all(quantiles < 1 & quantiles > 0))
   
@@ -43,10 +43,10 @@ subsampled.quantile.profile <- function(mat, quantiles = c(0.875, 0.5, 0.125), f
   # propagate step attribute
   attr(result, "step") <- attr(mat, "step")
 
-  return(quantile.profile(result, quantiles))
+  return(quantiles.metaprofile(result, quantiles))
 }
 
-confint.profile <- function(mat, alpha = 0.05) {
+confinterval.metaprofile <- function(mat, alpha = 0.05) {
   N = dim(mat)[2]
   cMid = colMeans(mat, na.rm = TRUE)
   sderrs = apply(mat, 2, function(col) {
@@ -64,7 +64,7 @@ confint.profile <- function(mat, alpha = 0.05) {
     return(list(top = cMid + delta, middle = cMid, bottom = cMid - delta))
 }
 
-bootstrapped.confint.profile <- function(mat, alpha = 0.05, n.samples = 300) {
+bootstrapped.confinterval.metaprofile <- function(mat, alpha = 0.05, n.samples = 300) {
   stat <- function(tbl, idxs) {
     colMeans(tbl[idxs,], na.rm=TRUE)
   }
@@ -93,7 +93,7 @@ bootstrapped.confint.profile <- function(mat, alpha = 0.05, n.samples = 300) {
 # . top, middle, bottom vectors
 #
 
-profile.bigWig <- function(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal", matrix.op = NULL, profile.op = subsampled.quantile.profile, ...) {
+metaprofile.bigWig <- function(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal", matrix.op = NULL, profile.op = subsampled.quantiles.metaprofile, ...) {
   #
   # 1. collect data
   N = dim(bed)[2]
