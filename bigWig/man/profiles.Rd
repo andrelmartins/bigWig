@@ -11,13 +11,15 @@
 
 quantiles.metaprofile(mat, quantiles = c(0.875, 0.5, 0.125))
 
-subsampled.quantiles.metaprofile(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10, n.samples = 1000)
+subsampled.quantiles.metaprofile(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10, 
+                                 n.samples = 1000)
 
 confinterval.metaprofile(mat, alpha = 0.05)
 
 bootstrapped.confinterval.metaprofile(mat, alpha = 0.05, n.samples = 300)
 
-metaprofile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal", matrix.op = NULL, profile.op = subsampled.quantiles.metaprofile, ...)
+metaprofile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal", 
+                   matrix.op = NULL, profile.op = subsampled.quantiles.metaprofile, ...)
 
 }
 \arguments{

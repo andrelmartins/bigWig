@@ -9,22 +9,34 @@
 
 \title{Query bigWig Files Containing Base Pair Data}
 \description{Collect values (or transformations of values) from intervals that overlap the query region(s).}
+
 \usage{
+region.bpQuery.bigWig(bw, chrom, start, end,
+                      strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, 
+                      bwMap = NULL)
 
-region.bpQuery.bigWig(bw, chrom, start, end, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL)
+bed.region.bpQuery.bigWig(bw, bed, 
+                          strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, 
+                          bwMap = NULL)
 
-bed.region.bpQuery.bigWig(bw, bed, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL)
+bed6.region.bpQuery.bigWig(bw.plus, bw.minus, bed6, 
+                           op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL)
 
-bed6.region.bpQuery.bigWig(bw.plus, bw.minus, bed6, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL)
+step.bpQuery.bigWig(bw, chrom, start, end, step, 
+                    strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, 
+                    bwMap = NULL, with.attributes = TRUE)
 
-step.bpQuery.bigWig(bw, chrom, start, end, step, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = TRUE)
+bed.step.bpQuery.bigWig(bw, bed, step, 
+                        strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, 
+                        bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE)
 
-bed.step.bpQuery.bigWig(bw, bed, step, strand = NA, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE)
-
-bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step, op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE, follow.strand = FALSE)
+bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step, 
+                         op = "sum", abs.value = FALSE, gap.value = 0, 
+                         bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE, 
+                         follow.strand = FALSE)
 
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{bw}{either an R object of class 'bigWig' or a character vector containing the prefix and suffix to the path of each bigWig fragment (path = <prefix><chrom><suffix>).}
   \item{bw.plus}{same as 'bw', but for use with plus strand queries.}

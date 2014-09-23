@@ -19,9 +19,11 @@ region.bpQuery.bwMap(bwMap, chrom, start, end, strand, op = "thresh")
 
 bed6.region.bpQuery.bwMap(bwMap, bed6, op = "thresh")
 
-step.bpQuery.bwMap(bwMap, chrom, start, end, step, strand, op = "thresh", with.attributes = TRUE)
+step.bpQuery.bwMap(bwMap, chrom, start, end, step, strand, 
+                   op = "thresh", with.attributes = TRUE)
 
-bed6.step.bpQuery.bwMap(bwMap, bed6, step, op = "thresh", with.attributes = FALSE, as.matrix = FALSE)
+bed6.step.bpQuery.bwMap(bwMap, bed6, step, 
+                        op = "thresh", with.attributes = FALSE, as.matrix = FALSE)
 
 }
 %- maybe also 'usage' for other objects documented here.
