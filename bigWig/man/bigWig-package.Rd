@@ -14,8 +14,8 @@ bigWig Query Library
 Copyright: \tab The code in src/jkweb is Copyright (c) 2000-2002 Jim Kent (c) 2003-2014 Regents of the University of California.  All other code is Copyright (c) 2012-2014 Cornell University.\cr
 Package: \tab bigWig\cr
 Type: \tab Package\cr
-Version: \tab 0.2-01\cr
-Date: \tab 2014-09-11\cr
+Version: \tab 0.2-3\cr
+Date: \tab 2014-09-23\cr
 License: \tab BSD_3_clause + file LICENSE\cr
 LazyLoad: \tab yes\cr
 }
