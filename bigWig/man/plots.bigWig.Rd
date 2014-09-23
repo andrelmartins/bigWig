@@ -4,7 +4,9 @@
 \title{Plot meta-profile(s)}
 \description{Draw meta-profile plot with appropriate error regions.}
 \usage{
-\method{plot}{metaprofile}(x, minus.profile = NULL, X0 = plus.profile$X0, draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"), ylim = NULL, xlim = NULL, xlab = "Distance (bp)", ylab = plus.profile$name, ...)
+\method{plot}{metaprofile}(x, minus.profile = NULL, X0 = plus.profile$X0, 
+       draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"), 
+       ylim = NULL, xlim = NULL, xlab = "Distance (bp)", ylab = plus.profile$name, ...)
 }
 
 \arguments{

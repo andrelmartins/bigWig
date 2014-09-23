@@ -2,8 +2,8 @@ Copyright: The code in src/jkweb is Copyright (c) 2000-2002 Jim Kent (c) 2003-20
 Package: bigWig
 Type: Package
 Title: R interface to query UCSC bigWig files
-Version: 0.2-02
-Date: 2014-09-22
+Version: 0.2-3
+Date: 2014-09-23
 Author: Andre L. Martins
 Maintainer: Andre L. Martins <alm253@cornell.edu>
 Description: R interface to query UCSC bigWig files
