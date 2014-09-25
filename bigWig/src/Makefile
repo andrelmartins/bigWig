@@ -19,8 +19,7 @@ empty:=
 space:= $(empty) $(empty)
 MFLGSESC := $(subst $(space),\$(space),$(MFLGS))
 
-CFLAGS += $(CPICFLAGS)
-export CFLAGS
+export CFLAGS += $(CPICFLAGS)
 
 all: bigwig.so bigwiglib.a bigwiglib.so
 
