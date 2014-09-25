@@ -1,7 +1,7 @@
 include jkweb/inc/common.mk
 
 ifeq (${MACHTYPE},)
-	export MACHTYPE=$(shell echo "cat(R.version[['arch']], '\\\\n', sep='')" | R -q --no-save | grep -v ">")
+	export MACHTYPE=$(shell Rscript Rarch.R)
 endif
 
 CC:=$(shell R CMD config CC)
