@@ -14,8 +14,8 @@ bigWig Query Library
 Copyright: \tab The code in src/jkweb is Copyright (c) 2000-2002 Jim Kent (c) 2003-2014 Regents of the University of California.  All other code is Copyright (c) 2012-2014 Cornell University.\cr
 Package: \tab bigWig\cr
 Type: \tab Package\cr
-Version: \tab 0.2-3\cr
-Date: \tab 2014-09-23\cr
+Version: \tab 0.2-4\cr
+Date: \tab 2014-09-25\cr
 License: \tab BSD_3_clause + file LICENSE\cr
 LazyLoad: \tab yes\cr
 }
@@ -25,7 +25,7 @@ functions. There is support for loading both local and remote files
 (http,ftp). Some utility functions are also provided to build meta plots.
 }
 \author{
-André Luís Martins
+Andre L. Martins, copyright holder Cornell University. src/jkweb by Jim Kent, copyright by Jim Kent and Regents of the University of California.
 
 Maintainer: André Luís Martins <alm253@cornell.edu>
 }
