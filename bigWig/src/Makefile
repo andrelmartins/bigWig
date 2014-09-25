@@ -36,8 +36,8 @@ bigwiglib.a: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
 	$(CC) -I./jkweb/inc ${COPT} ${CFLAGS} -c -o bigwiglib_query.o bw_query.c
 	$(CC) -I./jkweb/inc ${COPT} ${CFLAGS} -c -o bigwiglib.o bigwiglib.c
 	ar rcs $@ bigwiglib.o bigwiglib_base.o bigwiglib_query.o `find jkweb/ -name "*.o"`
-	[ -d ../inst/libs ] || mkdir ../inst/libs
-	cp bigwiglib.a ../inst/libs
+	[ -d ../inst/lib ] || mkdir ../inst/lib
+	cp bigwiglib.a ../inst/lib
 
 bigwiglib.so: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
 	$(CC) -shared -fPIC -I./jkweb/inc ${COPT} ${CFLAGS} -o $@ bw_base.c bw_query.c bigwiglib.c jkweb.a ${L} ${LDFLAGS}
@@ -45,7 +45,7 @@ bigwiglib.so: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
 clean:
 	rm -f bigwig.so bigwiglib.a bigwiglib.so *.o jkweb.a
 	$(MAKE) -C jkweb/lib clean
-	rm -f ../inst/libs/bigwiglib.a
+	rm -f ../inst/lib/bigwiglib.a
 	rm -Rf bigwiglib.so.dSYM
 
 tgtclean:
