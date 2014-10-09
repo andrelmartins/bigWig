@@ -21,7 +21,13 @@ empty:=
 space:= $(empty) $(empty)
 MFLGSESC := $(subst $(space),\$(space),$(MFLGS))
 
-export CFLAGS += $(CPICFLAGS) -I${R_HOME}/include -L${R_HOME}/bin/${MACHTYPE}
+ifeq ($(MACHTYPE),x86_64)
+	ZLIBPATH := ${R_HOME}/bin/x64
+else
+	ZLIBPATH := ${R_HOME}/bin/i386
+endif
+
+export CFLAGS += $(CPICFLAGS) -I${R_HOME}/include -L${ZLIBPATH}
 
 HG_INC += -Ijkweb/inc
 
