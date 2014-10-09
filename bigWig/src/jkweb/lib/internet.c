@@ -3,6 +3,26 @@
 #include "common.h"
 #include "internet.h"
 
+#ifdef __WIN32__
+const char* inet_ntop(int af, const void* src, char* dst, int cnt){
+ 
+    struct sockaddr_in srcaddr;
+ 
+    memset(&srcaddr, 0, sizeof(struct sockaddr_in));
+    memcpy(&(srcaddr.sin_addr), src, sizeof(srcaddr.sin_addr));
+ 
+    srcaddr.sin_family = af;
+    if (WSAAddressToString((struct sockaddr*) &srcaddr, sizeof(struct sockaddr_in), 0, dst, (LPDWORD) &cnt) != 0) {
+        DWORD rv = WSAGetLastError();
+        printf("WSAAddressToString() : %d\n",rv);
+        return NULL;
+    }
+    return dst;
+}
+
+int inet_pton(int af, const char *src, void *dst);
+
+#endif
 
 boolean internetIsDottedQuad(char *s)
 /* Returns TRUE if it looks like s is a dotted quad. */

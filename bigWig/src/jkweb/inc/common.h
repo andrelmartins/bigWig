@@ -55,6 +55,10 @@
 #endif
 #endif
 
+#ifdef __WIN32__
+#define NO_SYSLOG 1
+#endif
+
 #ifdef __CYGWIN32__
 #include <mingw/math.h>
 #endif
@@ -100,6 +104,10 @@
 #ifndef bool
 #define bool char
 #endif
+#endif
+
+#ifndef uint
+#define uint unsigned int
 #endif
 
 /* Some other type synonyms */

@@ -37,7 +37,11 @@ return clock()/CLOCKS_PER_SEC;
 void uglyfBreak()
 /* Go into debugger. */
 {
+#ifdef __MINGW32__
+__asm("int3");
+#else
 __asm { int 3 } /* uglyf */
+#endif
 }
 
 char *getCurrentDir()
@@ -77,7 +81,7 @@ else
     }
 
 if (pattern == NULL)
-    pattern = *;
+    pattern = "*";
 if( (hFile = _findfirst( pattern, &fileInfo)) == -1L )
     return NULL;
 
