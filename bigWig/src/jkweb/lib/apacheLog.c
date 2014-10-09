@@ -5,6 +5,9 @@
 #include "obscure.h"
 #include "apacheLog.h"
 
+#ifdef __WIN32__
+const char * strptime (const char *buf, const char *fmt, struct tm *tm);
+#endif
 
 void apacheAccessLogFree(struct apacheAccessLog **pLl)
 /* Free up apacheAccessLog. */

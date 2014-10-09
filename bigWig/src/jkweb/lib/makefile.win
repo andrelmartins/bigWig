@@ -1,6 +1,7 @@
+CC := $(shell R CMD config CC)
+
 include ../inc/localEnvironment.mk
 include ../inc/common.mk
-
 
 O = aliType.o annoAssembly.o annoFilter.o annoFormatter.o annoFormatTab.o \
     annoGrator.o annoGrateWig.o annoGratorQuery.o annoOption.o annoRow.o \

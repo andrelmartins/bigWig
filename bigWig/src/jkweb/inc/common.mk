@@ -1,5 +1,8 @@
-CC=gcc
-# to build on sundance: CC=gcc -mcpu=v9 -m64
+ifeq ($(CC),)
+  CC=gcc
+  # to build on sundance: CC=gcc -mcpu=v9 -m64
+endif
+
 ifeq (${COPT},)
     COPT=-O -g
 endif

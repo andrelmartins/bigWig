@@ -12,6 +12,10 @@
 #include "udc.h"
 #include "bbiFile.h"
 
+#ifdef __WIN32__
+void bzero(void *s, size_t n);
+#endif
+
 struct bbiZoomLevel *bbiBestZoom(struct bbiZoomLevel *levelList, int desiredReduction)
 /* Return zoom level that is the closest one that is less than or equal to 
  * desiredReduction. */
