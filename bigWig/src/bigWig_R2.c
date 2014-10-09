@@ -387,8 +387,9 @@ SEXP bigWig_bp_chrom_query(SEXP obj, SEXP op, SEXP chrom, SEXP step, SEXP with_a
 SEXP getListElement(SEXP list, const char *str) {
   SEXP elmt = R_NilValue;
   SEXP names = getAttrib(list, R_NamesSymbol);
+  int i;
 
-  for (int i = 0; i < length(list); i++)
+  for (i = 0; i < length(list); i++)
     if(strcmp(CHAR(STRING_ELT(names, i)), str) == 0) {
 	    elmt = VECTOR_ELT(list, i);
 	    break;

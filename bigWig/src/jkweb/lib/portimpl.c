@@ -81,6 +81,10 @@ safef(s, size, "%s=%s", name, value);
 putenv(s);
 }
 
+#ifdef __MINGW32__
+#define mkdir(name, mode) _mkdir(name)
+#endif
+
 void mkdirTrashDirectory(char *prefix)
 /*	create the specified trash directory if it doesn't exist */
 {

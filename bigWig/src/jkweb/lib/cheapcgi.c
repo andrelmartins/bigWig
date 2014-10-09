@@ -749,9 +749,11 @@ switch (sigNum)
 		   //  apache gives you 3 seconds to clean up and exit or it then sends SIGKILL.
       sig = "SIGTERM";
       break;
+#ifndef __WIN32__
     case SIGHUP:   // apache sends this when it is doing a graceful restart or a log rotate.
       sig = "SIGHUP";
       break;
+#endif
     case SIGABRT:
       sig = "SIGABRT";
       break;
@@ -761,9 +763,11 @@ switch (sigNum)
     case SIGFPE:
       sig = "SIGFPE";
       break;
+#ifndef __WIN32__
     case SIGBUS:
       sig = "SIGBUS";
       break;
+#endif
     }
     logCgiToStderr();
 
@@ -773,10 +777,19 @@ switch (sigNum)
     if (dumpStackOnSignal)
         dumpStack("Stack for signal %s\n", sig);
 
+#ifdef __WIN32__
+if (sigNum == SIGTERM)
+    exit(1);   // so that atexit cleanup get called
+#else
 if (sigNum == SIGTERM || sigNum == SIGHUP) 
     exit(1);   // so that atexit cleanup get called
+#endif
 
+#ifdef __WIN32__
+raise(SIGINT);
+#else
 raise(SIGKILL);
+#endif
 }
 
 void initSigHandlers(boolean dumpStack)
@@ -787,11 +800,15 @@ if (cgiIsOnWeb())
     {
     // SIGKILL is not trappable or ignorable
     signal(SIGTERM, catchSignal);
+#ifndef __WIN32__
     signal(SIGHUP, catchSignal);
+#endif
     signal(SIGABRT, catchSignal);
     signal(SIGSEGV, catchSignal);
     signal(SIGFPE, catchSignal);
+#ifndef __WIN32__
     signal(SIGBUS, catchSignal);
+#endif
     dumpStackOnSignal = dumpStack;
     }
 }

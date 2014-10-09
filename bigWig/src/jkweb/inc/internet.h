@@ -3,10 +3,22 @@
  * and the like.   See also net for stuff that is higher level. */
 
 #ifndef INTERNET_H
+
+#ifdef __WIN32__
+#undef BYTE
+#undef WORD
+#undef UWORD
+#undef boolean
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <stdint.h>
+#define EINPROGRESS     WSAEINPROGRESS
+#else
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#endif
 
 bits32 internetHostIp(char *hostName);
 /* Get IP v4 address (in host byte order) for hostName.

@@ -38,6 +38,18 @@ static int setSocketNonBlocking(int sd, boolean set)
  * or clear it if set==FALSE.
  * Return -1 if there are any errors, 0 if successful. */
 {
+#ifdef __WIN32__
+unsigned long mode = set ? 1 : 0;
+int res = ioctlsocket(sd, FIONBIO, &mode);
+
+if (res != 0) {
+    // error
+    warn("Error on ioctlsocket (%d)", res);
+    return -1;
+}
+return 0;
+
+#else
 long fcntlFlags;
 // Set or clear non-blocking
 if ((fcntlFlags = fcntl(sd, F_GETFL, NULL)) < 0) 
@@ -55,6 +67,7 @@ if (fcntl(sd, F_SETFL, fcntlFlags) < 0)
     return -1;
     }
 return 0;
+#endif
 }
 
 int setReadWriteTimeouts(int sd, int seconds)
@@ -259,7 +272,11 @@ if ((sd = netStreamSocket()) < 0)
     return sd;
 if (!internetFillInAddress(host, port, &sai))
     return -1;
+#ifdef __WIN32__
+if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (const char*) &flag, sizeof(int)))
+#else
 if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(int)))
+#endif
     return -1;
 if (bind(sd, (struct sockaddr*)&sai, sizeof(sai)) == -1)
     {
@@ -339,7 +356,9 @@ void netBlockBrokenPipes()
 {
 if (!plumberInstalled)
     {
+#ifndef __WIN32__
     signal(SIGPIPE, SIG_IGN);       /* Block broken pipe signals. */
+#endif
     plumberInstalled = TRUE;
     }
 }
