@@ -5,6 +5,7 @@ ifeq (${MACHTYPE},)
 endif
 
 CC:=$(shell R CMD config CC)
+CFLAGS += $(shell R CMD config CFLAGS)
 LDFLAGS:=$(shell R CMD config LDFLAGS)
 CPICFLAGS:=$(shell R CMD config CPICFLAGS)
 
