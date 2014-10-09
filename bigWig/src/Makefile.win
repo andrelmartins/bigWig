@@ -20,7 +20,7 @@ empty:=
 space:= $(empty) $(empty)
 MFLGSESC := $(subst $(space),\$(space),$(MFLGS))
 
-export CFLAGS += $(CPICFLAGS) -I${R_HOME}/include -L${R_HOME}/bin/${MACHTYPE}
+export CFLAGS += $(CPICFLAGS) -I${R_HOME}/include -L${R_HOME}/bin/${MACHTYPE} -L${R_HOME}/bin/i386
 
 HG_INC += -Ijkweb/inc
 
