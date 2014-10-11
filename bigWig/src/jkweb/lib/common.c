@@ -2567,6 +2567,11 @@ if (ferror(file))
 int mustOpenFd(char *fileName, int flags)
 /* Open a file descriptor (see man 2 open) or squawk and die. */
 {
+
+#ifdef __WIN32__
+flags |= O_BINARY;
+#endif
+
 if (sameString(fileName, "stdin"))
     return STDIN_FILENO;
 if (sameString(fileName, "stdout"))
