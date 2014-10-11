@@ -1,12 +1,12 @@
 include jkweb/inc/common.mk
 
 ifeq (${MACHTYPE},)
-	export MACHTYPE=$(shell Rscript Rarch.R)
+	export MACHTYPE=$(shell $(R_HOME)/bin/Rscript Rarch.R)
 endif
 
-CC:=$(shell R CMD config CC)
-LDFLAGS:=$(shell R CMD config LDFLAGS)
-CPICFLAGS:=$(shell R CMD config CPICFLAGS)
+CC:=$(shell $(R_HOME)/bin/R CMD config CC)
+LDFLAGS:=$(shell $(R_HOME)/bin/R CMD config LDFLAGS)
+CPICFLAGS:=$(shell $(R_HOME)/bin/R CMD config CPICFLAGS)
 
 L += ${SOCKETLIB} -lm -lz
 
@@ -29,7 +29,7 @@ jkweb.a:
 	ln -s jkweb/lib/${MACHTYPE}/jkweb.a jkweb.a	
 
 bigwig.so: prepare jkweb.a bigWig_R.c utils_R.c bwgExtra.h bwgExtra.c bw_query.h bw_query.c bw_base.h bw_base.c bigWig_R2.c
-	@MAKEFLAGS=${MFLGSESC} R CMD SHLIB -o $@ bigWig_R.c utils_R.c bwgExtra.c  bw_base.c bw_query.c bigWig_R2.c jkweb.a ${L}
+	@MAKEFLAGS=${MFLGSESC} $(R_HOME)/bin/R CMD SHLIB -o $@ bigWig_R.c utils_R.c bwgExtra.c  bw_base.c bw_query.c bigWig_R2.c jkweb.a ${L}
 
 bigwiglib.a: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
 	$(CC) -I./jkweb/inc ${COPT} ${CFLAGS} -c -o bigwiglib_base.o bw_base.c

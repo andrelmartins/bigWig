@@ -1,13 +1,13 @@
 include jkweb/inc/common.mk
 
 ifeq (${MACHTYPE},)
-	export MACHTYPE=$(shell Rscript Rarch.R)
+	export MACHTYPE=$(shell $(R_HOME)/bin$(R_ARCH_BIN)/Rscript Rarch.R)
 endif
 
-CC:=$(shell R CMD config CC)
-CFLAGS += $(shell R CMD config CFLAGS)
-LDFLAGS:=$(shell R CMD config LDFLAGS)
-CPICFLAGS:=$(shell R CMD config CPICFLAGS)
+CC:=$(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config CC)
+CFLAGS += $(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config CFLAGS)
+LDFLAGS:=$(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config LDFLAGS)
+CPICFLAGS:=$(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config CPICFLAGS)
 
 L = -pthread -lm -lws2_32 -lRzlib
 #L += ${SOCKETLIB} -lm
@@ -21,13 +21,7 @@ empty:=
 space:= $(empty) $(empty)
 MFLGSESC := $(subst $(space),\$(space),$(MFLGS))
 
-ifeq ($(MACHTYPE),x86_64)
-	ZLIBPATH := ${R_HOME}/bin/x64
-else
-	ZLIBPATH := ${R_HOME}/bin/i386
-endif
-
-export CFLAGS += $(CPICFLAGS) -I${R_HOME}/include -L${ZLIBPATH}
+export CFLAGS += $(CPICFLAGS) -I${R_HOME}/include -L${R_HOME}/bin${R_ARCH_BIN}
 
 HG_INC += -Ijkweb/inc
 
@@ -41,7 +35,7 @@ libjkweb.a:
 	cp jkweb/lib/${MACHTYPE}/jkweb.a libjkweb.a
 
 bigwig.dll: prepare libjkweb.a bigWig_R.c utils_R.c bwgExtra.h bwgExtra.c bw_query.h bw_query.c bw_base.h bw_base.c bigWig_R2.c $(WIN_O)
-	@MAKEFLAGS=${MFLGSESC} R CMD SHLIB -o $@ bigWig_R.c utils_R.c bwgExtra.c  bw_base.c bw_query.c bigWig_R2.c $(WIN_O) -L. -ljkweb ${L}
+	@MAKEFLAGS=${MFLGSESC} $(R_HOME)/bin$(R_ARCH_BIN)/R CMD SHLIB -o $@ bigWig_R.c utils_R.c bwgExtra.c  bw_base.c bw_query.c bigWig_R2.c $(WIN_O) -L. -ljkweb ${L}
 
 bigwiglib.a: libjkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c  $(WIN_O)
 	$(CC) -I./jkweb/inc ${COPT} ${CFLAGS} -c -o bigwiglib_base.o bw_base.c
