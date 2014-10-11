@@ -607,6 +607,14 @@ else if (sameString(upToColon, "transparent"))
     prot->fetchData = udcDataViaTransparent;
     prot->fetchInfo = udcInfoViaTransparent;
     }
+#ifdef __WIN32__
+else if (upToColon[1] == '\0')
+    /* Under Windows, assume a single character "protocol" is actually a drive letter. */
+    {
+    prot->fetchData = udcDataViaTransparent;
+    prot->fetchInfo = udcInfoViaTransparent;
+    }
+#endif
 else
     {
     errAbort("Unrecognized protocol %s in udcProtNew", upToColon);
@@ -825,6 +833,18 @@ if (!colon)
     }
 struct udcProtocol *prot;
 prot = udcProtocolNew(protocol);
+
+#ifdef __WIN32__
+if (protocol[1] == '\0')
+    /* Under Windows assume single letter "protocol" is actually a drive letter. */
+    {
+    freeMem(protocol);
+    protocol = cloneString("transparent");
+    freeMem(afterProtocol);
+    afterProtocol = cloneString(url);
+    isTransparent = TRUE;
+    }
+#endif
 
 /* Figure out if anything exists. */
 boolean useCacheInfo = FALSE;
