@@ -1,6 +1,4 @@
-ifeq ($(CC),)
 CC:=$(shell $(R_HOME)/bin/R CMD config CC)
-endif
 
 include jkweb/inc/common.mk
 
