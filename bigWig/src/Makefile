@@ -1,10 +1,13 @@
+ifeq ($(CC),)
+CC:=$(shell $(R_HOME)/bin/R CMD config CC)
+endif
+
 include jkweb/inc/common.mk
 
 ifeq (${MACHTYPE},)
 	export MACHTYPE=$(shell $(R_HOME)/bin/Rscript Rarch.R)
 endif
 
-CC:=$(shell $(R_HOME)/bin/R CMD config CC)
 LDFLAGS:=$(shell $(R_HOME)/bin/R CMD config LDFLAGS)
 CPICFLAGS:=$(shell $(R_HOME)/bin/R CMD config CPICFLAGS)
 

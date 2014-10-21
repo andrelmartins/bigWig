@@ -10,7 +10,8 @@ ifeq (${CFLAGS},)
     CFLAGS=
 endif
 HG_DEFS=-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE -DMACHTYPE_${MACHTYPE}
-HG_INC=-I../inc -I../../inc -I../../../inc -I../../../../inc -I../../../../../inc
+#HG_INC=-I../inc -I../../inc -I../../../inc -I../../../../inc -I../../../../../inc
+HG_INC=-I../inc
 
 # to check for Mac OSX Darwin specifics:
 UNAME_S := $(shell uname -s)
@@ -258,6 +259,7 @@ endif
 
 SYS = $(shell uname -s)
 
+HG_WARN=-Wall
 ifeq (${HG_WARN},)
   ifeq (${SYS},Darwin)
       HG_WARN = -Wall -Wno-unused-variable
@@ -366,4 +368,3 @@ ENCODEDCC_DIR = ${PIPELINE_PATH}/downloads/encodeDCC
 
 %.o: %.c
 	${CC} ${COPT} ${CFLAGS} ${HG_DEFS} ${LOWELAB_DEFS} ${HG_WARN} ${HG_INC} ${XINC} -o $@ -c $<
-
