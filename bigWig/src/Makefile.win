@@ -53,7 +53,7 @@ clean:
 	rm -f ../inst/lib/bigwiglib.a
 	rm -Rf bigwiglib.so.dSYM
 	rm -f $(WIN_O)
-	$(MAKE) -C jkweb/lib clean
+	$(MAKE) -f makefile.win -C jkweb/lib clean
 
 tgtclean:
 	rm -f bigwig.dll bigwiglib.a bigwiglib.dll *.o
