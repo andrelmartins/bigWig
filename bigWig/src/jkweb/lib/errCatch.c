@@ -53,7 +53,7 @@ pthread_t pid = pthread_self(); //  can be a pointer or a number
 // A true integer has function would be nicer, but this will do.  
 // Don't safef, theoretically that could abort.
 char key[64];
-snprintf(key, sizeof(key), "%lld",  ptrToLL(pid));
+snprintf(key, sizeof(key), "%"PRIdMAX"",  ptrToLL(pid));
 key[ArraySize(key)-1] = '\0';
 if (perThreadStacks == NULL)
     perThreadStacks = hashNew(0);

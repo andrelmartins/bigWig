@@ -1086,7 +1086,7 @@ while ((*p >= '0') && (*p <= '9'))
 	}
     if (res > limit)
 	{
-	safef(errMsg, errMsgSize, "%s%s overflowed, limit=%s%llu", isSigned ? "signed ":"", typeString, isMinus ? "-" : "", limit);
+	safef(errMsg, errMsgSize, "%s%s overflowed, limit=%s%"PRIuMAX"", isSigned ? "signed ":"", typeString, isMinus ? "-" : "", limit);
 	return 2; 
 	}
     oldRes = res;
