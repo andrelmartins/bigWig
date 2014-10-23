@@ -68,7 +68,7 @@ if (h.majorVersion > ITSA_MAJOR_VERSION)
 	     "%s is version %d.",  fileName, ITSA_MAJOR_VERSION, fileName, h.majorVersion);
 
 struct itsa *itsa;
-verbose(2, "itsa file %s size %lld\n", fileName, h.size);
+verbose(2, "itsa file %s size %"PRIdMAX"\n", fileName, h.size);
 
 /* Get a pointer to data in memory, via memory map, or allocation and read. */
 struct itsaFileHeader *header ;
@@ -117,7 +117,7 @@ bits32 *chromSizes = itsa->chromSizes
 	= pointerOffset(header, mapOffset);
 mapOffset += sizeof(bits32) * chromCount;
 
-verbose(2, "total dna size %lld in %d chromosomes\n", (long long)header->dnaDiskSize, header->chromCount);
+verbose(2, "total dna size %"PRIdMAX" in %d chromosomes\n", (long long)header->dnaDiskSize, header->chromCount);
 itsa->allDna = pointerOffset(header, mapOffset);
 mapOffset += header->dnaDiskSize;
 

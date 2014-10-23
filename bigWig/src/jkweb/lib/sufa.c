@@ -34,7 +34,7 @@ if (h.majorVersion > SUFA_MAJOR_VERSION)
 	     "%s is version %d.",  fileName, SUFA_MAJOR_VERSION, fileName, h.majorVersion);
 
 struct sufa *sufa;
-verbose(2, "sufa file %s size %lld\n", fileName, h.size);
+verbose(2, "sufa file %s size %"PRIdMAX"\n", fileName, h.size);
 
 /* Get a pointer to data in memory, via memory map, or allocation and read. */
 struct sufaFileHeader *header ;
@@ -83,7 +83,7 @@ bits32 *chromSizes = sufa->chromSizes
 	= pointerOffset(header, mapOffset);
 mapOffset += sizeof(bits32) * chromCount;
 
-verbose(2, "total dna size %lld in %d chromosomes\n", (long long)header->dnaDiskSize, header->chromCount);
+verbose(2, "total dna size %"PRIdMAX" in %d chromosomes\n", (long long)header->dnaDiskSize, header->chromCount);
 sufa->allDna = pointerOffset(header, mapOffset);
 mapOffset += header->dnaDiskSize;
 

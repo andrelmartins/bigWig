@@ -2448,7 +2448,7 @@ void mustWrite(FILE *file, void *buf, size_t size)
 {
 if (size != 0 && fwrite(buf, size, 1, file) != 1)
     {
-    errAbort("Error writing %lld bytes: %s\n", (long long)size, strerror(ferror(file)));
+    errAbort("Error writing %"PRIdMAX" bytes: %s\n", (long long)size, strerror(ferror(file)));
     }
 }
 
@@ -2459,9 +2459,9 @@ void mustRead(FILE *file, void *buf, size_t size)
 if (size != 0 && fread(buf, size, 1, file) != 1)
     {
     if (ferror(file))
-	errAbort("Error reading %lld bytes: %s", (long long)size, strerror(ferror(file)));
+	errAbort("Error reading %"PRIdMAX" bytes: %s", (long long)size, strerror(ferror(file)));
     else
-	errAbort("End of file reading %lld bytes", (long long)size);
+	errAbort("End of file reading %"PRIdMAX" bytes", (long long)size);
     }
 }
 
@@ -2607,9 +2607,9 @@ while (size > 0)
     {
     actualSize = read(fd, cbuf, size);
     if (actualSize < 0)
-	errnoAbort("Error reading %lld bytes", (long long)size);
+	errnoAbort("Error reading %"PRIdMAX" bytes", (long long)size);
     if (actualSize == 0)
-	errAbort("End of file reading %llu bytes (got %lld)", (unsigned long long)size, (long long)actualSize);
+	errAbort("End of file reading %"PRIuMAX" bytes (got %"PRIdMAX")", (unsigned long long)size, (long long)actualSize);
     cbuf += actualSize;
     size -= actualSize;
     }
@@ -2624,7 +2624,7 @@ if (result < size)
     if (result < 0)
 	errnoAbort("mustWriteFd: write failed");
     else 
-        errAbort("mustWriteFd only wrote %lld of %lld bytes. Likely the disk is full.",
+        errAbort("mustWriteFd only wrote %"PRIdMAX" of %"PRIdMAX" bytes. Likely the disk is full.",
 	    (long long)result, (long long)size);
     }
 }
@@ -2635,7 +2635,7 @@ off_t mustLseek(int fd, off_t offset, int whence)
 {
 off_t ret = lseek(fd, offset, whence);
 if (ret < 0)
-    errnoAbort("lseek(%d, %lld, %s (%d)) failed", fd, (long long)offset,
+    errnoAbort("lseek(%d, %"PRIdMAX", %s (%d)) failed", fd, (long long)offset,
 	       ((whence == SEEK_SET) ? "SEEK_SET" : (whence == SEEK_CUR) ? "SEEK_CUR" :
 		(whence == SEEK_END) ? "SEEK_END" : "invalid 'whence' value"), whence);
 return ret;
@@ -2762,7 +2762,7 @@ for (oldEl = inList; oldEl != NULL; oldEl = nextOld)
     {
     nextOld = oldEl->next;
     if (nextOld != NULL && nextOld->offset < oldEl->offset)
-        errAbort("Unsorted inList in fileOffsetSizeMerge %llu %llu", oldEl->offset, nextOld->offset);
+        errAbort("Unsorted inList in fileOffsetSizeMerge %"PRIuMAX" %"PRIuMAX"", oldEl->offset, nextOld->offset);
     if (newEl == NULL || newEl->offset + newEl->size < oldEl->offset)
         {
 	newEl = CloneVar(oldEl);
@@ -3228,7 +3228,7 @@ void safecpy(char *buf, size_t bufSize, const char *src)
 {
 size_t slen = strlen(src);
 if (slen > bufSize-1)
-    errAbort("buffer overflow, size %lld, string size: %lld", (long long)bufSize, (long long)slen);
+    errAbort("buffer overflow, size %"PRIdMAX", string size: %"PRIdMAX"", (long long)bufSize, (long long)slen);
 strcpy(buf, src);
 }
 
@@ -3237,7 +3237,7 @@ void safencpy(char *buf, size_t bufSize, const char *src, size_t n)
  * Unlike strncpy, always null terminates the result */
 {
 if (n > bufSize-1)
-    errAbort("buffer overflow, size %lld, substring size: %lld", (long long)bufSize, (long long)n);
+    errAbort("buffer overflow, size %"PRIdMAX", substring size: %"PRIdMAX"", (long long)bufSize, (long long)n);
 // strlen(src) can take a long time when src is for example a pointer into a chromosome sequence.
 // Instead of setting slen to max(strlen(src), n), just stop counting length at n.
 size_t slen = 0;
@@ -3253,7 +3253,7 @@ void safecat(char *buf, size_t bufSize, const char *src)
 size_t blen = strlen(buf);
 size_t slen = strlen(src);
 if (blen+slen > bufSize-1)
-    errAbort("buffer overflow, size %lld, new string size: %lld", (long long)bufSize, (long long)(blen+slen));
+    errAbort("buffer overflow, size %"PRIdMAX", new string size: %"PRIdMAX"", (long long)bufSize, (long long)(blen+slen));
 strcat(buf, src);
 }
 
@@ -3262,7 +3262,7 @@ void safencat(char *buf, size_t bufSize, const char *src, size_t n)
 {
 size_t blen = strlen(buf);
 if (blen+n > bufSize-1)
-    errAbort("buffer overflow, size %lld, new string size: %lld", (long long)bufSize, (long long)(blen+n));
+    errAbort("buffer overflow, size %"PRIdMAX", new string size: %"PRIdMAX"", (long long)bufSize, (long long)(blen+n));
 size_t slen = strlen(src);
 if (slen > n)
     slen = n;

@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
@@ -171,7 +172,7 @@
 #endif
 
 /* Cast a pointer to a long long. Use to printf format points as long-longs
- * in a 32/64bit portable manner.  Format should use %llx for the result.
+ * in a 32/64bit portable manner.  Format should use %"PRIxMAX" for the result.
  * Needed because casting a pointer to a different sized number cause a
  * warning with gcc */
 #define ptrToLL(p) ((long long)((size_t)p))

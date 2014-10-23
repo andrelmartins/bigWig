@@ -543,7 +543,7 @@ if (l >= 1000000000000LL)
     l -= millions * 1000000;
     thousands = l/1000;
     l -= thousands * 1000;
-    sprintf(s, "%lld,%03lld,%03lld,%03lld,%03lld", trillions, billions, millions, thousands, l);
+    sprintf(s, "%"PRIdMAX",%03"PRIdMAX",%03"PRIdMAX",%03"PRIdMAX",%03"PRIdMAX"", trillions, billions, millions, thousands, l);
     }
 else if (l >= 1000000000)
     {
@@ -553,7 +553,7 @@ else if (l >= 1000000000)
     l -= millions * 1000000;
     thousands = l/1000;
     l -= thousands * 1000;
-    sprintf(s, "%lld,%03lld,%03lld,%03lld", billions, millions, thousands, l);
+    sprintf(s, "%"PRIdMAX",%03"PRIdMAX",%03"PRIdMAX",%03"PRIdMAX"", billions, millions, thousands, l);
     }
 else if (l >= 1000000)
     {
@@ -561,16 +561,16 @@ else if (l >= 1000000)
     l -= millions * (long long)1000000;
     thousands = l/1000;
     l -= thousands * 1000;
-    sprintf(s, "%lld,%03lld,%03lld", millions, thousands, l);
+    sprintf(s, "%"PRIdMAX",%03"PRIdMAX",%03"PRIdMAX"", millions, thousands, l);
     }
 else if (l >= 1000)
     {
     thousands = l/1000;
     l -= thousands * 1000;
-    sprintf(s, "%lld,%03lld", thousands, l);
+    sprintf(s, "%"PRIdMAX",%03"PRIdMAX"", thousands, l);
     }
 else
-    sprintf(s, "%lld", l);
+    sprintf(s, "%"PRIdMAX"", l);
 }
 
 void printLongWithCommas(FILE *f, long long l)
