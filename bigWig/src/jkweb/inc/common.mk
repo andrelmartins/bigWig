@@ -189,8 +189,8 @@ else
   endif
 endif
 
-L+=${PNGLIB}
-HG_INC+=${PNGINCL}
+#L+=${PNGLIB}
+#HG_INC+=${PNGINCL}
 
 # 32-bit color enabled by default
 ifneq (${COLOR32},0)
