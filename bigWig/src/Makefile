@@ -1,13 +1,5 @@
-CC:=$(shell $(R_HOME)/bin/R CMD config CC)
-
+include bigwig.mk
 include jkweb/inc/common.mk
-
-ifeq (${MACHTYPE},)
-	export MACHTYPE=$(shell $(R_HOME)/bin/Rscript Rarch.R)
-endif
-
-LDFLAGS:=$(shell $(R_HOME)/bin/R CMD config LDFLAGS)
-CPICFLAGS:=$(shell $(R_HOME)/bin/R CMD config CPICFLAGS)
 
 L += ${SOCKETLIB} -lm -lz
 
@@ -20,12 +12,10 @@ empty:=
 space:= $(empty) $(empty)
 MFLGSESC := $(subst $(space),\$(space),$(MFLGS))
 
-export CFLAGS += $(CPICFLAGS)
-
 all: bigwig.so bigwiglib.a bigwiglib.so
 
 jkweb.a:
-	[ -d jkweb/lib/${MATCHTYPE} ] || mkdir jkweb/lib/${MATCHTYPE}
+	[ -d jkweb/lib/${MACHTYPE} ] || mkdir jkweb/lib/${MACHTYPE}
 	$(MAKE) -C jkweb/lib
 	ln -s jkweb/lib/${MACHTYPE}/jkweb.a jkweb.a	
 
@@ -41,7 +31,7 @@ bigwiglib.a: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
 	cp bigwiglib.a ../inst/lib
 
 bigwiglib.so: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
-	$(CC) -shared -fPIC -I./jkweb/inc ${COPT} ${CFLAGS} -o $@ bw_base.c bw_query.c bigwiglib.c jkweb.a ${L} ${LDFLAGS}
+	$(CC) -shared -I./jkweb/inc ${COPT} ${CFLAGS} -o $@ bw_base.c bw_query.c bigwiglib.c jkweb.a ${L} ${LDFLAGS}
 
 clean:
 	rm -f bigwig.so bigwiglib.a bigwiglib.so *.o jkweb.a

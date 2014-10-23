@@ -1,4 +1,4 @@
-include ../inc/localEnvironment.mk
+include ../../bigwig.mk
 include ../inc/common.mk
 
 

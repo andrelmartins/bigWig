@@ -1,16 +1,10 @@
-CC:=$(shell $(R_HOME)/bin/R CMD config CC)
+include bigwig.mk
 include jkweb/inc/common.mk
 
-ifeq (${MACHTYPE},)
-	export MACHTYPE=$(shell $(R_HOME)/bin$(R_ARCH_BIN)/Rscript Rarch.R)
-endif
-
-CFLAGS += $(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config CFLAGS)
-LDFLAGS:=$(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config LDFLAGS)
-CPICFLAGS:=$(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config CPICFLAGS)
-
+# Windows specific changes to compiler/linker flags
+#
 L = -pthread -lm -lws2_32 -lRzlib
-#L += ${SOCKETLIB} -lm
+CFLAGS += -I${R_HOME}/include -L${R_HOME}/bin${R_ARCH_BIN}
 
 # build our MAKEFLAGS
 # R needs spaces to be escaped ...
@@ -21,16 +15,13 @@ empty:=
 space:= $(empty) $(empty)
 MFLGSESC := $(subst $(space),\$(space),$(MFLGS))
 
-export CFLAGS += $(CPICFLAGS) -I${R_HOME}/include -L${R_HOME}/bin${R_ARCH_BIN}
-
-HG_INC += -Ijkweb/inc
 
 WIN_O = win/osmingw.o win/resolv_inet_pton.o win/strptime.o win/pipeline.o
 
 all: bigwig.dll bigwiglib.a bigwiglib.dll
 
 libjkweb.a:
-	[ -d jkweb/lib/${MATCHTYPE} ] || mkdir jkweb/lib/${MATCHTYPE}
+	[ -d jkweb/lib/${MACHTYPE} ] || mkdir jkweb/lib/${MACHTYPE}
 	$(MAKE) -f makefile.win -C jkweb/lib
 	cp jkweb/lib/${MACHTYPE}/jkweb.a libjkweb.a
 
@@ -46,12 +37,11 @@ bigwiglib.a: libjkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c  $
 	cp bigwiglib.a ../inst/lib
 
 bigwiglib.dll: libjkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c $(WIN_O)
-	$(CC) -shared -fPIC -I./jkweb/inc ${COPT} ${CFLAGS} -o $@ bw_base.c bw_query.c bigwiglib.c $(WIN_O) -L. -ljkweb ${L} ${LDFLAGS}
+	$(CC) -shared -I./jkweb/inc ${COPT} ${CFLAGS} -o $@ bw_base.c bw_query.c bigwiglib.c $(WIN_O) -L. -ljkweb ${L} ${LDFLAGS}
 
 clean:
 	rm -f bigwig.dll bigwiglib.a bigwiglib.dll libjkweb.a *.o
 	rm -f ../inst/lib/bigwiglib.a
-	rm -Rf bigwiglib.so.dSYM
 	rm -f $(WIN_O)
 	$(MAKE) -f makefile.win -C jkweb/lib clean
 
