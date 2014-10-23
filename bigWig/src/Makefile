@@ -1,7 +1,8 @@
 include bigwig.mk
 include jkweb/inc/common.mk
 
-L += ${SOCKETLIB} -lm -lz
+# Unix specific linker flags
+L += -lz
 
 # build our MAKEFLAGS
 # R needs spaces to be escaped ...

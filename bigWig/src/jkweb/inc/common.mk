@@ -19,7 +19,7 @@ UNAME_S := $(shell uname -s)
 FULLWARN := "localhost" # $(shell uname -n)
 
 #global external libraries 
-L=
+L=-lm
 
 # pthreads is required
 ifneq ($(UNAME_S),Darwin)

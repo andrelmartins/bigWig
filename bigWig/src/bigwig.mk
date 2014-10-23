@@ -7,4 +7,4 @@ MACHTYPE:=$(shell $(R_HOME)/bin$(R_ARCH_BIN)/R -e "cat('@', R.version[['arch']],
 LDFLAGS:=$(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config LDFLAGS)
 CPICFLAGS:=$(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config CPICFLAGS)
 COPT:=
-CFLAGS += $(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config CFLAGS) $(CPICFLAGS)
+CFLAGS += $(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config CFLAGS) $(CPICFLAGS) -I${R_HOME}/include 

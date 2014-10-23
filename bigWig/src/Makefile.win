@@ -1,10 +1,8 @@
 include bigwig.mk
 include jkweb/inc/common.mk
 
-# Windows specific changes to compiler/linker flags
-#
-L = -pthread -lm -lws2_32 -lRzlib
-CFLAGS += -I${R_HOME}/include -L${R_HOME}/bin${R_ARCH_BIN}
+# Windows specific changes to linker flags
+L += -L${R_HOME}/bin${R_ARCH_BIN} -lws2_32 -lRzlib
 
 # build our MAKEFLAGS
 # R needs spaces to be escaped ...
