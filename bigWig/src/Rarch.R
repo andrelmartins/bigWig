@@ -1,1 +1,0 @@
-cat(R.version[["arch"]])
