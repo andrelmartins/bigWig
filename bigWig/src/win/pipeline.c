@@ -476,26 +476,6 @@ for (proc = pl->procs; proc != NULL; proc = proc->next)
     }
 }
 
-static void waitOnOne(struct pipeline *pl)
-/* wait on one process to finish */
-{
-int status;
-pid_t pid = waitpid(-pl->groupLeader, &status, 0);
-if (pid < 0)
-    errnoAbort("waitpid failed");
-plProcHandleTerminate(pipelineFindProc(pl, pid), status);
-pl->numRunning--;
-assert(pl->numRunning >= 0);
-}
-
-static void groupWait(struct pipeline *pl)
-/* Wait for pipeline to complete */
-{
-/* wait on all processes to complete */
-while (pl->numRunning > 0)
-    waitOnOne(pl);
-}
-
 static int waitAllPipeline(struct pipeline * pl)
 /* Wait for pipeline to complete. Return status of first process to fail
  * or zero if none failed. */

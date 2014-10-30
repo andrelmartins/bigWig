@@ -58,6 +58,12 @@
 
 #ifdef __WIN32__
 #define NO_SYSLOG 1
+ 
+#define sleep(seconds) Sleep((seconds)*1000)
+int _mkdir(const char * dirname);
+int setenv(const char *name, const char *value, int overwrite);
+int unsetenv(const char *name);
+const char * strptime (const char *buf, const char *fmt, struct tm *tm);
 #endif
 
 #ifdef __CYGWIN32__
