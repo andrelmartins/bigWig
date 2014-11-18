@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
@@ -117,16 +118,18 @@ const char * strptime (const char *buf, const char *fmt, struct tm *tm);
 #endif
 
 /* Some other type synonyms */
-#define UBYTE unsigned char   /* Wants to be unsigned 8 bits. */
-#define BYTE signed char      /* Wants to be signed 8 bits. */
-#define UWORD unsigned short  /* Wants to be unsigned 16 bits. */
-#define WORD short	      /* Wants to be signed 16 bits. */
-#define bits64 unsigned long long  /* Wants to be unsigned 64 bits. */
-#define bits32 unsigned       /* Wants to be unsigned 32 bits. */
-#define bits16 unsigned short /* Wants to be unsigned 16 bits. */
-#define bits8 unsigned char   /* Wants to be unsigned 8 bits. */
-#define signed32 int	      /* Wants to be signed 32 bits. */
-#define bits8 unsigned char   /* Wants to be unsigned 8 bits. */
+/* Assume a C99 compiler and just use the standard definitions */
+
+#define UBYTE uint8_t   /* Wants to be unsigned 8 bits. */
+#define BYTE int8_t      /* Wants to be signed 8 bits. */
+#define UWORD uint16_t  /* Wants to be unsigned 16 bits. */
+#define WORD int16_t	      /* Wants to be signed 16 bits. */
+#define bits64 uint64_t  /* Wants to be unsigned 64 bits. */
+#define bits32 uint32_t       /* Wants to be unsigned 32 bits. */
+#define bits16 uint16_t /* Wants to be unsigned 16 bits. */
+#define bits8 uint8_t   /* Wants to be unsigned 8 bits. */
+#define signed32 int32_t	      /* Wants to be signed 32 bits. */
+#define bits8 uint8_t   /* Wants to be unsigned 8 bits. */
 
 #define BIGNUM 0x3fffffff	/* A really big number */
 #define BIGDOUBLE 1.7E+308	/* Close to biggest double-precision number */
