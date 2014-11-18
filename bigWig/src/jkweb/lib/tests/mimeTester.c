@@ -78,7 +78,7 @@ if (ce)
 
 if (cd)
     {
-    fprintf(out,"%ssize:[%"PRIuMAX"]\n",margin,(unsigned long long) mp->size);
+    fprintf(out,"%ssize:[%llu]\n",margin,(unsigned long long) mp->size);
     if (mp->binary)
     	fprintf(out,"%sbinary (contains zeros)\n",margin);
     if (mp->fileName)

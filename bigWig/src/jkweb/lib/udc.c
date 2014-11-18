@@ -126,12 +126,12 @@ while (remaining > 0)
     bits64 chunkSize = min(remaining, udcBlockSize);
     ssize_t rd = read(sd, buf, chunkSize);
     if (rd < 0)
-	errnoAbort("readAndIgnore: error reading socket after %"PRIdMAX" bytes", total);
+	errnoAbort("readAndIgnore: error reading socket after %lld bytes", total);
     remaining -= rd;
     total += rd;
     }
 if (total < size)
-    errAbort("readAndIgnore: got EOF at %"PRIdMAX" bytes (wanted %"PRIdMAX")", total, size);
+    errAbort("readAndIgnore: got EOF at %lld bytes (wanted %lld)", total, size);
 }
 
 static int connInfoGetSocket(struct connInfo *ci, char *url, bits64 offset, int size)
@@ -144,13 +144,13 @@ if (ci != NULL && ci->socket > 0 && ci->offset != offset)
     bits64 skipSize = (offset - ci->offset);
     if (skipSize > 0 && skipSize <= MAX_SKIP_TO_SAVE_RECONNECT)
 	{
-	verbose(2, "!! skipping %"PRIdMAX" bytes @%"PRIdMAX" to avoid reconnect\n", skipSize, ci->offset);
+	verbose(2, "!! skipping %lld bytes @%lld to avoid reconnect\n", skipSize, ci->offset);
 	readAndIgnore(ci->socket, skipSize);
 	ci->offset = offset;
 	}
     else
 	{
-	verbose(2, "Offset mismatch (ci %"PRIdMAX" != new %"PRIdMAX"), reopening.\n", ci->offset, offset);
+	verbose(2, "Offset mismatch (ci %lld != new %lld), reopening.\n", ci->offset, offset);
 	mustCloseFd(&(ci->socket));
 	if (ci->ctrlSocket > 0)
 	    mustCloseFd(&(ci->ctrlSocket));
@@ -163,13 +163,13 @@ if (ci == NULL || ci->socket <= 0)
     char rangeUrl[2048];
     if (ci == NULL)
 	{
-	safef(rangeUrl, sizeof(rangeUrl), "%s;byterange=%"PRIdMAX"-%"PRIdMAX"",
+	safef(rangeUrl, sizeof(rangeUrl), "%s;byterange=%lld-%lld",
 	      url, offset, (offset + size - 1));
 	sd = netUrlOpen(rangeUrl);
 	}
     else
 	{
-	safef(rangeUrl, sizeof(rangeUrl), "%s;byterange=%"PRIdMAX"-", url, offset);
+	safef(rangeUrl, sizeof(rangeUrl), "%s;byterange=%lld-", url, offset);
 	sd = ci->socket = netUrlOpenSockets(rangeUrl, &(ci->ctrlSocket));
 	ci->offset = offset;
 	}
@@ -218,14 +218,14 @@ static int udcDataViaLocal(char *url, bits64 offset, int size, void *buffer, str
 * error.  Typically will be called with size in the 8k - 64k range. */
 {
 /* Need to check time stamp here. */
-verbose(2, "reading remote data - %d bytes at %"PRIdMAX" - on %s\n", size, offset, url);
+verbose(2, "reading remote data - %d bytes at %lld - on %s\n", size, offset, url);
 url = assertLocalUrl(url);
 FILE *f = mustOpen(url, "rb");
 fseek(f, offset, SEEK_SET);
 int sizeRead = fread(buffer, 1, size, f);
 if (ferror(f))
     {
-    warn("udcDataViaLocal failed to fetch %d bytes at %"PRIdMAX"", size, offset);
+    warn("udcDataViaLocal failed to fetch %d bytes at %lld", size, offset);
     errnoAbort("file %s", url);
     }
 carefulClose(&f);
@@ -274,7 +274,7 @@ static int udcDataViaSlow(char *url, bits64 offset, int size, void *buffer, stru
 * Returns number of bytes actually read.  Does an errAbort on
 * error.  Typically will be called with size in the 8k - 64k range. */
 {
-verbose(2, "slow reading remote data - %d bytes at %"PRIdMAX" - on %s\n", size, offset, url);
+verbose(2, "slow reading remote data - %d bytes at %lld - on %s\n", size, offset, url);
 sleep1000(500);
 char *fileName = url + 5;  /* skip over 'slow:' */
 FILE *f = mustOpen(fileName, "rb");
@@ -292,7 +292,7 @@ for (i=0; i<size; i += step)
     verbose(2, "slowly read %d bytes\n", oneReadSize);
     if (ferror(f))
 	{
-	warn("udcDataViaSlow failed to fetch %d bytes at %"PRIdMAX"", size, offset);
+	warn("udcDataViaSlow failed to fetch %d bytes at %lld", size, offset);
 	errnoAbort("file %s", fileName);
 	}
     pt += step;
@@ -327,7 +327,7 @@ int udcDataViaHttpOrFtp(char *url, bits64 offset, int size, void *buffer, struct
  * Typically will be called with size in the 8k-64k range. */
 {
 if (startsWith("http://",url) || startsWith("https://",url) || startsWith("ftp://",url))
-    verbose(2, "reading http/https/ftp data - %d bytes at %"PRIdMAX" - on %s\n", size, offset, url);
+    verbose(2, "reading http/https/ftp data - %d bytes at %lld - on %s\n", size, offset, url);
 else
     errAbort("Invalid protocol in url [%s] in udcDataViaFtp, only http, https, or ftp supported",
 	     url); 
@@ -496,7 +496,7 @@ writeOneFd(fd, reserved64);
 writeOneFd(fd, reserved64);
 long long offset = mustLseek(fd, 0, SEEK_CUR);
 if (offset != udcBitmapHeaderSize)
-    errAbort("offset in fd=%d, f=%s is %"PRIdMAX", not expected udcBitmapHeaderSize %d",
+    errAbort("offset in fd=%d, f=%s is %lld, not expected udcBitmapHeaderSize %d",
 	     fd, file->bitmapFileName, offset, udcBitmapHeaderSize);
 
 /* Write out initial all-zero bitmap, using sparse-file method: write 0 to final address. */
@@ -649,7 +649,7 @@ if (bits != NULL)
     if (bits->remoteUpdate != file->updateTime || bits->fileSize != file->size ||
 	!fileExists(file->sparseFileName))
 	{
-	verbose(2, "removing stale version (%"PRIdMAX"! = %"PRIdMAX" or %"PRIdMAX"! = %"PRIdMAX" or %s doesn't exist), "
+	verbose(2, "removing stale version (%lld! = %lld or %lld! = %lld or %s doesn't exist), "
 		"new version %d\n",
 		bits->remoteUpdate, (long long)file->updateTime, bits->fileSize, file->size,
 		file->sparseFileName, version);
@@ -1098,7 +1098,7 @@ int nextClearBit = bitFindClear(bits, partBitStart, partBitEnd);
 while (nextClearBit < partBitEnd)
     {
     int clearBlock = nextClearBit + partOffset;
-    warn("... udcFile 0x%04lx: bit for block %d (%"PRIdMAX"..%"PRIdMAX"] is not set",
+    warn("... udcFile 0x%04lx: bit for block %d (%lld..%lld] is not set",
 	 (unsigned long)file, clearBlock,
 	 ((long long)clearBlock * udcBlockSize), (((long long)clearBlock+1) * udcBlockSize));
     gotUnset = TRUE;
@@ -1123,7 +1123,7 @@ if (endPos > startPos)
     
     int actualSize = file->prot->fetchData(file->url, startPos, readSize, buf, &(file->connInfo));
     if (actualSize != readSize)
-	errAbort("unable to fetch %"PRIdMAX" bytes from %s @%"PRIdMAX" (got %d bytes)",
+	errAbort("unable to fetch %lld bytes from %s @%lld (got %d bytes)",
 		 readSize, file->url, startPos, actualSize);
     mustLseek(file->fdSparse, startPos, SEEK_SET);
     mustWriteFd(file->fdSparse, buf, readSize);
@@ -1349,7 +1349,7 @@ void udcMustRead(struct udcFile *file, void *buf, bits64 size)
 {
 bits64 sizeRead = udcRead(file, buf, size);
 if (sizeRead < size)
-    errAbort("udc couldn't read %"PRIuMAX" bytes from %s, did read %"PRIuMAX"", size, file->url, sizeRead);
+    errAbort("udc couldn't read %llu bytes from %s, did read %llu", size, file->url, sizeRead);
 }
 
 int udcGetChar(struct udcFile *file)
@@ -1484,7 +1484,7 @@ char *udcFileReadAll(char *url, char *cacheDir, size_t maxSize, size_t *retSize)
 struct udcFile  *file = udcFileOpen(url, cacheDir);
 size_t size = file->size;
 if (maxSize != 0 && size > maxSize)
-    errAbort("%s is %"PRIdMAX" bytes, but maxSize to udcFileReadAll is %"PRIdMAX"",
+    errAbort("%s is %lld bytes, but maxSize to udcFileReadAll is %lld",
     	url, (long long)size, (long long)maxSize);
 char *buf = needLargeMem(size+1);
 udcMustRead(file, buf, size);

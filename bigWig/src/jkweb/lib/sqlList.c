@@ -1018,7 +1018,7 @@ int i;
 struct dyString *string = newDyString(256);
 for( i = 0 ; i < arraySize; i++ )
     {
-    dyStringPrintf(string, "%"PRIdMAX",", array[i]);
+    dyStringPrintf(string, "%lld,", array[i]);
     }
 return dyStringCannibalize(&string);
 }

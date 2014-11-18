@@ -143,7 +143,7 @@ static void crTreeFileCreateLow(
 /* Create a r tree index file from an array of chromosomes and an array of items with
  * basic bed (chromosome,start,end) and file offset information. */
 {
-// uglyf("crTreeFileCreate %s itemCount=%"PRIuMAX", chromCount=%d\n", fileName, itemCount, chromCount);
+// uglyf("crTreeFileCreate %s itemCount=%llu, chromCount=%d\n", fileName, itemCount, chromCount);
 /* Open file and write header. */
 FILE *f = mustOpen(fileName, "wb");
 bits32 magic = crTreeSig;

@@ -342,7 +342,7 @@ if (perThreadVars == NULL)
     perThreadVars = hashNew(0);
 // convert the pid into a string for the hash key
 char pidStr[64];
-safef(pidStr, sizeof(pidStr), "%"PRIdMAX"",  ptrToLL(pid));
+safef(pidStr, sizeof(pidStr), "%lld",  ptrToLL(pid));
 struct hashEl *hel = hashLookup(perThreadVars, pidStr);
 if (hel == NULL)
     {

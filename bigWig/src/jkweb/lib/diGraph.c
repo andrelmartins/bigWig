@@ -75,7 +75,7 @@ if (hel != NULL)
     node = hel->val;
     if (node->val != val)
 	{
-	errAbort("Trying to add node %s with a new value (old 0x%"PRIxMAX" new 0x%"PRIxMAX")",
+	errAbort("Trying to add node %s with a new value (old 0x%llx new 0x%llx)",
 	    name, ptrToLL(node->val), ptrToLL(val));
 	}
     return node;

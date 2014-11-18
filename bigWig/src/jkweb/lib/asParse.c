@@ -23,7 +23,7 @@ struct asTypeInfo asTypes[] = {
     {t_ushort,  "ushort",  TRUE,  FALSE, "smallint unsigned", "unsigned short","Ushort",   "Unsigned", "%u",   "SmallPositiveIntegerField"},
     {t_byte,    "byte",    FALSE, FALSE, "tinyint",           "signed char",   "Byte",     "Signed",   "%d",   "SmallIntegerField"},
     {t_ubyte,   "ubyte",   TRUE,  FALSE, "tinyint unsigned",  "unsigned char", "Ubyte",    "Unsigned", "%u",   "SmallPositiveIntegerField"},
-    {t_off,     "bigint",  FALSE, FALSE, "bigint",            "long long",     "LongLong", "LongLong", "%"PRIdMAX"", "BigIntegerField"},
+    {t_off,     "bigint",  FALSE, FALSE, "bigint",            "long long",     "LongLong", "LongLong", "%lld", "BigIntegerField"},
     {t_string,  "string",  FALSE, TRUE,  "varchar(255)",      "char *",        "String",   "String",   "%s",   "CharField"},
     {t_lstring, "lstring", FALSE, TRUE,  "longblob",          "char *",        "String",   "String",   "%s",   "TextField"},
     {t_enum,    "enum",    FALSE, FALSE, "enum",              "!error!",       "Enum",     "Enum",     NULL,   "CharField"},
