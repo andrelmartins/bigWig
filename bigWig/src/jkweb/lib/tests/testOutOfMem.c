@@ -21,13 +21,13 @@ printf("rlimit = %lu  chunkSize = %lu\n", rlimitSize, chunkSize);
 struct rlimit rlim;
 rlim.rlim_cur = rlim.rlim_max = rlimitSize;
 if (setrlimit(RLIMIT_DATA, &rlim) < 0)
-    warn("setrlimit failed with RLIMIT_DATA rlim_cur=%lld rlim_max=%lld"
-	, (long long) rlim.rlim_cur , (long long) rlim.rlim_max); 
+    warn("setrlimit failed with RLIMIT_DATA rlim_cur=%"PRIdMAX" rlim_max=%"PRIdMAX""
+	, (intmax_t) rlim.rlim_cur , (intmax_t) rlim.rlim_max);
 // although RLIMIT_AS is not supported/enforced on all platforms,
 // it is useful for linux and some other unix OSes. 
 if (setrlimit(RLIMIT_AS, &rlim) < 0)
-    warn("setrlimit failed with RLIMIT_AS rlim_cur=%lld rlim_max=%lld"
-	, (long long) rlim.rlim_cur , (long long) rlim.rlim_max); 
+    warn("setrlimit failed with RLIMIT_AS rlim_cur=%"PRIdMAX" rlim_max=%"PRIdMAX""
+	, (intmax_t) rlim.rlim_cur , (intmax_t) rlim.rlim_max);
 
 if (1)
 {

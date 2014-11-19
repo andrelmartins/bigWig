@@ -40,7 +40,7 @@ return NULL;
 static off_t kuRead(knetFile *fp, void *buf, off_t len)
 /* Read len bytes into buf, return amount actually read. */
 {
-verbose(2, "udcRead(%lu, buf, %lld)\n", (unsigned long)(fp->udcf), (long long)len);
+verbose(2, "udcRead(%lu, buf, %"PRIdMAX")\n", (unsigned long)(fp->udcf), (intmax_t)len);
 return (off_t)udcRead(fp->udcf, buf, (int)len);
 }
 
@@ -56,7 +56,7 @@ else if (whence == SEEK_CUR)
     offset = off+ udcTell(fp->udcf);
 else
     return -1;
-verbose(2, "udcSeek(%lu, %lld)\n", (unsigned long)(fp->udcf), offset);
+verbose(2, "udcSeek(%lu, %"PRIu64")\n", (unsigned long)(fp->udcf), offset);
 udcSeek(fp->udcf, offset);
 return 0;
 }

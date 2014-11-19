@@ -35,7 +35,7 @@ size_t size = (reqSize > lm->blockSize ? reqSize : lm->blockSize);
 size_t fullSize = size + sizeof(struct lmBlock);
 struct lmBlock *mb = needLargeZeroedMem(fullSize);
 if (mb == NULL)
-    errAbort("Couldn't allocate %lld bytes", (long long)fullSize);
+    errAbort("Couldn't allocate %"PRIdMAX" bytes", (intmax_t)fullSize);
 mb->free = (char *)(mb+1);
 mb->end = ((char *)mb) + fullSize;
 mb->next = lm->blocks;

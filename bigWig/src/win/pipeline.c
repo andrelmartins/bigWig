@@ -271,8 +271,8 @@ static DWORD WINAPI MemWriteThreadFunction( LPVOID lpParam )
     if (wrCnt < 0)
         errAbort("pipeline input buffer write failed");
     else if (wrCnt != data->otherEndBufSize)
-    errAbort("pipeline input buffer short write %lld, expected %lld",
-             (long long)wrCnt, (long long)data->otherEndBufSize);
+    errAbort("pipeline input buffer short write %"PRIdMAX", expected %"PRIdMAX"",
+             (intmax_t)wrCnt, (intmax_t)data->otherEndBufSize);
     
     close(data->stdoutFd);
 

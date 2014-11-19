@@ -212,8 +212,8 @@ ssize_t wrCnt = write(STDOUT_FILENO, otherEndBuf, otherEndBufSize);
 if (wrCnt < 0)
     errnoAbort("pipeline input buffer write failed");
 else if (wrCnt != otherEndBufSize)
-    errAbort("pipeline input buffer short write %lld, expected %lld",
-             (long long)wrCnt, (long long)otherEndBufSize);
+    errAbort("pipeline input buffer short write %"PRIdMAX", expected %"PRIdMAX"",
+             (intmax_t)wrCnt, (intmax_t)otherEndBufSize);
 else
     {
     close(STDOUT_FILENO);

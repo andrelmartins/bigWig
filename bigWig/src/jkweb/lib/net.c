@@ -621,9 +621,9 @@ if (!(
 dyStringAppend(dy, npu->file);
 if (npu->byteRangeStart != -1)
     {
-    dyStringPrintf(dy, ";byterange=%lld-", (long long)npu->byteRangeStart);
+    dyStringPrintf(dy, ";byterange=%"PRIdMAX"-", (intmax_t)npu->byteRangeStart);
     if (npu->byteRangeEnd != -1)
-	dyStringPrintf(dy, "%lld", (long long)npu->byteRangeEnd);
+	dyStringPrintf(dy, "%"PRIdMAX"", (intmax_t)npu->byteRangeEnd);
     }
 
 /* Clean up and return handle. */
@@ -1002,7 +1002,7 @@ if (!sendFtpCommand(sd, "PASV\r\n", &rs, NULL))
 
 if (npu.byteRangeStart != -1)
     {
-    safef(cmd,sizeof(cmd),"REST %lld\r\n", (long long) npu.byteRangeStart);
+    safef(cmd,sizeof(cmd),"REST %"PRIdMAX"\r\n", (intmax_t) npu.byteRangeStart);
     if (!sendFtpCommand(sd, cmd, NULL, NULL))
 	{
 	close(sd);
@@ -1172,12 +1172,12 @@ dyStringAppend(dy, "Accept: */*\r\n");
 if (npu.byteRangeStart != -1)
     {
     if (npu.byteRangeEnd != -1)
-	dyStringPrintf(dy, "Range: bytes=%lld-%lld\r\n"
-		       , (long long)npu.byteRangeStart
-		       , (long long)npu.byteRangeEnd);
+	dyStringPrintf(dy, "Range: bytes=%"PRIdMAX"-%"PRIdMAX"\r\n"
+		       , (intmax_t)npu.byteRangeStart
+		       , (intmax_t)npu.byteRangeEnd);
     else
-	dyStringPrintf(dy, "Range: bytes=%lld-\r\n"
-		       , (long long)npu.byteRangeStart);
+	dyStringPrintf(dy, "Range: bytes=%"PRIdMAX"-\r\n"
+		       , (intmax_t)npu.byteRangeStart);
     }
 
 if (optionalHeader)
@@ -1508,11 +1508,11 @@ while(TRUE)
 		(byteRangeEnd != -1 && (contentRangeEnd != byteRangeEnd)))
 		{
 		char bre[256];
-		safef(bre, sizeof bre, "%lld", (long long)byteRangeEnd);
+		safef(bre, sizeof bre, "%"PRIdMAX"", (intmax_t)byteRangeEnd);
 		if (byteRangeEnd == -1)
 		    bre[0] = 0;
-		warn("Found Content-Range: %s. Expected bytes %lld-%s. Improper caching of 206 reponse byte-ranges?",
-		    headerVal, (long long) byteRangeStart, bre);
+		warn("Found Content-Range: %s. Expected bytes %"PRIdMAX"-%s. Improper caching of 206 reponse byte-ranges?",
+		    headerVal, (intmax_t) byteRangeStart, bre);
     		return FALSE;
 		}
 	    }
@@ -1531,10 +1531,10 @@ if (byteRangeUsed && !foundContentRange
 		&& !(byteRangeStart == 0 && byteRangeEnd == -1))  
     {
     char bre[256];
-    safef(bre, sizeof bre, "%lld", (long long)byteRangeEnd);
+    safef(bre, sizeof bre, "%"PRIdMAX"", (intmax_t)byteRangeEnd);
     if (byteRangeEnd == -1)
 	bre[0] = 0;
-    warn("Expected response header Content-Range: %lld-%s", (long long) byteRangeStart, bre);
+    warn("Expected response header Content-Range: %"PRIdMAX"-%s", (intmax_t) byteRangeStart, bre);
     return FALSE;
     }
 

@@ -232,7 +232,7 @@ for (i=0; i<itemCount; i += oneSize)
 	}
     }
 slReverse(&list);
-verbose(2, "Made %d primary index nodes out of %llu items\n", slCount(list), itemCount);
+verbose(2, "Made %d primary index nodes out of %"PRIu64" items\n", slCount(list), itemCount);
 
 /* Now iterate through making more and more condensed versions until have just one. */
 int levelCount = 1;
@@ -313,7 +313,7 @@ for (i=0; i<levelCount; ++i)
     {
     levelOffsets[i] = offset;
     offset += levelSizes[i] * iNodeSize;
-    verbose(2, "level %d: size %d, offset %llu\n", i, levelSizes[i], levelOffsets[i]);
+    verbose(2, "level %d: size %d, offset %"PRIu64"\n", i, levelSizes[i], levelOffsets[i]);
     }
 
 verbose(2, "%d levels.  Level sizes are", levelCount);
@@ -328,7 +328,7 @@ for (i=0; i<=finalLevel; ++i)
     writeIndexLevel(blockSize, childNodeSize, tree,
     	levelOffsets[i+1], i, f);
     if (ftell(f) != levelOffsets[i+1])
-        errAbort("Internal error: offset mismatch (%llu vs %llu) line %d of %s\n", (bits64)ftell(f), levelOffsets[i+1], __LINE__, __FILE__);
+        errAbort("Internal error: offset mismatch (%"PRIu64" vs %"PRIu64") line %d of %s\n", (bits64)ftell(f), levelOffsets[i+1], __LINE__, __FILE__);
     }
 
 /* Write out leaf level. */
@@ -499,7 +499,7 @@ udcMustReadOne(udc, reserved);
 boolean isSwapped = crt->isSwapped;
 childCount = udcReadBits16(udc, isSwapped);
 
-verbose(3, "rFindOverlappingBlocks %llu %u:%u-%u.  childCount %d. isLeaf %d\n", indexFileOffset, chromIx, start, end, (int)childCount, (int)isLeaf);
+verbose(3, "rFindOverlappingBlocks %"PRIu64" %u:%u-%u.  childCount %d. isLeaf %d\n", indexFileOffset, chromIx, start, end, (int)childCount, (int)isLeaf);
 
 if (isLeaf)
     {
@@ -579,7 +579,7 @@ udcMustReadOne(udc, reserved);
 boolean isSwapped = crt->isSwapped;
 childCount = udcReadBits16(udc, isSwapped);
 
-verbose(3, "rEnumerateBlocks %llu childCount %d. isLeaf %d\n", indexFileOffset, (int)childCount, (int)isLeaf);
+verbose(3, "rEnumerateBlocks %"PRIu64" childCount %d. isLeaf %d\n", indexFileOffset, (int)childCount, (int)isLeaf);
 
 if (isLeaf)
     {

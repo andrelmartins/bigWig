@@ -653,7 +653,7 @@ else
 	    }
 	p->size+=size;
 	if (p->size > MAXDATASIZE)
-	    errAbort("max data size allowable for upload in MIME exceeded %llu",(unsigned long long)MAXDATASIZE);
+	    errAbort("max data size allowable for upload in MIME exceeded %"PRIuMAX"",(uintmax_t)MAXDATASIZE);
 	    
 	
 	if (b->eop && b->i == b->eop)  /* end of part */

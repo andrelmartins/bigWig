@@ -303,7 +303,7 @@ static bits64 bptDataOffset(struct bptFile *bpt, bits64 itemPos)
  * data pass in 0. */
 {
 if (itemPos >= bpt->itemCount)
-    errAbort("Item index %lld greater than item count %lld in %s", 
+    errAbort("Item index %"PRId64" greater than item count %"PRId64" in %s",
 	itemPos, bpt->itemCount, bpt->fileName);
 bits64 blockPos = itemPos/bpt->blockSize;
 bits32 insidePos = itemPos - blockPos*bpt->blockSize;

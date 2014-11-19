@@ -30,14 +30,14 @@ struct parallelConn *pc = NULL;
 FILE *f = mustOpen(outTempX, "w");
 int part = 0;
 fprintf(f, "%s\n", url);
-fprintf(f, "%lld\n", (long long)fileSize);
+fprintf(f, "%"PRIdMAX"\n", (intmax_t)fileSize);
 fprintf(f, "%s\n", dateString);
 for(pc = pcList; pc; pc = pc->next)
     {
-    fprintf(f, "part%d %lld %lld %lld\n", part
-	, (long long)pc->rangeStart
-	, (long long)pc->partSize
-	, (long long)pc->received);
+    fprintf(f, "part%d %"PRIdMAX" %"PRIdMAX" %"PRIdMAX"\n", part
+	, (intmax_t)pc->rangeStart
+	, (intmax_t)pc->partSize
+	, (intmax_t)pc->received);
     ++part;
     }
 
@@ -242,7 +242,7 @@ else
     }
 
 
-verbose(2,"fileSize=%lld\n", (long long) fileSize);
+verbose(2,"fileSize=%"PRIdMAX"\n", (intmax_t) fileSize);
 
 if (fileSize < 65536)    /* special case small file */
     numConnections = 1;
@@ -271,7 +271,7 @@ if (fileSize == -1)
 off_t base = 0;
 int c;
 
-verbose(2,"partSize=%lld\n", (long long) partSize); //debug
+verbose(2,"partSize=%"PRIdMAX"\n", (intmax_t) partSize); //debug
 
 
 /* n is the highest-numbered descriptor */
@@ -434,10 +434,10 @@ while (TRUE)
 	    ||  pc->sd == -3)))  /* not even started */
 	    {
 	    char urlExt[1024];
-	    safef(urlExt, sizeof(urlExt), "%s;byterange=%llu-%llu"
+	    safef(urlExt, sizeof(urlExt), "%s;byterange=%"PRIuMAX"-%"PRIuMAX""
 	    , url
-	    , (unsigned long long) (pc->rangeStart + pc->received)
-	    , (unsigned long long) (pc->rangeStart + pc->partSize - 1) );
+	    , (uintmax_t) (pc->rangeStart + pc->received)
+	    , (uintmax_t) (pc->rangeStart + pc->partSize - 1) );
 
 
 	    int oldSd = pc->sd;  /* in case we need to remember where we were */
@@ -527,7 +527,7 @@ while (TRUE)
 
 		readCount = read(pc->sd, buf, BUFSIZE);
 
-		verbose(2,"readCount = %lld\n", (long long) readCount);
+		verbose(2,"readCount = %"PRIdMAX"\n", (intmax_t) readCount);
 
 		if (readCount == 0)
 		    {
@@ -552,19 +552,19 @@ while (TRUE)
 		    return FALSE;
 		    }
 
-		verbose(2,"rangeStart %llu  received %llu\n"
-			, (unsigned long long) pc->rangeStart
-			, (unsigned long long) pc->received );
+		verbose(2,"rangeStart %"PRIuMAX"  received %"PRIuMAX"\n"
+			, (uintmax_t) pc->rangeStart
+			, (uintmax_t) pc->received );
 
-		verbose(2,"seeking to %llu\n", (unsigned long long) (pc->rangeStart + pc->received));
+		verbose(2,"seeking to %"PRIuMAX"\n", (uintmax_t) (pc->rangeStart + pc->received));
 
 		if (lseek(out, pc->rangeStart + pc->received, SEEK_SET) == -1)
 		    {
 		    perror("error seeking output file");
-		    warn("error seeking output file %s: rangeStart %llu  received %llu for url %s"
+		    warn("error seeking output file %s: rangeStart %"PRIuMAX"  received %"PRIuMAX" for url %s"
 			, outPath
-			, (unsigned long long) pc->rangeStart
-			, (unsigned long long) pc->received
+			, (uintmax_t) pc->rangeStart
+			, (uintmax_t) pc->received
 			, url);
 		    return FALSE;
 		    }
@@ -682,9 +682,9 @@ if (progress)
 
 if (fileSize != -1 && totalDownloaded != fileSize)
     {
-    warn("Unexpected result: Total downloaded bytes %lld is not equal to fileSize %lld"
-	, (long long) totalDownloaded
-	, (long long) fileSize);
+    warn("Unexpected result: Total downloaded bytes %"PRIdMAX" is not equal to fileSize %"PRIdMAX""
+	, (intmax_t) totalDownloaded
+	, (intmax_t) fileSize);
     return FALSE;
     }
 return TRUE;

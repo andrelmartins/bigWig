@@ -60,7 +60,7 @@ for (i=0;  i < len;  i++)
     if (bufTest[i] != bufRef[i])
 	{
 	if (difCount == 0)
-	    warn("*** %s%s and ref first differ at offset %lld + %lld = %lld [0x%02x != 0x%02x]",
+	    warn("*** %s%s and ref first differ at offset %"PRIu64" + %"PRIu64" = %"PRIu64" [0x%02x != 0x%02x]",
 		 (bufTest[i] != '\0' ? "NONZERO " : ""),
 		 testDesc, offset, i, offset+i, (bits8)bufTest[i], (bits8)bufRef[i]);
 	if (bufTest[i] != '\0')
@@ -69,10 +69,10 @@ for (i=0;  i < len;  i++)
 	}
     }
 if (difCount == 0)
-    verbose(3, "Success: %s = ref, %lld bytes @%lld\n", testDesc, len, offset);
+    verbose(3, "Success: %s = ref, %"PRIu64" bytes @%"PRIu64"\n", testDesc, len, offset);
 else
     {
-    warn("--> %lld different bytes (%lld %s) total in block of %lld bytes starting at %lld",
+    warn("--> %"PRIu64" different bytes (%"PRIu64" %s) total in block of %"PRIu64" bytes starting at %"PRIu64"",
 	 difCount, nonZeroDifCount, (nonZeroDifCount ? "NONZERO" : "nonzero"), len, offset);
     gotError = TRUE;
     }
@@ -115,15 +115,15 @@ if (bufRef == NULL)
 // Check offset + len against size of reference file:
 bits64 size = fileSize(localCopy);
 if (offset > size)
-    errAbort("readAndTest: Size of %s is %lld, but offset given is %lld", localCopy, size, offset);
+    errAbort("readAndTest: Size of %s is %"PRIu64", but offset given is %"PRIu64"", localCopy, size, offset);
 if (offset + len > size)
     {
     bits64 newSize = size - offset;
-    warn("readAndTest: Size of %s is %lld, offset %lld + len %lld = %lld exceeds that; "
-	 "reducing len to %lld", localCopy, size, offset, len, offset+len, newSize);
+    warn("readAndTest: Size of %s is %"PRIu64", offset %"PRIu64" + len %"PRIu64" = %"PRIu64" exceeds that; "
+	 "reducing len to %"PRIu64"", localCopy, size, offset, len, offset+len, newSize);
     len = newSize;
     }
-verbose(2, "0x%08llx: %lldB @%lld\n", (bits64)udcf, len, offset);
+verbose(2, "0x%08"PRIx64": %"PRIu64"B @%"PRIu64"\n", (bits64)udcf, len, offset);
 
 // Get data from the reference file:
 openSeekRead(localCopy, offset, len, bufRef);
@@ -135,7 +135,7 @@ bits64 bytesRead = udcRead(udcf, bufTest, len);
 // udcRead does a mustRead, and we have checked offset+len, so this should never happen,
 // but test anyway:
 if (bytesRead < len)
-    errAbort("Got %lld bytes instead of %lld from %s @%lld", bytesRead, len, url, offset);
+    errAbort("Got %"PRIu64" bytes instead of %"PRIu64" from %s @%"PRIu64"", bytesRead, len, url, offset);
 gotError |= compareBytes(bufTest, bufRef, len, url, localCopy, "url", offset);
 
 if (0) // -- Check sparseData after the dust settles.
@@ -215,7 +215,7 @@ char *bufRef = needMem(udcBlockSize), *bufSparse = needMem(udcBlockSize);
 int startBlock = (int)(accessStart / udcBlockSize);
 int endBlock = (int)((accessEnd + udcBlockSize-1) / udcBlockSize);
 bits64 startOffset = (bits64)startBlock * udcBlockSize;
-verbose(1, "checking sparseData (%lld..%lld] blocks (%d..%d].\n",
+verbose(1, "checking sparseData (%"PRIu64"..%"PRIu64"] blocks (%d..%d].\n",
 	startOffset, ((bits64)endBlock*udcBlockSize), startBlock, endBlock);
 int fdLocal = mustOpenFd(localCopy, O_RDONLY);
 mustLseek(fdLocal, startOffset, SEEK_SET);
@@ -231,7 +231,7 @@ for (i = startBlock;  i < endBlock;  i++)
     mustReadFd(fdLocal, bufRef, udcBlockSize);
     mustReadFd(fdSparse, bufSparse, udcBlockSize);
     char testDesc[64];
-    safef(testDesc, sizeof(testDesc), "SPARSE %lld blk %d", offset, i);
+    safef(testDesc, sizeof(testDesc), "SPARSE %"PRIu64" blk %d", offset, i);
     gotError |= compareBytes(bufSparse, bufRef, udcBlockSize, sparseFileName, localCopy,
 			     testDesc, offset);
     }

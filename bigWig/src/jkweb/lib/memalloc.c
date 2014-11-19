@@ -87,11 +87,11 @@ void *needLargeMem(size_t size)
 {
 void *pt;
 if (size == 0 || size >= maxAlloc)
-    errAbort("needLargeMem: trying to allocate %llu bytes (limit: %llu)",
-         (unsigned long long)size, (unsigned long long)maxAlloc);
+    errAbort("needLargeMem: trying to allocate %"PRIuMAX" bytes (limit: %"PRIuMAX")",
+         (uintmax_t)size, (uintmax_t)maxAlloc);
 if ((pt = mhStack->alloc(size)) == NULL)
-    errAbort("needLargeMem: Out of memory - request size %llu bytes, errno: %d\n",
-             (unsigned long long)size, errno);
+    errAbort("needLargeMem: Out of memory - request size %"PRIuMAX" bytes, errno: %d\n",
+             (uintmax_t)size, errno);
 return pt;
 }
 
@@ -110,11 +110,11 @@ void *needLargeMemResize(void* vp, size_t size)
 {
 void *pt;
 if (size == 0 || size >= maxAlloc)
-    errAbort("needLargeMemResize: trying to allocate %llu bytes (limit: %llu)",
-         (unsigned long long)size, (unsigned long long)maxAlloc);
+    errAbort("needLargeMemResize: trying to allocate %"PRIuMAX" bytes (limit: %"PRIuMAX")",
+         (uintmax_t)size, (uintmax_t)maxAlloc);
 if ((pt = mhStack->realloc(vp, size)) == NULL)
-    errAbort("needLargeMemResize: Out of memory - request size %llu bytes, errno: %d\n",
-             (unsigned long long)size, errno);
+    errAbort("needLargeMemResize: Out of memory - request size %"PRIuMAX" bytes, errno: %d\n",
+             (uintmax_t)size, errno);
 return pt;
 }
 
@@ -135,8 +135,8 @@ void *pt;
 if (size == 0)
     errAbort("needHugeMem: trying to allocate 0 bytes");
 if ((pt = mhStack->alloc(size)) == NULL)
-    errAbort("needHugeMem: Out of huge memory - request size %llu bytes, errno: %d\n",
-             (unsigned long long)size, errno);
+    errAbort("needHugeMem: Out of huge memory - request size %"PRIuMAX" bytes, errno: %d\n",
+             (uintmax_t)size, errno);
 return pt;
 }
 
@@ -157,8 +157,8 @@ void *needHugeMemResize(void* vp, size_t size)
 {
 void *pt;
 if ((pt = mhStack->realloc(vp, size)) == NULL)
-    errAbort("needHugeMemResize: Out of memory - request resize %llu bytes, errno: %d\n",
-	(unsigned long long)size, errno);
+    errAbort("needHugeMemResize: Out of memory - request resize %"PRIuMAX" bytes, errno: %d\n",
+	(uintmax_t)size, errno);
 return pt;
 }
 
@@ -183,11 +183,11 @@ void *needMem(size_t size)
 {
 void *pt;
 if (size == 0 || size > NEEDMEM_LIMIT)
-    errAbort("needMem: trying to allocate %llu bytes (limit: %llu)",
-         (unsigned long long)size, (unsigned long long)NEEDMEM_LIMIT);
+    errAbort("needMem: trying to allocate %"PRIuMAX" bytes (limit: %"PRIuMAX")",
+         (uintmax_t)size, (uintmax_t)NEEDMEM_LIMIT);
 if ((pt = mhStack->alloc(size)) == NULL)
-    errAbort("needMem: Out of memory - request size %llu bytes, errno: %d\n",
-             (unsigned long long)size, errno);
+    errAbort("needMem: Out of memory - request size %"PRIuMAX" bytes, errno: %d\n",
+             (uintmax_t)size, errno);
 memset(pt, 0, size);
 return pt;
 }
@@ -322,13 +322,13 @@ pEndCookie = (((char *)(cmb+1)) + size);
 if (cmb->startCookie != cmbStartCookie)
     {
     pthread_mutex_unlock( &carefulMutex );
-    errAbort("Bad start cookie %x freeing %llx\n", cmb->startCookie,
+    errAbort("Bad start cookie %x freeing %"PRIxMAX"\n", cmb->startCookie,
              ptrToLL(vpt));
     }
 if (memcmp(pEndCookie, cmbEndCookie, sizeof(cmbEndCookie)) != 0)
     {
     pthread_mutex_unlock( &carefulMutex );
-    errAbort("Bad end cookie %x%x%x%x freeing %llx\n", 
+    errAbort("Bad end cookie %x%x%x%x freeing %"PRIxMAX"\n",
         pEndCookie[0], pEndCookie[1], pEndCookie[2], pEndCookie[3],
              ptrToLL(vpt));
     }
@@ -373,14 +373,14 @@ for (cmb = (struct carefulMemBlock *)(cmbAllocedList->head); cmb->next != NULL; 
     pEndCookie = (((char *)(cmb+1)) + size);
     if (cmb->startCookie != cmbStartCookie)
 	{
-        safef(errMsg, sizeof errMsg, "Bad start cookie %x checking %llx\n", cmb->startCookie,
+        safef(errMsg, sizeof errMsg, "Bad start cookie %x checking %"PRIxMAX"\n", cmb->startCookie,
                  ptrToLL(cmb+1));
 	errFound = TRUE;
 	break;
 	}
     if (memcmp(pEndCookie, cmbEndCookie, sizeof(cmbEndCookie)) != 0)
 	{
-        safef(errMsg, sizeof errMsg, "Bad end cookie %x%x%x%x checking %llx\n", 
+        safef(errMsg, sizeof errMsg, "Bad end cookie %x%x%x%x checking %"PRIxMAX"\n",
                  pEndCookie[0], pEndCookie[1], pEndCookie[2], pEndCookie[3],
                  ptrToLL(cmb+1));
 	errFound = TRUE;

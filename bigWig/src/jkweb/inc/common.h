@@ -183,7 +183,8 @@ const char * strptime (const char *buf, const char *fmt, struct tm *tm);
  * in a 32/64bit portable manner.  Format should use %llx for the result.
  * Needed because casting a pointer to a different sized number cause a
  * warning with gcc */
-#define ptrToLL(p) ((long long)((size_t)p))
+/* Redefined to use C99 constants */
+#define ptrToLL(p) ((intmax_t)((size_t)p))
 
 /* How big is this array? */
 #define ArraySize(a) (sizeof(a)/sizeof((a)[0]))

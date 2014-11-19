@@ -147,7 +147,7 @@ if (cl)
 
 if (cd)
     {
-    dyStringPrintf(dy,"%ssize:[%llu]\n",margin,(unsigned long long) mp->size);
+    dyStringPrintf(dy,"%ssize:[%"PRIuMAX"]\n",margin,(uintmax_t) mp->size);
     if (mp->binary)
     	dyStringPrintf(dy,"%sbinary (contains zeros)\n",margin);
     if (mp->fileName)

@@ -399,8 +399,8 @@ for(mp=mp->multi;mp;mp=mp->next)
 	errAbort("main content-type expected [form-data], found [%s]",cdMain);
 
     //debug
-    //fprintf(stderr,"GALT: mp->size[%llu], mp->binary=[%d], mp->fileName=[%s], mp=>data:[%s]\n",
-        //(unsigned long long) mp->size, mp->binary, mp->fileName,
+    //fprintf(stderr,"GALT: mp->size[%"PRIuMAX"], mp->binary=[%d], mp->fileName=[%s], mp=>data:[%s]\n",
+        //(uintmax_t) mp->size, mp->binary, mp->fileName,
         //mp->binary && mp->data ? "<binary data not safe to print>" : mp->data);
     //fflush(stderr);
 
@@ -435,9 +435,9 @@ for(mp=mp->multi;mp;mp=mp->next)
 	    char varNameBinary[256];
 	    char addrSizeBuf[40];
 	    safef(varNameBinary,sizeof(varNameBinary),"%s__binary",cdName);
-            safef(addrSizeBuf,sizeof(addrSizeBuf),"%lu %llu",
-		(unsigned long)mp->data,
-		(unsigned long long)mp->size);
+            safef(addrSizeBuf,sizeof(addrSizeBuf),"%"PRIu32" %"PRIuMAX"",
+		(uint32_t)mp->data,
+		(uintmax_t)mp->size);
 	    AllocVar(el);
 	    el->val = cloneString(addrSizeBuf);
 	    slAddHead(&list, el);

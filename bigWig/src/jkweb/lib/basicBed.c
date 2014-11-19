@@ -1620,7 +1620,7 @@ if (as)
 	    else if (type == t_string)
 		{
 		if (strlen(row[i]) > 255)
-		    lineFileAbort(lf, "expecting length (%llu) of string (%s) not to exceed 255 in field %s", (unsigned long long)strlen(row[i]), row[i], asCol->name);
+		    lineFileAbort(lf, "expecting length (%"PRIuMAX") of string (%s) not to exceed 255 in field %s", (uintmax_t)strlen(row[i]), row[i], asCol->name);
 		}
 	    }
 	else if (asCol->isList)
