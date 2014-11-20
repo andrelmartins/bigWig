@@ -20,6 +20,10 @@
 #include "sqlNum.h"
 #include "obscure.h"
 
+#ifdef __WIN32__
+int pipe(int pipefd[2]);
+#endif
+
 /* Brought errno in to get more useful error messages */
 extern int errno;
 

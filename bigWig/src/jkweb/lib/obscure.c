@@ -529,7 +529,7 @@ return charSepToSlNames(commaSep, ',');
 }
 
 
-void sprintLongWithCommas(char *s, long long l)
+void sprintLongWithCommas(char *s, intmax_t l)
 /* Print out a long number with commas a thousands, millions, etc. */
 {
 intmax_t trillions, billions, millions, thousands;
@@ -577,7 +577,7 @@ void printLongWithCommas(FILE *f, long long l)
 /* Print out a long number with commas at thousands, millions, etc. */
 {
 char ascii[32];
-sprintLongWithCommas(ascii, l);
+sprintLongWithCommas(ascii, (intmax_t)l);
 fprintf(f, "%s", ascii);
 }
 

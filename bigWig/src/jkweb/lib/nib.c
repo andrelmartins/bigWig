@@ -10,6 +10,11 @@
 #include "nib.h"
 #include "sig.h"
 
+#ifdef __WIN32__
+/* FIXME: HACK! */
+#define getc_unlocked getc
+#endif
+
 
 static char *findNibSubrange(char *fileName)
 /* find the colon starting a nib seq name/subrange in a nib file name, or NULL

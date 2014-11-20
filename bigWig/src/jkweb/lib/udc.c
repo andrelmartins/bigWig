@@ -1098,8 +1098,8 @@ int nextClearBit = bitFindClear(bits, partBitStart, partBitEnd);
 while (nextClearBit < partBitEnd)
     {
     int clearBlock = nextClearBit + partOffset;
-    warn("... udcFile 0x%04lx: bit for block %d (%"PRIdMAX"..%"PRIdMAX"] is not set",
-	 (unsigned long)file, clearBlock,
+    warn("... udcFile 0x%04"PRIXPTR": bit for block %d (%"PRIdMAX"..%"PRIdMAX"] is not set",
+	 (uintptr_t)file, clearBlock,
 	 ((intmax_t)clearBlock * udcBlockSize), (((intmax_t)clearBlock+1) * udcBlockSize));
     gotUnset = TRUE;
     int nextSetBit = bitFindSet(bits, nextClearBit, partBitEnd);

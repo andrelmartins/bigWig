@@ -318,6 +318,10 @@ logDebugVa(format, args);
 va_end(args);
 }
 
+#ifdef __WIN32__
+int getdtablesize (void);
+#endif
+
 void logDaemonize(char *progName)
 /* daemonize parasol server process, closing open file descriptors and
  * starting logging based on the -logFacility and -log command line options .
@@ -330,7 +334,10 @@ if (!optionExists("debug"))
         exit(0);  /* parent goes away */
 
     /* Put self in our own process group. */
+#ifndef __WIN32__
+    /* FIXME: HACK! */
     setsid();
+#endif
 
     /* Close all open files first (before logging) */
     for (i = 0; i < maxFiles; i++)

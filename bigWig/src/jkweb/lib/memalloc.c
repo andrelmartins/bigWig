@@ -290,8 +290,8 @@ if (newAlloced > carefulMaxToAlloc)
     {
     char maxAlloc[32];
     char allocRequest[32];
-    sprintLongWithCommas(maxAlloc, (long long)carefulMaxToAlloc);
-    sprintLongWithCommas(allocRequest, (long long)newAlloced);
+    sprintLongWithCommas(maxAlloc, (intmax_t)carefulMaxToAlloc);
+    sprintLongWithCommas(allocRequest, (intmax_t)newAlloced);
     pthread_mutex_unlock( &carefulMutex );
     errAbort("carefulAlloc: Allocated too much memory - more than %s bytes (%s)",
 	maxAlloc, allocRequest);
