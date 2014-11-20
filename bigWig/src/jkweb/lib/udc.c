@@ -496,8 +496,8 @@ writeOneFd(fd, reserved64);
 writeOneFd(fd, reserved64);
 long long offset = mustLseek(fd, 0, SEEK_CUR);
 if (offset != udcBitmapHeaderSize)
-    errAbort("offset in fd=%d, f=%s is %"PRIu64", not expected udcBitmapHeaderSize %d",
-	     fd, file->bitmapFileName, offset, udcBitmapHeaderSize);
+    errAbort("offset in fd=%d, f=%s is %"PRIdMAX", not expected udcBitmapHeaderSize %d",
+	     fd, file->bitmapFileName, (intmax_t) offset, udcBitmapHeaderSize);
 
 /* Write out initial all-zero bitmap, using sparse-file method: write 0 to final address. */
 unsigned char zero = 0;
