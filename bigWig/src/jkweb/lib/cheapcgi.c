@@ -331,8 +331,13 @@ struct mimePart *mp = NULL;
 char **env = NULL;
 struct hash *hash = newHash(6);
 struct cgiVar *list = NULL, *el;
-extern char **environ;
 
+#ifdef __APPLE__
+#include <crt_externs.h>
+#define environ (*_NSGetEnviron())
+#else
+ extern char **environ;
+#endif
 
 //debug
 //fprintf(stderr,"GALT: top of cgiParseMultipart()\n");
