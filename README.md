@@ -1,5 +1,6 @@
 bigWig
 ======
+[![Build Status](https://travis-ci.org/andrelmartins/bigWig.svg?branch=master)](https://travis-ci.org/andrelmartins/bigWig)
 
 R interface to query UCSC bigWig files
 
