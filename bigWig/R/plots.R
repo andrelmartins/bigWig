@@ -10,11 +10,12 @@ plot.metaprofile <- function(x, minus.profile = NULL, X0 = plus.profile$X0, draw
   
   # rebuild X coordinates
   N = length(plus.profile$middle)
-  stopifnot(X0 <= length(plus.profile$middle) && X0 >= 0)
-
+  
   step = plus.profile$step
   if (is.null(step))
     stop("plus.profile is missing the 'step' element")
+
+  stopifnot(X0 <= length(plus.profile$middle)*step && X0 >= 0)
 
   if (!is.null(minus.profile)) {
     stopifnot(length(plus.profile$middle) == length(minus.profile$middle))
