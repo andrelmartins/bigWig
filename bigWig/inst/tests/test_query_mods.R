@@ -150,5 +150,16 @@ test_that("as.matrix", {
 
   expect_is(bed6.step.probeQuery.bigWig(bwTest, bwTest, bed6, 1), "list")
   expect_is(bed6.step.probeQuery.bigWig(bwTest, bwTest, bed6, 1, as.matrix = TRUE), "matrix")
-})
 
+  #
+  # Bed file is expected to represent uniform windows
+  bed_bad = data.frame(c("chrB", "chrBm"), 10, c(20, 25))
+  bed6_bad = data.frame(c("chrB", "chrBm"), 10, c(20, 25), "N", 0, "+")
+
+  err_msg = "all(sizes == sizes[1]) is not TRUE"
+
+  expect_error(bed.step.bpQuery.bigWig(bwTest, bed_bad, 1, as.matrix = TRUE), err_msg, fixed = TRUE)
+  expect_error(bed6.step.bpQuery.bigWig(bwTest, bwTest, bed6_bad, 1, as.matrix = TRUE), err_msg, fixed = TRUE)
+  expect_error(bed.step.probeQuery.bigWig(bwTest, bed_bad, 1, as.matrix = TRUE), err_msg, fixed = TRUE)
+  expect_error(bed6.step.probeQuery.bigWig(bwTest, bwTest, bed6_bad, 1, as.matrix = TRUE), err_msg, fixed = TRUE)
+})

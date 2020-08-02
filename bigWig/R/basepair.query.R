@@ -96,6 +96,11 @@ bed.step.bpQuery.bigWig <- function(bw, bed, step, strand = NA, op = "sum", abs.
   valid.bp.op(op)
   bed.valid.query.range(bed, step = step)
   
+  if (as.matrix) {
+    sizes = bed[,3] - bed[,2]
+    stopifnot(all(sizes == sizes[1]))
+  }
+
   if (!is.na(strand)) {
     stopifnot(valid.strand(strand))
     bed = cbind(bed, data.frame(0, 0, strand))
