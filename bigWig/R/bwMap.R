@@ -70,7 +70,7 @@ region.bpQuery.bwMap <- function(bwMap, chrom, start, end, strand, op = "thresh"
 }
 
 bed6.region.bpQuery.bwMap <- function(bwMap, bed6, op = "thresh") {
-  stopifnot(dim(bed6) >= 6)
+  stopifnot(dim(bed6)[2] >= 6)
   stopifnot(all(valid.strand(as.character(bed6[,6]))))
   valid.bwMap.op(op)
   bed.valid.query.range(bed6)

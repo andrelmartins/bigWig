@@ -519,6 +519,8 @@ void fill_bw_map_query_data(SEXP obj, const char * op_name, struct bw_map_query_
   data->op_name = op_name;
   data->thresh = REAL(thresh)[0];
 
+  data->bwMap = getListElement(obj, "bw");
+
   UNPROTECT(3);
 }
 
@@ -600,8 +602,6 @@ SEXP bigWig_bp_query(SEXP obj_plus, SEXP obj_minus, SEXP bed, SEXP op, SEXP step
     struct bw_map_query_data data;
     
     fill_bw_map_query_data(bwMap, "thresh", &data);
-    
-    data.bwMap = bwMap;
     
     return bigWig_region_query(obj_plus, obj_minus, bed, bwOp, step, use_strand, with_attributes, as_matrix, gap_value, abs_value, follow_strand, bw_with_map_step_query_func, &data);
   }
