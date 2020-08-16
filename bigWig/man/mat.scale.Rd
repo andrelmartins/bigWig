@@ -8,13 +8,13 @@
 
 \usage{
 
-rpkm.scale(mat, step, libSize)
+rpkm.scale(mat, step, libSize, ...)
 
-densityToOne.scale(mat, na.on.zero = TRUE)
+densityToOne.scale(mat, na.on.zero = TRUE, ...)
 
-maxToOne.scale(mat)
+maxToOne.scale(mat, ...)
 
-zeroToOne.scale(mat)
+zeroToOne.scale(mat, ...)
 
 }
 \arguments{
@@ -22,6 +22,7 @@ zeroToOne.scale(mat)
   \item{step}{step size in base pairs}
   \item{libSize}{total library mapped read count}
   \item{na.on.zero}{logical indicating if steps with zero counts should be marked as NA}
+  \item{...}{extra unused arguments to facilitate composition when used in \code{metaprofile.bigWig}}
 }
 
 \details{
