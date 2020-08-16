@@ -8,7 +8,7 @@
 #
 # from
 #  http://cufflinks.cbcb.umd.edu/faq.html
-rpkm.scale <- function(mat, step, libSize) {
+rpkm.scale <- function(mat, step, libSize, ...) {
   # mat is in reads / step
   # m1 = mat * (step / 1000) => reads / kb
   # million mapped := libSize / 10^6
@@ -19,7 +19,7 @@ rpkm.scale <- function(mat, step, libSize) {
 }
 
 # rows are scaled to sum to one
-densityToOne.scale <- function(mat, na.on.zero = TRUE) {
+densityToOne.scale <- function(mat, na.on.zero = TRUE, ...) {
   t(apply(mat, 1, function(row) {
     if (all(is.na(row)))
       return(row)
@@ -35,7 +35,7 @@ densityToOne.scale <- function(mat, na.on.zero = TRUE) {
   }))
 }
 
-maxToOne.scale <- function(mat) {
+maxToOne.scale <- function(mat, ...) {
   t(apply(mat, 1, function(row) {
     if (all(is.na(row)))
       return(row)
@@ -48,7 +48,7 @@ maxToOne.scale <- function(mat) {
   }))
 }
 
-zeroToOne.scale <- function(mat) {
+zeroToOne.scale <- function(mat, ...) {
   t(apply(mat, 1, function(row) {
     if (all(is.na(row)))
       return(row)
