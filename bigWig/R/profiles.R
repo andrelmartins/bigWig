@@ -120,7 +120,7 @@ metaprofile.bigWig <- function(bed, bw.plus, bw.minus = NULL, step = 1, name = "
   # 4. create result
   X0 = 0 # can't really tell what X0 was from the input arguments
   
-  res = c(list(name = name, X0 = X0), result)
+  res = c(list(name = name, X0 = X0, step = step), result)
   
   class(res) <- "metaprofile"
   return(res)
