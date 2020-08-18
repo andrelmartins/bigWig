@@ -31,7 +31,7 @@ bed.region.bpQuery.bigWig <- function(bw, bed, strand = NA, op = "sum", abs.valu
     
   if (!is.na(strand)) {
     stopifnot(valid.strand(strand))
-    bed = cbind(bed, data.frame(0, 0, strand))
+    bed = cbind(bed[,c(1:3)], data.frame(0, 0, strand))
     .Call(bigWig_bp_query, bw, bw, bed, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value, FALSE, bwMap)
   } else {
     .Call(bigWig_bp_query, bw, NULL, bed, op, NA, FALSE, FALSE, TRUE, gap.value, abs.value, FALSE, bwMap)
@@ -103,7 +103,7 @@ bed.step.bpQuery.bigWig <- function(bw, bed, step, strand = NA, op = "sum", abs.
 
   if (!is.na(strand)) {
     stopifnot(valid.strand(strand))
-    bed = cbind(bed, data.frame(0, 0, strand))
+    bed = cbind(bed[,c(1:3)], data.frame(0, 0, strand))
     .Call(bigWig_bp_query, bw, bw, bed, op, step, TRUE, with.attributes, as.matrix, gap.value, abs.value, FALSE, bwMap)
   } else {
     .Call(bigWig_bp_query, bw, NULL, bed, op, step, FALSE, with.attributes, as.matrix, gap.value, abs.value, FALSE, bwMap)
