@@ -574,7 +574,7 @@ SEXP bw_with_map_step_query_func(bigWig_t * bigwig, bwStepOp * op, const char * 
   bw_map = bigWig_for_chrom(data->bwMap, chrom);
   bw_select_op(&bwMapOp, data->op_name, 0);
   
-  PROTECT(res_map = bw_map_step_query_func(bigwig, &bwMapOp, chrom, start, end, step, 0, 1, is_plus, uptr));
+  PROTECT(res_map = bw_map_step_query_func(bw_map, &bwMapOp, chrom, start, end, step, 0, 1, is_plus, uptr));
   bigWig_for_chrom_release(data->bwMap, bw_map);
   
   // combine results, i.e., fill all unmappable positions (res_map = 1) with NA

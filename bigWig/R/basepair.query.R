@@ -32,7 +32,7 @@ bed.region.bpQuery.bigWig <- function(bw, bed, strand = NA, op = "sum", abs.valu
   if (!is.na(strand)) {
     stopifnot(valid.strand(strand))
     bed = cbind(bed, data.frame(0, 0, strand))
-    .Call(bigWig_bp_query, bw, bw, bed, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value, bwMap)
+    .Call(bigWig_bp_query, bw, bw, bed, op, NA, TRUE, FALSE, TRUE, gap.value, abs.value, FALSE, bwMap)
   } else {
     .Call(bigWig_bp_query, bw, NULL, bed, op, NA, FALSE, FALSE, TRUE, gap.value, abs.value, FALSE, bwMap)
   }
