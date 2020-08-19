@@ -13,7 +13,7 @@ author:
   affiliation: University of Virginia, Charlottesville, Virginia
 output:
   bookdown::html_document2:
-    toc_float: true
+    toc: true
 package: bigWig
 abstract: |
   Querying of _bigWig_ files in _R_
