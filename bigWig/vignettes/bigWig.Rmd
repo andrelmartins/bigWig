@@ -4,13 +4,8 @@ header-includes:
 - \usepackage{color}
 - \usepackage{float}
 - \DeclareUnicodeCharacter{2212}{-}
-author:
-- name: André L. Martins
-  affiliation: Cornell University, Ithaca, New York
-- name: Luther Vucic
-  affiliation: James Madison University, Harrisonburg, Virginia
-- name: Michael J. Guertin
-  affiliation: University of Virginia, Charlottesville, Virginia
+author: "André L. Martins, Luther Vucic, and Michael J. Guertin"
+date: "`r Sys.Date()`"
 output:
   bookdown::html_document2:
     toc: true
