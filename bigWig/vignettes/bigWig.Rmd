@@ -10,8 +10,6 @@ output:
   bookdown::html_document2:
     toc: true
 package: bigWig
-abstract: |
-  Querying of _bigWig_ files in _R_
 vignette: >
   %\VignetteIndexEntry{bigWig}
   %\VignetteEngine{knitr::rmarkdown}
