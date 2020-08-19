@@ -12,9 +12,8 @@ author:
 - name: Michael J. Guertin
   affiliation: University of Virginia, Charlottesville, Virginia
 output:
-  BiocStyle::html_document:
+  rmarkdown::html_document:
     toc_float: true
-  BiocStyle::pdf_document: default
 package: bigWig
 abstract: |
   Querying of _bigWig_ files in _R_
