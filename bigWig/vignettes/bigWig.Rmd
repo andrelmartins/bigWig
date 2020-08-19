@@ -1,0 +1,1331 @@
+---
+title: "bigWig"
+header-includes:
+- \usepackage{color}
+- \usepackage{float}
+- \DeclareUnicodeCharacter{2212}{-}
+author:
+- name: André L. Martins
+  affiliation: Cornell University, Ithaca, New York
+- name: Luther Vucic
+  affiliation: James Madison University, Harrisonburg, Virginia
+- name: Michael J. Guertin
+  affiliation: University of Virginia, Charlottesville, Virginia
+output:
+  BiocStyle::html_document:
+    toc_float: true
+  BiocStyle::pdf_document: default
+package: bigWig
+abstract: |
+  Querying of _bigWig_ files in _R_
+vignette: >
+  %\VignetteIndexEntry{bigWig}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+    
+# Prerequisites
+
+The R _bigWig_ libraries require an _R_ version of >= 2.12.0.
+
+
+# Introduction
+The _bigWig_ package efficiently queries _bigWig_ files over genomic intervals. The functions perform counting operations over regions, stepwise through windows, over _BED_ formatted data frames, and with DNA strand-specificity. The functions can incorporate a mappability file, which determines areas of the genome that are not mappable at a specified k-mer and excludes these regions from calculations. Additional functions calculate statistics and scale the data. Plotting functions are available for data visualization. The following definitions are used throughout the vignette:
+
+* __Genomic interval__ is the basic unit of these functions and is a segment of a genome file. It is defined by listing the chromosome [`chrom=`], starting index number [`start=`] and the ending index number [`end=`].
+  + Example: `chrom ='chr1', start = 23000, end = 24000`
+* __query__ refers to the return of count metrics (raw, average, etc.) within genomic intervals. The terms __probe__ and __bp__ are used in conjunction with __query__ to specify how _bigWig_ values are treated. 
+  + __probe__ refers to each _bigWig_ entry that spans an interval.
+  + __bp__ or __base pair__ is an individually indexed genomic position. In terms of counting, any _bp_ function treats the value associated with each nucleotide position within a _bigWig_ interval separately.
+* __region__ contains one or more genomic intervals, which includes [`chrom=`], [`start=`], and [`end=`] values, with an optional [`strand=`] argument.
+* __bed__ and __bed6__ are _R_ data frames containing multiple genomic intervals. Only columns 1-3 are considered for _bed_ operations, and column 6 is additionally passed for _bed6_ operations--all other columns are ignored. See UCSC's description of BED file format: [UCSC Genome Browser](https://genome.ucsc.edu/FAQ/FAQformat.html#format1)
+* __step__ refers to dividing the genomic interval into equally sized sub-intervals. The genomic interval must be a multiple of the step.
+
+
+
+
+# Getting started
+
+## Installation
+
+_bigWig_ is not yet available on _Bioconductor_, so `install.packages('bigWig')` will not work. Below are installation instructions from GitHub and locally stored source files.
+
+### Install from GitHub
+
+The most up to date version of the `bigWig` pkg is located at [bigWig](https://github.com/andrelmartins/bigWig). Using `devtools`, you can download and install `bigWig` from GitHub directly.
+
+```{r eval=FALSE}
+#install devtools if necessary
+install.packages("devtools")
+
+devtools::install_github('andrelmartins/bigWig',
+              subdir='bigWig')
+```
+
+### Install from a local directory
+
+After downloading and unpackaging the source files, use the following commands to install the package.
+```{r eval=FALSE}
+
+setwd('bigWig-master')
+system('R CMD INSTALL bigWig')
+
+```
+\pagebreak
+# Usage
+
+After installation, load the _bigWig_ package:
+
+```{r setup}
+library(bigWig)
+```
+## bigWig utilities
+
+These are functions that load, unload, query, and print the information within the _bigWig_ files.
+
+### bigWig format
+
+bigWig files are genomic intervals with corresponding intensity values that are stored in an indexed binary format. These files are not readily readable by humans, but the format allows for large continuous data to be stored compactly and accessed quickly.
+
+### load.bigWig
+
+```{r eval=FALSE}
+load.bigWig(filename, udcDir = NULL)
+```
+* __arguments__
+
+  + `filename` [required] is a string, which is either the the local file directory or URL.
+
+  + `udcDir` is a string that specifies the location for storing cached copies of remote files locally while they are in use. These are destroyed when you unload the bigWig. If left as the default `udcDir = NULL`, then it uses `/tmp/udcCache`.
+* __value__
+  + Returns an object of the _bigWig_ class, which contains a C pointer and the following accessible parts:
+     - `basesCovered`: Number of bp covered by _bigWig_ data.
+     - `chromSizes`: Integer vector with number of bases per chromosome (same order as chroms vector.
+     - `chroms`: Character vector with chromosome names for which there is data in the _bigWig_ file.
+     - `isCompressed`: Logical value indicating state of internal _bigWig_ file compression.
+     - `isSwapped`: Logical value indicating if binary representation is byte swapped (big vs. little endian).
+     - `max`: Numeric value containing the maximum value stored in the _bigWig_ file.
+     - `mean`: Numeric value containing the mean value across all covered bases in the _bigWig_ file.
+     - `min`: Numeric value containing the minimum value stored in the _bigWig_ file.
+     - `primaryDataSize`: Integer number of bytes used by data.
+     - `primaryIndexSize`: Integer number of bytes used by index.
+     - `std`: Standard deviation of bigWig values over covered bases.
+     - `version`: Integer version number for _bigWig_ file format.
+     - `zoomLevels`: Integer number of zoom level supported by _bigWig_ file.
+
+`load.bigWig` creates a `bigWig` class object in `R`. This object contains relevant information about the bigWig file and serves as a pointer to the underlying C object of the entire _bigWig_ file. The only parameter required for this is a string of the location and filename. `udcDir` is only used if you want to keep the downloaded _bigWig_ file locally if `filename` is a URL.
+
+
+```{r eval=FALSE}
+#load bigWig into variable bw
+setwd('./bigWig')
+
+bw=load.bigWig('../inst/extdata/bp.bigWig')
+```
+
+```{r eval=TRUE, echo=FALSE}
+bw=load.bigWig('../inst/extdata/bp.bigWig')
+```
+All of the attributes of the object can be accessed using `attributes` and each individual can be accessed using `$`
+
+```{r eval=TRUE}
+# list all attributes
+attributes(bw)
+
+#access an individual attribute
+bw$basesCovered
+```
+
+### print.bigWig
+`print.bigWig(bw)` is used to print all of the attributes contained within the object. The function displays information about the _bigWig_ instance in the same format as the UCSC command line tool _bigWigInfo_.
+
+```{r eval=TRUE}
+print.bigWig(bw)
+```
+* __arguments__
+  + `bw` is the pointer of the underlying _C_ object created in `load.bigWig`
+
+### unload.bigWig
+`unload.bigWig(bw)` destroys the _C_ object and removes it from memory. Use `rm()` or `remove()` to clear the _R_ object.
+
+```{r eval=FALSE}
+unload.bigWig(bw)
+```
+* __arguments__
+  + `bw` is the pointer of the underlying _C_ object created in `load.bigWig`
+
+
+
+```{r eval=TRUE}
+#destroy C object
+unload.bigWig(bw)
+ls()
+#remove variable in R
+remove(bw)
+ls()
+```
+
+## query.bigWig
+
+
+To demonstate the calculations performed by the `*Query.bigWig` functions we generated three _bigWig_ files that have the same information at each position in the genome, but the files are structured differently (Figure \@ref(fig:bigWigs)).     
+
+```{r bigWigs, echo = FALSE, message=FALSE, fig.align='center', fig.cap='Structured bigWig files. Three bigWig files with identical values at each position are structured differently to later highlight the differences between *Query.bigWig functions.', out.width = "80%"}
+knitr::include_graphics("../figure/bigWigProbesBp.pdf")
+```
+
+```{r eval = FALSE}
+query.bigWig(bigWig, chrom, start, end, clip = TRUE)
+```
+* __arguments__
+  + `bigWig` is the pointer of the underlying `C` object created in `load.bigWig`
+  + `chrom` is a string representing the chromosome to which the query interval belongs
+  + `start` is an integer value defining the start of the query interval
+  + `end` is an integer value defining the end of the query interval
+  + `clip` is a logical value; if TRUE bigWig regions are clipped to the query interval.
+
+* __value__
+  + returns a N by 3 matrix with columns (start, end, value) where N is the number of intervals contained in the _bigWig_ file that intersect with the query interval. Result coordinates are clipped to the query interval (unless clip == FALSE).
+
+\clearpage
+### bigWig file structure {#struc}
+`query.bigWig` allows you to search the _bigWig_ files using chromosome string (`chrom='chr1'`) and genomic window (`start=1, end = 115`), both are integers and end is inclusive meaning it searches up to and including `end`. The query results are printed to the command line. Note how the output of query reflects the original structure of the _bigWig_ file  (Figure \@ref(fig:bigWigs)). Each row that is output from a `query.bigWig` call is a genomic interval that is referred to as a `probe` in the relevant functions.
+
+```{r eval=TRUE}
+# load the three bigWigs
+bw.bp = load.bigWig('../inst/extdata/bp.bigWig')
+bw.probes = load.bigWig('../inst/extdata/probes.bigWig')
+bw.splitprobes = load.bigWig('../inst/extdata/splitprobes.bigWig')
+
+#note differences in the bigWig structures
+query.bigWig(bw.probes, 'chr1', 100, 115)
+query.bigWig(bw.splitprobes, 'chr1', 100, 115)
+query.bigWig(bw.bp, chrom='chr1',start=100, end=115)
+```
+
+The default behavior is to clip the bigWig intervals to the queried regions. The `bw.probes` variable and underlying _bigWig_ structure can be used to highlight the `clip=` option.  
+```{r eval=TRUE}
+query.bigWig(bw.probes, 'chr1', 104, 111, clip=FALSE)
+query.bigWig(bw.probes, 'chr1', 104, 111, clip=TRUE)
+```
+The query can be set as a variable for storage.
+```{r eval=TRUE}
+bw.probes.Q = query.bigWig(bw.probes, 'chr1', 100, 115)
+```
+Access the array as an indexed array; the following returns the first row.
+```{r eval=TRUE}
+bw.probes.Q[1,]
+```
+Standard [X,Y] indexing returns the specified row and column.
+```{r eval=TRUE}
+bw.probes.Q[1,2]
+```
+The genomic coordinate variable strings are keywords that can be used to access the respective columns.
+```{r eval=TRUE}
+bw.probes.Q[1,'start']
+```
+
+
+
+## bpQuery and probeQuery 
+
+This section outlines `*.bpQuery.bigWig` and `*.probeQuery.bigWig` functions to highlight their diffrences and commonalities. Both functions can incorporate `bwMap` files to account for the mappability of each position in the genome. `bwMap` files come  from the calc_Mappability functions and will be discussed later on. They specify genomic interval mappability based on the sequence being repeated in the genome. 
+
+### region query {#differences}
+
+ The _bp_ and _probe_ query functions takes a region defined by
+ `chrom`, `start` and `end` and returns the result of the specified operation.
+
+```{r eval=FALSE}
+region.bpQuery.bigWig(bw, chrom, start, end, strand = NA
+                       op = "sum", abs.value = FALSE,
+                       gap.value = 0, bwMap = NULL)
+
+region.probeQuery.bigWig(bw, chrom, start, end,
+                       op = "wavg", abs.value = FALSE,
+                       gap.value = NA)
+```
+* __arguments__
+  + `bw` is the pointer of the underlying _C_ object created in `load.bigWig`
+  + `chrom` is a string representing the chromosome to which the query interval belongs
+  + `start` is an integer value defining the start of the query interval
+  + `end` is an integer value defining the end of the query interval
+  + `strand` + or - character indicating the strand of the supplied
+    coordinates (bpQuery only)
+  + `op` is a string representing the operation to perform on the interval.
+    - `sum` adds all the counts
+    - `avg` averages the counts
+    - `min` finds the minimum value 
+    - `max` finds the maximum value
+    - `wavg` weighted average of the values--only pertains to probeQuery
+  + `abs.value` is a logical argument which determines if the absolute value of the input is performed before the `op`.
+  + `gap.value` is an integer value that replaces areas that have no overlaps
+  + `bwMap` a bigWig file of coordinates that cannot be uniquely mapped. Note that the sequence read length of the original FASTQ file should determine the k-mer mappability for this file
+
+
+All `bpQuery` functions are insensitive to the structure of the original _bigWig_ file, because each base position is evaluated separately. However, `probeQuery` functions consider each genomic interval as a separate entity, or _probe_, and evaluates them separately. The following `region.probeQuery.bigWig` evaluations highlight the different outputs that result from differentially structured _bigWig_ files that have identical values at each genomic position (see Figure \@ref(fig:bigWigs)). Note that the output for each command is the sum of the `value` column output from the first code chunks in Section \@ref(struc).  
+```{r eval=TRUE}
+region.probeQuery.bigWig(bw.probes, 'chr1', 100, 115, op = 'sum')
+region.probeQuery.bigWig(bw.splitprobes, 'chr1', 100, 115, op = 'sum')
+region.probeQuery.bigWig(bw.bp, 'chr1', 100, 115, op = 'sum')
+```
+
+In contrast, the `region.bpQuery.bigWig` function considers each base position within each genomic interval input separately. These _bigWig_ files have identical values at each position, so the calculations are identical.
+
+```{r eval=TRUE}
+region.bpQuery.bigWig(bw.probes, 'chr1', 100, 115, op = 'sum')
+region.bpQuery.bigWig(bw.splitprobes, 'chr1', 100, 115, op = 'sum')
+region.bpQuery.bigWig(bw.bp, 'chr1', 100, 115, op = 'sum')
+```
+
+### operations (op)
+
+#### sum `op='sum'`
+
+As noted in Section \@ref(differences), the `op='sum'` argument adds all the values of each probe or bp position in the specified genomic interval.
+
+#### maximum `op='max'`
+
+Return the maximum value of the interval:
+```{r eval=TRUE}
+region.bpQuery.bigWig(bw.probes,'chr1', 100, 115, op='max')
+region.probeQuery.bigWig(bw.probes,'chr1', 100, 115, op='max')
+```
+#### minimum `op='min'`
+
+Return the minimum value of the interval:
+```{r eval=TRUE}
+region.bpQuery.bigWig(bw.probes, 'chr1', 100, 115, op='min')
+region.probeQuery.bigWig(bw.probes, 'chr1', 100, 115, op='min')
+```
+#### average `op='avg'` {#avg}
+
+This operation returns the average of the values of the interval: `bpQuery` uses the
+range of the query window as the
+denominator when calculating `avg`, while `probeQuery` will use the
+number of _bigWig_ entries in the query region as the denominator. 
+
+```{r eval=TRUE}
+region.bpQuery.bigWig(bw.splitprobes,'chr1', 100, 115, op='avg')
+region.probeQuery.bigWig(bw.splitprobes,'chr1', 100, 112, op='avg')
+```
+
+Notice the difference in the return of the average when there are no values at genomic position. The `bpQuery` counts the number of base pairs to use as the denominator of the average, but `probeQuery` uses the number of genomic intervals as the denominator.  
+```{r eval=TRUE}
+region.bpQuery.bigWig(bw.probes,'chr1', 85, 115, op='avg')
+region.probeQuery.bigWig(bw.probes,'chr1', 85, 115, op='avg')
+```
+
+
+#### weighted average `op='wavg'` {#wavg}
+For `probe` functions, the average value can be weighted by the size of the genomic intervals. the `wavg` operation multiplies the values by the interval size before computing the average, therefore the average of the probes is weighted by their size. The _splitprobe_ variable contains two genomic intervals that are distinct sizes and values, recall that chr1:102-105 is a genomic interval with the value *1* and chr1:105-109 has the value *4*. The `avg` operation weights these equally with a result of 2.5, as determined by: $\dfrac{1 + 4}{2}$. However, the `wavg` operation applies more weight to the wider genomic interval; each value is multiplied by the interval size and their sum is divided by the sum of the interval sizes: $\dfrac{(1 \times 3) + (4 \times 4)}{3 + 4}$. \
+
+
+```{r eval=TRUE}
+region.probeQuery.bigWig(bw.splitprobes,'chr1', 102, 109, op='avg')
+region.probeQuery.bigWig(bw.splitprobes,'chr1', 102, 109, op='wavg')
+```
+If a probe extends beyond the query interval, the probe will get
+truncated and the weight is the truncated size. In the example, the
+third probe is truncated from 5 to 1, so it is weighted one fifth of
+the first two probes that also span 5 bases, the value is calculated
+as follows: $\dfrac{(1 \times 5) + (4 \times 5) + (2 \times 1)}{5 + 5 + 1}$.
+
+```{r eval=TRUE}
+region.probeQuery.bigWig(bw.probes,'chr1', 100, 111, op='wavg')
+```
+
+#### abs.value 
+
+If _bigWig_ files contain negative values, the `abs.value=TRUE` option can be invoked to convert the output to absolute values.
+
+#### gap.value
+
+`gap.value` determines how the function handles instances where there is no data returned.
+
+Notice that querying chr1:80-90 returns `NULL`.
+
+```{r eval=TRUE}
+query.bigWig(bw.probes,'chr1', 80, 90)
+```
+
+Running `region.probeQuery.bigWig` on the same genomic interval returns an NA for all of the operations; note that `gap.value=NA` is the default for `probeQuery` functions. The functionality is identical for `bpQuery.bigWig` operations, but the default is `gap.value=0`.
+
+```{r eval=TRUE}
+region.probeQuery.bigWig(bw.probes, 'chr1', 80, 90, op = 'sum')
+region.bpQuery.bigWig(bw.probes, 'chr1', 80, 90, op='sum')
+```
+
+By adding `gap.value = 1`, or any numeric value, the value is assigned to each query interval that has no intersecting probes. For both `probeQuery` and `bpQuery.bigWig` operations, the non-overlapping intervals that are assigned the `gap.value` are calculated as if the _bigWig_ file had a single probe spanning the query interval coordinates with the associated `gap.value`.
+
+```{r eval=TRUE}
+region.probeQuery.bigWig(bw.probes, 'chr1', 80, 90, op = 'sum', gap.value=1)
+region.bpQuery.bigWig(bw.probes, 'chr1', 80, 90, op = 'avg', gap.value=100)
+```
+
+
+## BED utilities and transformations
+
+These functions are used to manipulate _BED_ files.
+
+### BED format
+
+A standard three column _BED_ file is a tab delimited file that consists
+of the chromosome name, the start, and end positions of the
+genomic interval. A BED6 file contains all of the BED columns plus 3 more: name, score, and strand. Only the strand column is considered for `bed6` functions described here. Strand defines whether the BED track interval refers to the + or - stand of DNA. More information can be found on [UCSC website](https://genome.ucsc.edu/FAQ/FAQformat.html#format1). BED files are saved with a _.bed_ extension. The `bigWig` package operates on bed-formatted files that are loaded as `data.frames` into _R_.
+
+
+### Load BED file
+
+Load a BED file is to use _R_'s `read.table` function, which converts the tab delimited file into an _R_ data.frame. 
+First read in the file string. The  `header` argument refers whether the columns are named in the first row. Here we set `header=FALSE`. If there are lines prior ot the coordinate information, use the `skip=` argument to skip the number of lines that precede the genomic intervals.
+
+```{r eval =TRUE, echo=TRUE}
+bed=read.table('../inst/extdata/testBED1.bed',
+             header=FALSE, sep='\t', stringsAsFactors=FALSE)
+bed
+```
+
+To create a _BED6_ file, you need to define the following columns: `chrom`, `start`, `end`, `name`, `score` and `strand`. `bigWig` functions don't use `name` and `score`. In the following example we used place holders 'na' for `name` and '1' for `score`.
+
+```{r eval =TRUE, echo=TRUE}
+
+bed6=read.table('../inst/extdata/testBED1_strand.bed',
+             header=FALSE, sep='\t', stringsAsFactors=FALSE)
+bed6
+```
+
+### center, fiveprime, and threeprime functions
+
+`center.bed`, `fiveprime.bed`, and `threeprime.bed` take an original _BED_ file and transform each row's
+start and end columns. The functions are strand-specific and they differ by the anchor point of the
+window. For a _BED6_ file,
+`threeprime.bed` and `fiveprime.bed` refers to upstream and downstream
+are relative to the strand information. The primary usage of theese
+transformations is to generate constant windows anchored on a genomic
+feature, such as a transcription start site, intron/exon junction, or sequence motif. 
+
+
+```{r eval=FALSE}
+center.bed(bed, upstreamWindow, downstreamWindow)
+
+fiveprime.bed(bed, upstreamWindow, downstreamWindow)
+
+threeprime.bed(bed, upstreamWindow, downstreamWindow)
+```
+* __arguments__
+  + `bed` is the input BED data.frame.
+  + `upstreamWindow` is an integer number of bases to include upstream of the anchor point.
+  + `downstreamWindow` is an integer number of bases to include downstream of the anchor point.
+
+__Anchor Point__
+
+The anchor point is different for each function.
+
+`center.bed` uses the center of the original window. The difference between `end` and `start` is taken and divided by 2. If the difference is odd, you are left with a _X.5_, which is rounded down to _X_.  The anchor point is the `start` + _X_. \
+`fiveprime.bed` uses the `start` as the anchor point for BED files and BED6 entires with a + in the sixth strand column. The `end` is the anchor for BED6 entires with a - in the strand column. \
+`threeprime.bed` uses the `end` as the anchor point for BED files and BED6 entires with a + in the sixth strand column. The `start` is the anchor for BED6 entires with a - in the strand column. \
+
+__New Window__
+
+The new window is calculated by using the anchor point, `upstreamWindow` and `downstreamWindow`. \
+The new `start` is anchor point - `upstreamWindow`. \
+The new `end` is the anchor point + 1 + `downstreamWindow`. \ 
+Using the previously loaded _bed6_ file, we can test a few different scenarios: \
+
+
+```{r eval=TRUE}
+bed6
+```
+
+Using the `center.bed` function and `upstreamWindow = 0` and `downstreamWindow = 0` returns the anchor points.
+
+```{r eval=TRUE}
+center.bed(bed6, upstreamWindow = 0, downstreamWindow = 0)
+```
+
+
+ 
+__Equal and Positive Windows__
+
+ Often when we query signal _bigWig_ tracks around transcription
+ factor binding sites or sequence motifs, the `upstreamWindow` and `downstreamWindow` are equal and positive.
+
+ ```{r eval=TRUE}
+ center.bed(bed, upstreamWindow = 5, downstreamWindow = 5)
+ ```
+The `start` values are all anchor point - 5 and the `end` values are all anchor point + 1 + 5.
+
+### fiveprime and threeprime functions
+
+The functions `fiveprime.bed` and `threeprime.bed`
+anchor the window as indicated by the strand. By setting `upstreamWindow = 0` and `downstreamWindow = 0`, you can
+see that the difference between `start` and `end` have no influence on
+the anchor point. These transformations
+are most typically used when transforming gene annotation files to
+query _bigWig_ files relative to stranded genomic features. 
+
+Changing the `strand` affects the anchor point:
+
+* If `strand = '+'` while using `fiveprime.bed`
+  + anchor point = original `start`
+  + `start` = anchor point - `upstreamWindow`
+  + `end` = anchor point + 1 + `downstreamWindow`
+
+* If `strand = '-'` while using `fiveprime.bed`
+  + anchor point = original `end`
+  + `start` = anchor point - `downstreamWindow`
+  + `end` = anchor point + 1 + `upstreamWindow`
+
+* If `strand = '+'` while using `threeprime.bed`
+  + anchor point = original `end`
+  + `start` = anchor point - 1 - `upstreamWindow`
+  + `end` = anchor point + `downstreamWindow`
+
+* If `strand = '-'` while using `threeprime.bed`
+  + anchor point = original `start`
+  + `start` = anchor point - `downstreamWindow`
+  + `end` = anchor point + 1 + `upstreamWindow`
+
+ ```{r eval=TRUE}
+ fiveprime.bed(bed, upstreamWindow = 0, downstreamWindow = 0)
+ threeprime.bed(bed, upstreamWindow = 0, downstreamWindow = 0)
+ ```
+`fiveprime.bed` uses the 5$^\prime$ end  or `start` as the anchor point, while `threeprime.bed` uses 3$^\prime$ or `end` for the anchor point.
+
+Calculating the new window varies slightly. While `fiveprime.bed` follows `center.bed` by
+
+* `start` = anchor point - `upstreamWindow`
+* `end` = anchor point + 1 + `downstreamWindow`
+
+`threeprime.bed` calculates the window by
+
+* `start` = anchor point - 1 - `upstreamWindow`
+* `end` = anchor point + `downstreamWindow`
+
+Both of these function operate like `center.bed` other than the initial anchor point.
+
+```{r eval=TRUE}
+fiveprime.bed(bed, upstreamWindow = 1, downstreamWindow = 5)
+threeprime.bed(bed, upstreamWindow = 1, downstreamWindow = 5)
+```
+
+If using a _BED_ file without a `strand` column, `fiveprime.bed` and `threeprime.bed` assume that the `start` is the 5$^\prime$ end of the sequence. 
+
+```{r eval=TRUE}
+fiveprime.bed(bed6, upstreamWindow=4, downstreamWindow=2)
+threeprime.bed(bed6, upstreamWindow=4, downstreamWindow=2)
+```
+
+
+### downstream, upstream
+These two functions transform the _BED_ data.frame by taking the corresponding anchor point and the window.
+
+```{r eval=FALSE}
+downstream.bed(bed, downstreamWindow)
+
+upstream.bed(bed, upstreamWindow)
+
+```
+
+* __arguments__
+  + `bed` is the input BED data.frame.
+  + `upstreamWindow` integer number of bases to include upstream of the anchor point.
+  + `downstreamWindow` integer number of bases to include downstream of the anchor point.
+
+`downstream.bed` uses the original `start` point [5$^\prime$] as the anchor point.
+
+* `start` = anchor point
+* `end` = anchor point + downstreamWindow
+
+`upstream.bed` uses the original `end` point [3$^\prime$] as the anchor point.
+
+* `start` = anchor point - upstreamWindow
+* `end` = anchor point
+
+```{r eval=TRUE}
+downstream.bed(bed6,5)
+upstream.bed(bed6,5)
+```
+
+For all transformations,  negative numbers are allowed for
+`downstreamWindow` and `upstreamWindow`, but beware that downstream
+operations will fail if the start coordinate is greater than the end
+coordinate. 
+
+
+### foreach
+
+`foreach.bed` is a way to quickly apply a function across all rows of
+a _BED_ file. This function is similar to running `apply`, but faster
+since it's tailored to the structure of a _BED_ file and it avoids a lot of boilerplate code.
+
+```{r eval=FALSE}
+foreach.bed(bed, func, envir = parent.frame())
+```
+* __arguments__
+  + `bed` is a data.frame structured like a bed file.`
+  + `func` is the function to apply to each entry in `bed`. Function
+    must have four arguments: `index`, `chrom`, `start`, `end` and
+    `strand`. Index will be a one-based integer corresponding to the
+    current _BED_ line. Chrom is a character string with the chromosome
+    name. Start and end are the coordinates for the current entry
+    (remember that _BED_ files are zero-based left-open intervals). Strand
+    is a character string with the entry's strand ( '+' or '-')
+    or NA if the _bed_ has less than 6 columns
+  + `envir` is the environment where the function is evaluated. Default
+    value is `parent.frame()` which corresponds to the environment
+    where the `foreach.bed` was called, giving access (through <<-) to
+    the local variables.
+
+Below is a simple example is to calculate the size of each window:
+
+```{r eval=TRUE}
+sizes.bed <- function(bed) {
+  N = dim(bed)[1]
+  sizes = vector(mode="integer", length=N)
+
+foreach.bed(bed, function(i, chrom, start, end, strand) {
+    sizes[i] <<- end - start
+  })
+
+  return(sizes)
+}
+sizes.bed(bed)
+```
+Everything is wrapped into a function `sizes.bed`. In the example, `N` returns the number of rows in the _BED_ data.frame, `sizes` creates a vector of length `N `of zeros. This is used in the `foreach.bed` function as the return. When `foreach.bed` is called, the _BED_ data.frame and the `function` are passed as inputs. `func` iterates through all _i_'s calculating the window size, `end -
+start`, and setting the corresponding place in the vector, `sizes[i]`, equal to the window size. `sizes.bed` then returns the vector sizes. The result is a vector of length `N` of window sizes.
+
+Obviously,`sizes = bed[,3] - bed[,2]` is much faster, but the function can be designed as 
+complicated as necessary.
+
+
+## bed and bed6 region queries
+
+### bed.region
+```{r eval=FALSE}
+bed.region.bpQuery.bigWig(bw, bed, strand = NA,
+                          op = "sum", abs.value = FALSE,
+                          gap.value = 0, bwMap = NULL)
+bed.region.probeQuery.bigWig(bw, bed, op = "wavg",
+                          abs.value = FALSE, gap.value = NA)
+```
+* __arguments__
+  + `bw` is the pointer of the underlying `C` object created in `load.bigWig`
+  + `bed` is a dataframe structured like a bed file with columns for `chrom`, `start` and `end`
+  + `strand` + or - character indicating the strand of the supplied
+    coordinates (bpQuery only)
+  + `op` is a string representing the operation to perform on the interval.
+    - `sum` adds all the counts
+    - `avg` averages the counts
+    - `min` finds the minimum value 
+    - `max` finds the maximum value
+    - `wavg` weighted average of the values--only pertains to probeQuery
+  + `abs.value` is a logical argument which determines if the absolute value of the input is performed before the `op`.
+  + `gap.value` is an integer value that replaces areas that have no overlaps
+  + `bwMap` is only for `bp` functions and is an _R_ object of class _bwMap_ containing the information required to call steps or regions as unmappable.
+
+
+This function is an extension of `region.bpQuery.bigWig` and operates
+identically, except the the region `chrom`, `start`, and `end` is
+defined by the corresponding column of a _BED_ _data.frame_. The output
+is a vector that is equal in length to the number of rows of the BED
+_data.frame_. The vectors's index corresponds to the _BED_ _data.frame_
+row index.
+
+
+```{r eval=TRUE}
+bed.region.bpQuery.bigWig(bw.bp, bed6)
+bed.region.probeQuery.bigWig(bw.bp, bed6)
+```
+
+### bed6.region
+```{r eval=FALSE}
+bed6.region.bpQuery.bigWig(bw.plus, bw.minus, bed6,
+                 op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL)
+
+bed6.region.probeQuery.bigWig(bw.plus, bw.minus, bed6,
+                 op = "wavg", abs.value = FALSE, gap.value = NA)
+```
+						  
+* __arguments__
+  + `bw.plus` is the `R` pointer created in `load.bigWig` and refers to the plus strand signal
+  + `bw.minus` is the `R` pointer created in `load.bigWig` and refers to the minus strand signal
+  + `bed6` is a BED6 style data.frame that specifies a `strand` value
+    in column 6
+  + `op` is a string representing the operation to perform on the interval.
+    - `sum` adds all the counts
+    - `avg` averages the counts
+    - `min` finds the minimum value 
+    - `max` finds the maximum value
+    - `wavg` weighted average of the values--only pertains to `probeQuery`
+  + `abs.value` is a logical argument which determines if the absolute value of the input is performed before the `op`.
+  + `gap.value` is an integer value that replaces areas that have no overlaps
+  + `bwMap` is an R object of class `bwMap` containing the information required to call steps or regions as unmappable.
+
+Using the `bw.plus` and `bw.minus` strands, we can evaluate a
+`bed6.region` function. First, refer to the  `query.bigWig` for each stranded file as
+a reference.
+
+
+```{r eval=TRUE}
+bwPlus=load.bigWig('../inst/extdata/bpPlus.bigWig')
+bwMinus=load.bigWig('../inst/extdata/bpMinus.bigWig')
+```
+
+
+```{r bigWigPlusMinus, echo = FALSE, message=FALSE, fig.align='center', fig.cap='Stranded bigWig files. Two bigWig files contain values that are strand-specific to highlight the bed6 functions.', out.width = "80%"}
+knitr::include_graphics("../figure/bigWigPlusMinus.pdf")
+```
+
+
+
+```{r eval=TRUE}
+query.bigWig(bwMinus, chrom='chr1', start=100, end=115)
+query.bigWig(bwPlus, chrom='chr1', start=100, end=115)
+```
+
+Note that each interval is specified by the strand in column 6 of the _BED_ data.frame, and each respective stranded _bigWig_ file is queried for that interval.  
+
+```{r eval=TRUE}
+#bed6 structure
+bed6
+bed6.region.bpQuery.bigWig(bwPlus, bwMinus, bed6)
+bed6.region.probeQuery.bigWig(bwPlus, bwMinus, bed6)
+```
+
+## Step queries
+
+The following functions operate over defined steps and is described by
+`step=` argument. In a given region [`start=1` and `end=10`] and a
+`step=5`, the function will create intervals of 5. In this example, it
+will run on [`start=1`, `end=5`] and [`start=6`, `end=10`]. The
+`probeQuery` and `bpQuery` functions coupled with `step` have the same behavior as
+previously described, but they operate on each step interval.
+
+
+```{r eval=FALSE}
+step.bpQuery.bigWig(bw, chrom, start, end, step,
+                    strand = NA, op = "sum", abs.value = FALSE, gap.value = 0,
+                    bwMap = NULL, with.attributes = TRUE)
+
+step.probeQuery.bigWig(bw, chrom, start, end, step,
+                    op = "wavg", abs.value = FALSE, gap.value = NA,
+                    with.attributes = TRUE)
+```
+* __arguments__
+  + `bw` is the pointer of the underlying `C` object created in `load.bigWig`
+  + `chrom` is a string representing the chromosome to which the query interval belongs
+  + `start` is an integer value defining the start of the query interval
+  + `end` is an integer value defining the end of the query interval
+  + `op` is a string representing the operation to perform on the interval.
+    - `sum` adds all the counts
+    - `avg` averages the counts
+    - `min` finds the minimum value 
+    - `max` finds the maximum value
+    - `wavg` weighted average of the values--only pertains to probeQuery
+  + `step` is the step size in base pairs
+  + `abs.value` is a logical argument which determines if the absolute value of the input is performed before the `op`.
+  + `gap.value` is an integer value that replaces areas that have no overlaps
+  + `bwMap` is only for `bp` functions and is an _R_ object of class _bwMap_ containing the information required to call steps or regions as unmappable.
+  + `with.attributes` is a logical argument that determines if the results are returned annotated with their source coordiantes and step size.
+
+The _step_ functions run through the range provide breaking it up into
+equal size steps as defined by `step =`. The length of the range
+[`end`-`start`] has to be a multiple of the step. For example if
+`start=1` and `end=21`, the length of the range is 20. This allows for
+`step = [1,2,4,5,10,20]`. The return is the value of the operation
+over that step. So if `step =2` and `op = 'min'`, then the return
+would be 10 minimum values. If `step = 5` and `op = 'max'`, the return
+will be a 4 element array of the maximum value in the step. The `avg` operation of  `step.bpQuery` and `step.probeQuery` is
+identical to Section \@ref(avg), in that the denominator is the step size
+(i.e. the width of each query region) for `step.bpQuery` and the
+number of intervals present in the _bigWig_ in each step interval
+for`step.probeQuery`. For `step.probeQuery` function, the `wavg`
+operation handles step windows that span probes as previously
+described in Section \@ref(wavg).  By
+invoking `with.attributes`, the chromosome, start, end, and step and
+can be extracted. 
+
+Below we _step_ _query_ over the 15 bp interval `start=100`, `end=115` and a `step=5`.
+```{r eval=TRUE}
+step.probeQuery.bigWig(bw.probes, 'chr1', 100, 115, op = 'sum', step=5)
+step.bpQuery.bigWig(bw.probes, 'chr1', 100, 115, op = 'sum', step=5)
+
+step.bp.bw.probes = step.bpQuery.bigWig(bw.probes, 'chr1', 100, 115,
+op = 'sum', step=5)
+attributes(step.bp.bw.probes)$step
+```
+
+
+### bed.step
+
+The `bed.step` function operates like the `bed.region` function, but the intervals are specified in the _BED_ data.frame. 
+
+```{r eval=FALSE}
+bed.step.bpQuery.bigWig(bw, bed, step,
+                  strand = NA, op = "sum", abs.value = FALSE, gap.value = 0,
+                  bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE)
+
+bed.step.probeQuery.bigWig(bw, bed, step,
+                  op = "wavg", abs.value = FALSE, gap.value = NA,
+                  bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE)            
+```
+* __arguments__
+  + `bw` is the pointer of the underlying `C` object created in `load.bigWig`
+  + `bed` is a dataframe structured like a bed file with columns for `chrom`, `start` and `end`
+  + `op` is a string representing the operation to perform on the interval.
+    - `sum` adds all the counts
+    - `avg` averages the counts
+    - `min` finds the minimum value 
+    - `max` finds the maximum value
+    - `wavg` weighted average of the values--only pertains to probeQuery
+  + `abs.value` is a logical argument which determines if the absolute value of the input is performed before the `op`.
+  + `gap.value` is an integer value that replaces areas that have no overlaps
+  + `with.attributes` is a logical argument that determines if the results are returned annotated with their source components and/or step size.
+  + `bwMap` is an R object of class `bwMap` containing the information required to call steps or regions as unmappable.
+  + `as.matrix` is a logical argument that will return the results in a matrix format. The _BED_ data.frame has to be a fixed window for all entries.
+    
+These functions are an extension of `step.bpQuery.bigWig` and    
+`step.probeQuery.bigWig` and they operate
+identically, except the the region `chrom`, `start`, and `end` is
+defined by the corresponding column of a _BED_ _data.frame_. The regions in the _BED_ _data.frame_ need to be exact multiples of the step. The regions defined within the _BED_ file do not need to be the same size, unless `as.matrix = TRUE`. The output
+is a list of vectors, one per query _BED_ interval. An
+additional argument option is to return the data as a matrix. The
+matrix argument will only return a matrix if the interval widths in
+the _BED_ data.frame are identical for each row. This is often useful
+when querying a fixed window around the center of a genomic feature,
+such as a transcription factor binding site or transcription start
+site. 
+
+
+```{r eval=TRUE}
+#generate a bed
+bed.step=data.frame('chr1',100,106)
+bed.step[2,] = c('chr1',109,115)
+bed.step[,2] = as.numeric(bed.step[,2])
+bed.step[,3] = as.numeric(bed.step[,3])
+colnames(bed.step)=c('chrom', 'start', 'end')
+
+bed.step.bpQuery.bigWig(bw.splitprobes, bed.step, step = 2)
+bed.step.bpQuery.bigWig(bw.splitprobes, bed.step, step = 2,
+                       as.matrix=TRUE)
+
+```
+
+### bed6.step
+
+
+The `bed6.step` function operates like the `bed6.region` function, but the intervals and `strand` information are specified in the _BED_ data.frame.  The `follow.strand` argument is introduced for the `bed6` step function. `follow.strand` reverses the direction of `-` strand output. This is commonly set to TRUE when the specific genomic feature in the _BED6_ file has inherent strandedness. It is useful to know how the counts relate to the orientation of the feature, such as a sequence motif or transcription start site.
+
+
+```{r eval=FALSE}
+
+bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step,
+                       op = "sum", abs.value = FALSE, gap.value = 0,
+                       bwMap = NULL, with.attributes = TRUE, 
+                       as.matrix = FALSE, follow.strand = FALSE)
+
+bed6.step.probeQuery.bigWig(bw.plus, bw.minus, bed6, step,
+                       op = "wavg", abs.value = FALSE, gap.value = NA,
+                       with.attributes = TRUE, as.matrix = FALSE,
+                       follow.strand = FALSE)      
+```
+* __arguments__
+  + `bw.plus` is the `R` pointer created in `load.bigWig` and refers to the plus strand
+  + `bw.minus` is the `R` pointer created in `load.bigWig` and refers to the minus strand
+  + `chrom` is a string referring to what chromosome is referenced
+  + `start` is an integer value designation the starting position
+  + `end` is an integer value designation the ending position
+  + `op` is a string representing the operation to perform on the step.
+    - `sum` adds all the counts
+    - `avg` averages the counts
+    - `min` finds the smallest count
+    - `max` finds the largest count
+  + `abs.value` is a logical argument which determines if the absolute value of the input is performed before the `op`.
+  + `gap.value` is an integer value that replaces areas that have no overlaps
+  + `bwMap` is an R object of class `bwMap` containing the information required to call steps or regions as unmappable.
+  + `with.attributes` is a logical argument that determines if the
+    results are returned annotated with their source components and/or
+step size.
+  + `as.matrix` is a logical argument that will return the results in a matrix format. The _BED_ data.frame has to be a fixed window for all entries.
+  + `follow.strand` is a logical value; if TRUE, in 'BED' type queries, the
+    result is a matrix, otherwise it's a list of vectors, one per
+    query 'BED' entry.
+
+To highlight the newly introduced `as.matrix` and `follow.strand` functionality, we sum the signal of PRO-seq _bigWig_ files around transcription start sites. The `as.matrix` option returns a matrix and each row corresponds to the respective row of the _BED6_ transcription start site (TSS) _data.frame_ and each column is a window equivalent to the step size (50) that spans the 500 base pair interval.
+
+
+```{r eval=TRUE}
+plusPRO=load.bigWig('../inst/extdata/plusPRO.bigWig')
+minusPRO=load.bigWig('../inst/extdata/minusPRO.bigWig')
+bedTSS=read.table(gzfile("../inst/extdata/TSS.bed.gz"))
+
+bedTSSwindow=fiveprime.bed(bedTSS, upstreamWindow = 249,
+                  downstreamWindow = 250)
+
+tss.matrix = bed6.step.bpQuery.bigWig(plusPRO, minusPRO, bedTSSwindow,
+                  step = 50, as.matrix=TRUE, follow.strand=TRUE)
+colnames(tss.matrix) = seq(-225, 274, by = 50)
+rownames(tss.matrix) = bedTSSwindow[,5]
+
+#filter out genes that have no signal
+tss.matrix=tss.matrix[rowSums(tss.matrix) != 0,]
+head(tss.matrix)
+```
+
+The `follow.strand` argument orients the _BED6_ intervals so that downstream and upstream are relative to the `strand` in column 6. Although the 50 bp window is relatively wide, we can still observe RNA Polymerase  peak just downstream of the TSS using PRO-seq data below with `follow.strand=TRUE`.  
+
+```{r followstrand, eval=TRUE, fig.cap ="Feature-stranded composite profile. The RNA Polymerase peak results from the accumulation of reads that originate from the coding strand orientation. Therefore, it makes sense to orient the reads relative to the TSS position."}
+plot(seq(-225, 274, by = 50),colMeans(tss.matrix),
+                  xlab = 'stranded TSS position',
+                  ylab = 'bigWig intensity', type = "l")
+```
+
+However, if `follow.strand` is not invoked, the - and + strand signals accumulate upstream and downstream, respectively, of the central position.
+
+```{r nofollowstrand, eval=TRUE, fig.cap ="Absolute-stranded composite profile. Since a comparable number of genes are oriented in the plus and minus orientatino relative to teh reference genome, the peak downstream of the TSS is split if absolute genomic coordinate is followed."}
+
+
+tss.matrix.notStrand = bed6.step.bpQuery.bigWig(plusPRO, minusPRO,
+                  bedTSSwindow, step = 50, as.matrix=TRUE,
+                  follow.strand=FALSE)
+tss.matrix.notStrand = tss.matrix.notStrand[rowSums(tss.matrix.notStrand) != 0,]
+
+plot(seq(-225, 274, by = 50),colMeans(tss.matrix.notStrand),
+                  xlab = 'absolute TSS position',
+                  ylab = 'bigWig intensity', type = "l")
+
+```
+\clearpage
+##  Mappability
+    
+When counting reads within intervals, it can be inappropriate to include a count of zero if the genomic coordinate is not uniquely mappable at a given read length. By convention, a mappability _bigWig_ indicates mappable positions as 0 and unmappable as 1. Raw data in underlying _bigWig_ file marks a position as unmappable if the read that starts at that position is unmappable in the plus strand (obviously dependent on read length). The following repository provides instruction for generating a _bigWig_ mappability file: \
+https://github.com/andrelmartins/bigWig/tree/master/calc_mappability
+    
+
+```{r eval=FALSE}
+load.bwMap(filename, read.len, read.left.edge,
+                          threshold.fraction = 0, udcDir=NULL)
+
+```
+* __arguments__
+  + `filename` is a character string giving the name of the file to load. It can be a valid URL.
+  + `read.len` is a integer number representing the length (in base pairs) of k-mers (or sequence read length) for which the mappability file was constructed.
+  + `read.left.edge` is a logical value indicating if a read is represented by it's left-most edge (5$^\prime$ position) or it's right-most edge (3$^\prime$ position).
+  + `threshold.fraction` is a numeric value indicating the maximum fraction of unmappable bases in a query region for that region to still be considered mappable (Default = 0).
+  + `udcDir` is a character string giving the name of the folder to use as a local cache when accessing remote files. Set to NULL to use the default location (/tmp/udcCache).
+
+
+
+
+
+```{r eval=FALSE}
+unload.bwMap(bwMap)
+region.bpQuery.bwMap(bwMap, chrom, start, end, strand, op = "thresh")
+
+bed6.region.bpQuery.bwMap(bwMap, bed6, op = "thresh")
+
+step.bpQuery.bwMap(bwMap, chrom, start, end, step, strand, 
+                   op = "thresh", with.attributes = TRUE)
+
+bed6.step.bpQuery.bwMap(bwMap, bed6, step, 
+                   op = "thresh", with.attributes = FALSE, as.matrix = FALSE)
+
+```
+
+* __arguments__
+  + `bwMap` is a saved bigWig Mappability object
+  + `chrom` is a string representing the chromosome to which the query interval belongs
+  + `start` is an integer value defining the start of the query interval
+  + `end` is an integer value defining the end of the query interval
+  + `strand` + or - character indicating the strand of the supplied
+    coordinates (bpQuery only)
+  + `op` is a string representing the operation to perform on the interval.
+    - `sum` adds all the counts
+    - `avg` averages the counts
+    - `thresh` threshold returns a value of 1 (unmappable) or 0 (mappable) for the interval. If the average value in the interval is greater than or equal to the threshold, then the interval value is 1, or unmappable; otherwise the value is 0.
+  + `bed6` is a BED6 style data.frame that specifies a `strand` value
+in column 6
+  + `step` is the step size in base pairs
+  + `with.attributes` is a logical argument that determines if the results are returned annotated with their source components and/or step size.
+  + `as.matrix` is a logical argument that will return the results in a matrix format. The _BED_ data.frame has to be a fixed window for all entries.
+    
+
+```{r bwMap, echo = FALSE, message=FALSE, fig.align='center', fig.cap='Mappability bigWig files. A) Mappability bigWig files contain a 1 at each postion in the genome that is not uniquely mappable. Note that the bigWig specifies the start of the k-mer (here a 30-mer) that corresponds to the plus strand sequence. B) The mappability bigWig file is often used in conjunction with typical bigWig data files. If the bigWig data file specifies the left-most or right-most base of the original sequence read, then the corresponding mappability file needs to specify the appropriate `read.left.edge` option. By doing so, the plus and minus reads are appropriately shifted by the mappability k-mer size.', out.width = "110%"}
+knitr::include_graphics("../figure/bwMap.pdf")
+```
+
+The following four queries all refer to the unmappable position chr1:105-106 in the _bwMap.bigWig_ file. The query region specifying this signal is either chr1:105-106 or 30 bases away, at chr1:134-135, depending upon `read.left.edge` argument and `strand` argument. 
+
+```{r eval=TRUE}
+
+bwMap.right=load.bwMap('../inst/extdata/bwMap.bigWig',
+                          read.len = 30, read.left.edge=FALSE)
+bwMap.left=load.bwMap('../inst/extdata/bwMap.bigWig',
+                          read.len = 30, read.left.edge=TRUE)
+
+
+region.bpQuery.bwMap(bwMap.left, "chr1", 134, 135,
+                          strand = "-", op = "sum")
+region.bpQuery.bwMap(bwMap.left, "chr1", 105, 106,
+                          strand = "+", op = "sum")
+
+region.bpQuery.bwMap(bwMap.right, "chr1", 105, 106,
+                          strand = "-", op = "sum")
+region.bpQuery.bwMap(bwMap.right, "chr1", 134, 135,
+                          strand = "+", op = "sum")
+```
+
+The operation that in introduced with mappability function is `thresh`. It is reasonable to consider intervals as mappable only if the average mappability of an interval exceeds a threshold. Here `thresh` refers to the average _unmappability_, since a value of 1 indicates the position is not mappable. Therefore, a threshold of 0.2 means that if 20% or more of the positions in the interval are not mappable, then the entire interval is considered to be unmappable.  
+```{r eval=TRUE}
+
+bwMap=load.bwMap('../inst/extdata/bwMap.bigWig',
+                read.len = 30, read.left.edge=FALSE, threshold.fraction = 0.2)
+region.bpQuery.bwMap(bwMap, "chr1", 130, 135, strand = "+", op = "avg")
+region.bpQuery.bwMap(bwMap, "chr1", 130, 136, strand = "+", op = "avg")
+region.bpQuery.bwMap(bwMap, "chr1", 130, 135, strand = "+", op = "thresh")
+region.bpQuery.bwMap(bwMap, "chr1", 130, 136, strand = "+", op = "thresh")
+
+```
+
+The functions `bed6.region.bpQuery.bwMap`, `step.bpQuery.bwMap`, and `bed6.step.bpQuery.bwMap` have the same extended functionality as the corresponding `bigWig` functions described above, but intervals and step intervals are treated as described for `region.bpQuery.bwMap`
+
+
+## bwMap as an argument in bpQuery.bigWig functions
+All the `*.bpQuery.bigWig` functions can incorporate mappability information into the queries. Figure \@ref(fig:bwMap) outlines the bwMap structure. The `strand` argument needs to be specified for non-`bed6` function, because mappability is dependent upon on the strand. The `bwMap` arguments incorporates the `strand`, either from the _BED6_ data frame or the argument, with the `read.len` and `read.left.edge` attributes from the`bwMap` _R_ object. The intervals that span unmappable positions return NA. \
+
+
+The following returns the region as mappable because only two of the 5 positions are unmappable, which is less than the `threshold.fraction = 0.50`:
+
+```{r eval=TRUE}
+
+bwMap.left = load.bwMap('../inst/extdata/bwMap.bigWig', read.len = 30,
+                        read.left.edge=TRUE, threshold.fraction = 0.50)
+
+
+region.bpQuery.bwMap(bwMap.left, "chr1", 105, 110, strand = '+')
+```
+
+Since positon 105 and 107 are not mappable, this returns the region as unmappable (0.667 > 0.50):
+```{r eval=TRUE}
+region.bpQuery.bigWig(bwPlus, "chr1", 105, 110, strand = '+',
+                      bwMap = bwMap.left)
+region.bpQuery.bigWig(bwPlus, "chr1", 105, 108, strand = '+',
+                      bwMap = bwMap.left)
+
+
+```
+
+
+
+The same mappability consideration can be applied to each row of a _BED_ file using `bed.region.bpQuery.bigWig`. Any columns beyond column 3 are ignored and the `strand` argument is passed to the sixth column, creating a _BED6_ data frame. The `bed6.region.bpQuery.bigWig` opertes identically, using the strand specified from column 6.
+
+```{r eval=TRUE}
+
+bwMap.thresh = load.bwMap('../inst/extdata/bwMap.bigWig', read.len = 30,
+                        read.left.edge=TRUE, threshold.fraction = 0)
+
+bed.region.bpQuery.bigWig(bwPlus, bed6, strand = '+',
+                          bwMap = bwMap.thresh)
+
+bed.region.bpQuery.bigWig(bwPlus, bed6, strand = '-',
+                          bwMap = bwMap.thresh)
+
+bed6.region.bpQuery.bigWig(bwPlus, bwMinus, bed6, 
+                          bwMap = bwMap.thresh)
+
+```
+
+The `step.bpQuery.bwMap`, `bed.step.bpQuery.bigWig`, and `bed6.step.bpQuery.bigWig` can also incorporate mappability information from a `bwMap` input.
+
+```{r eval=TRUE}
+
+step.bpQuery.bigWig(bwPlus, 'chr1', 104, 110, step =1)
+
+step.bpQuery.bigWig(bwPlus, 'chr1', 104, 110, step =1,
+                    strand = '+', bwMap = bwMap.thresh)
+
+
+bed.step.bpQuery.bigWig(bwPlus, bed6, step = 1,
+                        strand = '+', bwMap = bwMap.thresh,
+                        with.attributes=FALSE)
+
+bed6.step.bpQuery.bigWig(bwPlus, bwMinus, bed6, step = 1,
+                         bwMap = bwMap.thresh,
+                         with.attributes=FALSE)
+
+```
+
+
+## Metaprofiles
+
+The metaprofile functions either calculate the quantile cutoff or confidence interval for data matrices. The `metaprofile.bigWig` function creates a class object that can be passed on to the matrix scaling or plotting functions.
+
+```{r eval=FALSE}
+quantiles.metaprofile(mat, quantiles = c(0.875, 0.5, 0.125))
+
+subsampled.quantiles.metaprofile(mat, quantiles = c(0.875, 0.5, 0.125),
+            fraction = 0.10, n.samples = 1000)
+
+confinterval.metaprofile(mat, alpha = 0.05)
+
+bootstrapped.confinterval.metaprofile(mat, alpha = 0.05, n.samples = 300)
+
+metaprofile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal",
+        matrix.op = NULL, profile.op = subsampled.quantiles.metaprofile, ...)
+```
+
++ __arguments__
+  + `mat` is the input data matrix; each row corresponds to a query region, columns to steps. Created from functions that have `as.matrix=true`
+  + `quantiles` vector of size three with top, middle and bottom quantile breaks to use in creating the summary profile.
+  + `fraction` fraction of the data (query regions) to include in each subsample.
+  + `n.samples` number of data samples to generate.
+  + `alpha` alpha value for confidence intervals (confidence level = 1 - alpha ).
+  + `bed` the input BED data.frame defining the set of query regions.
+  + `bw.plus` either an R object of class 'bigWig' or a character vector containing the prefix and suffix to the path of each bigWig fragment (path = <prefix><chrom><suffix>).
+  + `bw.minus` same as 'bw.plus', but for use with minus strand queries.
+  + `step` step size in base pairs.
+  + `name` character vector describing the data.
+  + `matrix.op` matrix scalling function to apply to the data.
+  + `profile.op` summary profile function.
+  + `...` extra arguments to be passed to matrix.op and/or profile.op.
+
+
+The main input for all of these functions is a matrix, `mat`. Each row in the bed file is a row in the matrix [y] and the columns [x] correspond to the `step` value and initial window of the feature. 
+
++ Functions that can produce a matrix output with `as.matrix=TRUE` are: 
+  + `bed.step.bpQuery.bigWig` 
+  + `bed.step.probeQuery.bigWig` 
+  + `bed6.step.bpQuery.bigWig` 
+  + `bed6.step.probeQuery.bigWig` 
+
+
+### quantiles
+
+`quantiles.metaprofile` invokes _R_'s `quantile` function for each column of the matrix; passing  _tss.matrix_, to `quantiles.metaprofile` we observe that the the majority of windows are zero, because the input _bigWig_ was randomly sampled, so it is a low coverage _bigWig_. The result of `quantiles.metaprofile` is a list of `quantile` values for each column. 
+
+
+```{r eval=TRUE}
+quantiles.metaprofile(tss.matrix, quantiles = c(0.95, 0.5, 0.05))
+```
+
+
+### subsampling
+
+The `subsampled.quantiles.metaprofile` function randomly subsamples the matrix, as determined by `fraction` and `n.samples`. A matrix is generated that contains `n.samples` rows and each row is a column mean from a subsample of the data, then `quantiles.metaprofile` is applied to the matrix.
+  
+
+```{r eval=TRUE}
+subsampled.quantiles.metaprofile(tss.matrix,
+            quantiles = c(0.875, 0.5, 0.125), fraction = 0.20,
+            n.samples = 1000)
+```
+
+### confidence intervals
+
+The `confinterval.metaprofile` function calculates confidence intervals of the matrix columns.
+
+```{r eval=TRUE}
+confinterval.metaprofile(tss.matrix, alpha = 0.05)
+```
+
+The result is a list of confidence interval values for each step for the given `alpha` value. There are 3 different levels of confidence intervals: top, middle, and bottom. These are based on 2 values: the population mean, which is the mean of each column in `mat` and $\delta$, defined by:
+
+$\delta=P(1-\alpha/2) * SE$
+
+whereby SE is the Standard Error of the column.
+
+Using this $\delta$ and the following means:
+
+$top = mean + \delta$ \
+$middle = mean$ \
+$bottom = mean - \delta$ \
+
+### bootstraped confidence intervals
+
+`bootstrapped.confinterval.metaprofile` The bootstrap method produces
+a confidence interval like `confinterval.metaprofiles` except that it
+uses multiple samples to form a distribution. From these,
+the Central Limit Theorem is applied to determine the confidence interval of each column. This tends to be a more robust calculation of the confidence interval and more `n.samples` provides a better estimation.
+
+```{r eval=TRUE}
+bootstrapped.confinterval.metaprofile(tss.matrix, alpha = 0.05,
+                                         n.samples = 300)
+```
+
+
+
+### metaprofile
+
+`metaprofile.bigWig` creates a class object of the data, which can be passed to `plot.profile.bigWig`. Set `quantiles.metaprofile` using the `profile.op = quantiles.metaprofile`. We will describe `matrix.op = NULL` in a later section.
+tss.matrix = bed6.step.bpQuery.bigWig(plusPRO, minusPRO, bedTSSwindow,
+                  step = 10, as.matrix=TRUE, follow.strand=TRUE)
+
+```{r eval=TRUE}
+metaprofile.bigWig(bedTSSwindow, plusPRO, bw.minus = minusPRO,
+                 step = 50, name = "Signal", matrix.op = NULL,
+                 profile.op = quantiles.metaprofile)
+```
+
+This function automatically creates the `mat` variable and will use the default values for the other the inputs. Below we change the `profile.op` to `bootstrapped.confinterval.metaprofile`, and the default `alpha=0.05` and `n.samples=300` were changed to `alpha=0.05`, and `n.samples=1000`.
+
+```{r eval=TRUE}
+metaprofile.bigWig(bedTSSwindow, plusPRO, bw.minus = minusPRO,
+                 step = 50, name = "Signal", matrix.op = NULL,
+                 profile.op = bootstrapped.confinterval.metaprofile,
+                 alpha=0.05, n.samples=1000)
+```
+
+## plots.bigWig
+
+`plots.bigWig` produces a standardized plot for a `metaprofile.bigWig` object.
+
+```{r eval=FALSE}
+
+plot.metaprofile(x, minus.profile = NULL, X0 = x$X0,
+      draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
+      ylim = NULL, xlim = NULL, xlab = "Distance (bp)", ylab = x$name)
+```
+
+* __arguments__
+   + x is meta-profile, or composite profile, instance for sense strand.
+   + minus.profile is an optional meta-profile instance for the reverse strand.
+   + X0 is the numeric offset in base pairs (bp) to shift (subtract) "zero" position.
+   + draw.error is the ogical value indicating if profile error polygon should be drawn.
+   + col is the vector of colors to use for the profiles lines and the error polygons.
+   + ylim is the (y1, y2) limits of the plot.
+   + xlim is the (x1, x2) limits of the plot.
+   + xlab is the label for x-axis.
+   + ylab is the label for y-axis.
+
+First generate `metaprofile.bigWig` objects for the reads aligning to the coding and non-coding strands of the gene annotations and set them to variables `x=metaprofile.bigWig` and `y=metaprofile.bigWig`. Note that `y` switches the `plusPRO` and `minusPRO` inputs to calculate signal aligning to non-coding strand. Next, invoke `plot.metaprofile` to visualized the metaprofiles. The `X0` argument offsets x-axis "zero" postion of the data. The `ylim` and `xlim` arguments are the lower and upper limits of the axes, which are automatically calculated if `NULL`. `draw.error` is a logical flag that draws error regions, with defauly light grey polygons. The order of the `col` vector is sense strand profile line, reverse strand profile line, sense strand error polygon, and reverse strand error polygon. 
+
+
+```{r metaprofile, eval=TRUE, fig.cap ="Composite metagene profiles of RNA polymerase density. PRO-seq signal accumulates at the RNA pausing site downstream of the TSS and there is a divergent RNA polymerse peak in the opposite orientation."}
+
+x = metaprofile.bigWig(bedTSSwindow, plusPRO, bw.minus = minusPRO,
+                 step = 50, name = "Signal", matrix.op = NULL,
+                 profile.op = bootstrapped.confinterval.metaprofile,
+                 alpha=0.05, n.samples=1000)
+
+y = metaprofile.bigWig(bedTSSwindow, minusPRO, bw.minus = plusPRO,
+                 step = 50, name = "Signal", matrix.op = NULL,
+                 profile.op = bootstrapped.confinterval.metaprofile,
+                 alpha=0.05, n.samples=1000)
+
+plot.metaprofile(x, minus.profile = y, X0 = 275,
+      draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
+      ylim = NULL, xlim = c(-225,225), xlab = "Distance (bp)",
+      ylab = "PRO-seq signal")
+
+```
+
+
+
+## Matrix Scaling 
+
+The following functions scale counts matrices
+
+```{r eval=FALSE}
+rpkm.scale(mat, step, libSize)
+
+densityToOne.scale(mat, na.on.zero = TRUE)
+
+maxToOne.scale(mat)
+
+zeroToOne.scale(mat)
+```
+
+* __arguments__
+  + mat is the input data matrix; each row corresponds to a query region, columns to steps
+  + step is step size in base pairs
+  + libSize is total library mapped read count
+  + na.on.zero is logical indicating if steps with zero counts should be marked as NA
+
+### RPKM
+
+RPKM [Reads Per Kilobase of transcript per Million mapped reads]. This function will scale everything by a factor of
+
+The `libSize` can be calculated from attributes in the loaded _bigWig_ object. The product bw\$basesCovered * bw\$mean is the number of raw reads in the _bigWig_ if it is a counts-based _bigWig_ file. Here, the matrix was generated from two stranded _bigWig_ files, so the library size can be calculated from the _bigWig_ objects:\
+plusPRO\$basesCovered * plusPRO\$mean + minusPRO\$basesCovered * minusPRO\$mean
+
+```{r eval=TRUE}
+
+sizeLibrary= (plusPRO$basesCovered * plusPRO$mean) +
+              (minusPRO$basesCovered * minusPRO$mean)
+rpkm.matrix = rpkm.scale(tss.matrix, step=10, libSize=sizeLibrary)
+
+head(rpkm.matrix)
+```
+
+
+### Density to One
+
+`densityToOne` is a scaling factor that takes each cell in a row of the matrix and divides it by the sum of each row. The total signal in any row equals 1, or NA if the sum of a row is 0. The `na.on.zero = TRUE` input is used if you want NAs to populate the matrix row when the `sum(row)=0`. This would happen because dividing by 0 will result in NA. Otherwise if you want 0 to replace NA then `na.on.zero=FALSE` should be used. 
+
+```{r eval=TRUE}
+mat1=matrix(c(0,2,23,6,0,9,2,3,0,5,17,68,0,4,24,9), nrow=4, ncol=4)
+mat1
+
+densityToOne.scale(mat1, na.on.zero = FALSE)
+```
+
+### Max to one
+
+The `maxToOne.scale` will take the maximum value for each row and set it equal to 1. Every other cell in the row will be divided by the maximum value. Note that if the `max=0` then the whole row is set to 0, this avoids NA instances. If the max is equal to the min, the entire row is set to 1.
+
+```{r eval=TRUE}
+maxToOne.scale(mat1)
+```
+
+```{r echo=TRUE}
+mat2=matrix(c(0,2,23,6,0,2,2,3,0,2,17,68,0,2,24,9), nrow=4, ncol=4)
+
+maxToOne.scale(mat2)
+
+```
+
+
+### Zero to one
+
+`zeroToOne.scale` sets the minimum value and maximum value of each row to 0 and 1. For every cell the the function applies the formula: $Xn = \dfrac{Xo − min}{max − min}$ \
+Like `maxToOne.scale`, if the `max=0` then the whole row is set to 0 and if the max is equal to the min, the entire row is set to 1.
+
+```{r eval=TRUE}
+
+zeroToOne.scale(mat2)
+
+```
+
+### metaprofile with a matrix.op
+
+Any of these scaling factors can be passed to the `metaprofile.bigWig` function using the `matrix.op` argument:
+
+```{r eval=FALSE}
+metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 1,
+                  name = "Signal", matrix.op = zeroToOne.scale)
+```
+
+The `matrix.op` and `profile.op` options are processed by `metaprofile.bigWig` and the resultant metaprofile instance can be passed to `plot.metaprofile`. We chose `X0 = 255` to center the plot because the _bedTSSwindow_ was 500 and the step is specified as 10--a quick `X0` calculation for a composite profile centered on a feature is the sum of the window and the step divided by 2.
+
+```{r eval=TRUE, fig.cap ="Composite PRO-seq profiles."}
+composite.plus = metaprofile.bigWig(bedTSSwindow, plusPRO,
+                 bw.minus = minusPRO, step = 10, name = "Signal",
+                 matrix.op = zeroToOne.scale,
+                 profile.op = bootstrapped.confinterval.metaprofile,
+                 alpha = 0.05, n.samples = 200)
+
+composite.min = metaprofile.bigWig(bedTSSwindow, minusPRO,
+                 bw.minus = plusPRO, step = 10, name = "Signal",
+                 matrix.op = zeroToOne.scale,
+                 profile.op = bootstrapped.confinterval.metaprofile,
+                 alpha = 0.05, n.samples = 200)
+
+plot.metaprofile(composite.plus, minus.profile = composite.min, X0 = 255,
+      draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
+      xlab = "Distance (bp)", ylab = "PRO-seq signal")
+
+```
