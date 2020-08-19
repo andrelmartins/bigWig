@@ -12,7 +12,7 @@ author:
 - name: Michael J. Guertin
   affiliation: University of Virginia, Charlottesville, Virginia
 output:
-  rmarkdown::html_document:
+  rmarkdown::html_document2:
     toc_float: true
 package: bigWig
 abstract: |
