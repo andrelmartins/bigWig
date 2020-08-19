@@ -766,12 +766,12 @@ The `bed.step` function operates like the `bed.region` function, but the interva
 
 ```{r eval=FALSE}
 bed.step.bpQuery.bigWig(bw, bed, step,
-                  strand = NA, op = "sum", abs.value = FALSE, gap.value = 0,
-                  bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE)
+                strand = NA, op = "sum", abs.value = FALSE, gap.value = 0,
+                bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE)
 
 bed.step.probeQuery.bigWig(bw, bed, step,
-                  op = "wavg", abs.value = FALSE, gap.value = NA,
-                  bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE)            
+                op = "wavg", abs.value = FALSE, gap.value = NA,
+                bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE)            
 ```
 * __arguments__
   + `bw` is the pointer of the underlying `C` object created in `load.bigWig`
@@ -809,7 +809,8 @@ bed.step[,2] = as.numeric(bed.step[,2])
 bed.step[,3] = as.numeric(bed.step[,3])
 colnames(bed.step)=c('chrom', 'start', 'end')
 
-bed.step.bpQuery.bigWig(bw.splitprobes, bed.step, step = 2)
+bed.step.bpQuery.bigWig(bw.splitprobes, bed.step, step = 2,
+                       with.attributes = FALSE)
 bed.step.bpQuery.bigWig(bw.splitprobes, bed.step, step = 2,
                        as.matrix=TRUE)
 
@@ -929,10 +930,10 @@ region.bpQuery.bwMap(bwMap, chrom, start, end, strand, op = "thresh")
 bed6.region.bpQuery.bwMap(bwMap, bed6, op = "thresh")
 
 step.bpQuery.bwMap(bwMap, chrom, start, end, step, strand, 
-                   op = "thresh", with.attributes = TRUE)
+               op = "thresh", with.attributes = TRUE)
 
 bed6.step.bpQuery.bwMap(bwMap, bed6, step, 
-                   op = "thresh", with.attributes = FALSE, as.matrix = FALSE)
+              op = "thresh", with.attributes = FALSE, as.matrix = FALSE)
 
 ```
 
@@ -983,7 +984,8 @@ The operation that in introduced with mappability function is `thresh`. It is re
 ```{r eval=TRUE}
 
 bwMap=load.bwMap('../inst/extdata/bwMap.bigWig',
-                read.len = 30, read.left.edge=FALSE, threshold.fraction = 0.2)
+                  read.len = 30, read.left.edge=FALSE,
+                  threshold.fraction = 0.2)
 region.bpQuery.bwMap(bwMap, "chr1", 130, 135, strand = "+", op = "avg")
 region.bpQuery.bwMap(bwMap, "chr1", 130, 136, strand = "+", op = "avg")
 region.bpQuery.bwMap(bwMap, "chr1", 130, 135, strand = "+", op = "thresh")
@@ -1074,8 +1076,9 @@ confinterval.metaprofile(mat, alpha = 0.05)
 
 bootstrapped.confinterval.metaprofile(mat, alpha = 0.05, n.samples = 300)
 
-metaprofile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal",
-        matrix.op = NULL, profile.op = subsampled.quantiles.metaprofile, ...)
+metaprofile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1,
+           name = "Signal", matrix.op = NULL,
+           profile.op = subsampled.quantiles.metaprofile, ...)
 ```
 
 + __arguments__
