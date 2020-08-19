@@ -1197,7 +1197,7 @@ plot.metaprofile(x, minus.profile = NULL, X0 = x$X0,
    + x is meta-profile, or composite profile, instance for sense strand.
    + minus.profile is an optional meta-profile instance for the reverse strand.
    + X0 is the numeric offset in base pairs (bp) to shift (subtract) "zero" position.
-   + draw.error is the ogical value indicating if profile error polygon should be drawn.
+   + draw.error is the logical value indicating if profile error polygon should be drawn.
    + col is the vector of colors to use for the profiles lines and the error polygons.
    + ylim is the (y1, y2) limits of the plot.
    + xlim is the (x1, x2) limits of the plot.
