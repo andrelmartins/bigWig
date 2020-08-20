@@ -50,3 +50,6 @@ export(bootstrapped.confinterval.metaprofile)
 export(metaprofile.bigWig)
 export(plot.metaprofile)
 S3method(plot, metaprofile)
+
+importFrom("graphics", "lines", "polygon", "plot")
+importFrom("stats", "pnorm", "quantile", "sd")
