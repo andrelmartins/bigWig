@@ -292,6 +292,10 @@ struct perThreadAbortVars *ptav = getThreadVars();
 return ptav->errAbortInProgress;
 }
 
+void write_wrapped(int file, const char* str, int len) {
+   ssize_t x = write(file, str, len);
+   (void) x; 
+}
 
 static struct perThreadAbortVars *getThreadVars()
 /* Return a pointer to the perThreadAbortVars for the current pthread. */
@@ -317,7 +321,7 @@ if (pidInUseValid && pthread_equal(pid, pidInUse))
     // This re-entrancy only happens when it has aborted already due to out of memory
     // which should be a rare occurrence.
     char *errMsg = "errAbort re-entered due to out-of-memory condition. Exiting.\n";
-    write(STDERR_FILENO, errMsg, strlen(errMsg)); 
+    write_wrapped(STDERR_FILENO, errMsg, strlen(errMsg)); 
     exit(1);   // out of memory is a serious problem, exit immediately, but allow atexit cleanup.
     }
 pthread_mutex_unlock( &pidInUseMutex );
