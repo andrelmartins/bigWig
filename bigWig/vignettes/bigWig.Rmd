@@ -165,7 +165,7 @@ ls()
 To demonstate the calculations performed by the `*Query.bigWig` functions we generated three _bigWig_ files that have the same information at each position in the genome, but the files are structured differently (Figure \@ref(fig:bigWigs)).     
 
 ```{r bigWigs, echo = FALSE, message=FALSE, fig.align='center', fig.cap='Structured bigWig files. Three bigWig files with identical values at each position are structured differently to later highlight the differences between *Query.bigWig functions.', out.width = "80%"}
-knitr::include_graphics("../figure/bigWigProbesBp.pdf")
+knitr::include_graphics("../inst/fig/bigWigProbesBp.pdf")
 ```
 
 ```{r eval = FALSE}
@@ -669,7 +669,7 @@ bwMinus=load.bigWig('../inst/extdata/bpMinus.bigWig')
 
 
 ```{r bigWigPlusMinus, echo = FALSE, message=FALSE, fig.align='center', fig.cap='Stranded bigWig files. Two bigWig files contain values that are strand-specific to highlight the bed6 functions.', out.width = "80%"}
-knitr::include_graphics("../figure/bigWigPlusMinus.pdf")
+knitr::include_graphics("../inst/fig/bigWigPlusMinus.pdf")
 ```
 
 
@@ -948,7 +948,7 @@ in column 6
     
 
 ```{r bwMap, echo = FALSE, message=FALSE, fig.align='center', fig.cap='Mappability bigWig files. A) Mappability bigWig files contain a 1 at each postion in the genome that is not uniquely mappable. Note that the bigWig specifies the start of the k-mer (here a 30-mer) that corresponds to the plus strand sequence. B) The mappability bigWig file is often used in conjunction with typical bigWig data files. If the bigWig data file specifies the left-most or right-most base of the original sequence read, then the corresponding mappability file needs to specify the appropriate `read.left.edge` option. By doing so, the plus and minus reads are appropriately shifted by the mappability k-mer size.', out.width = "110%"}
-knitr::include_graphics("../figure/bwMap.pdf")
+knitr::include_graphics("../inst/fig/bwMap.pdf")
 ```
 
 The following four queries all refer to the unmappable position chr1:105-106 in the _bwMap.bigWig_ file. The query region specifying this signal is either chr1:105-106 or 30 bases away, at chr1:134-135, depending upon `read.left.edge` argument and `strand` argument. 
