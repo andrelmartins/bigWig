@@ -345,7 +345,8 @@ if (!optionExists("debug"))
 
     /* Reopen standard files to /dev/null just in case somebody uses them. */
     int nullFd = open("/dev/null", O_RDWR);  // Opens stdin
-    dup(nullFd);			     // Stdout goes also to /dev/null
+    int somevar;
+    somevar = dup(nullFd);			     // Stdout goes also to /dev/null
     dup(nullFd);			     // Stderr goes also to /dev/null
     }
 
