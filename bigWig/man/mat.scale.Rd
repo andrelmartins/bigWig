@@ -27,7 +27,7 @@ zeroToOne.scale(mat, ...)
 
 \details{
   "RPKM stands for Reads Per Kilobase of transcript per Million mapped reads. FPKM stands for Fragments Per Kilobase of transcript per Million
-  mapped reads. " from \url{http://cufflinks.cbcb.umd.edu/faq.html}.
+  mapped reads. " from \url{http://cole-trapnell-lab.github.io/cufflinks/}.
 }
 
 \value{Data matrix scaled according to the requested method.
