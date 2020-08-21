@@ -441,7 +441,7 @@ for(mp=mp->multi;mp;mp=mp->next)
 	    char addrSizeBuf[40];
 	    safef(varNameBinary,sizeof(varNameBinary),"%s__binary",cdName);
             safef(addrSizeBuf,sizeof(addrSizeBuf),"%"PRIu32" %"PRIuMAX"",
-		(char)mp->data,
+		(uint32_t)mp->data,
 		(uintmax_t)mp->size);
 	    AllocVar(el);
 	    el->val = cloneString(addrSizeBuf);
