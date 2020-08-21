@@ -347,7 +347,8 @@ if (!optionExists("debug"))
     int nullFd = open("/dev/null", O_RDWR);  // Opens stdin
     int somevar;
     somevar = dup(nullFd);			     // Stdout goes also to /dev/null
-    dup(nullFd);			     // Stderr goes also to /dev/null
+    int somevar2;
+    somevar2 = dup(nullFd);			     // Stderr goes also to /dev/null
     }
 
 /* Set up log handler. */
