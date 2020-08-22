@@ -14,7 +14,7 @@
 #include "mime.h"
 #endif /* GBROWSE */
 #include <signal.h>
-
+#include <inttypes.h>
 
 /* These three variables hold the parsed version of cgi variables. */
 static char *inputString = NULL;
