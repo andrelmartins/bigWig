@@ -68,7 +68,7 @@ if (h.majorVersion > ITSA_MAJOR_VERSION)
 	     "%s is version %d.",  fileName, ITSA_MAJOR_VERSION, fileName, h.majorVersion);
 
 struct itsa *itsa;
-verbose(2, "itsa file %s size %"PRIdMAX"\n", fileName, h.size);
+verbose(2, "itsa file %s size %"PRIu64"\n", fileName, h.size);
 
 /* Get a pointer to data in memory, via memory map, or allocation and read. */
 struct itsaFileHeader *header ;
